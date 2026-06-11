@@ -1,0 +1,125 @@
+/* ============================================================
+   Kept Connect — UI library token layer.
+
+   Ported verbatim from the reference design system
+   (docs/design-references/Kept Connect Design System/tokens/*).
+   This is the ONLY place hex values live — components consume var(--…)
+   and color-mix() exclusively. Consumers import ../styles/ui.css, which
+   imports this file.
+   ============================================================ */
+
+/* Fraunces (display) + Hanken Grotesk (UI/data) — the genuine brand faces,
+   loaded from Google Fonts (no binaries supplied). Weights 400/500 only. */
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500&family=Hanken+Grotesk:wght@400;500&display=swap');
+
+:root {
+  /* --- Neutral base --------------------------------------------------- */
+  --canvas:   #F6F4EF; /* app background — warm near-white */
+  --paper:    #FFFFFF; /* clean data surface (quotes, prices, history) */
+  --moment:   #F2ECDF; /* warm cream — HUMAN MOMENTS ONLY, never behind data */
+  --neutral:  #F4F3F0; /* quiet fill: compose bar, category chip, controls */
+  --hairline: #ECEAE3; /* 1px separators, card borders */
+
+  /* --- Ink (text) ----------------------------------------------------- */
+  --ink:   #1B1C19; /* primary text */
+  --ink-2: #6E6C63; /* secondary text, supporting copy */
+  --ink-3: #A4A299; /* tertiary — quiet headers, captions, placeholders, neutral ring */
+
+  /* --- TIER 1 — brand / action (terracotta) --------------------------- */
+  --terracotta:        #BD5E39; /* brand + every primary action + live/active state */
+  --terracotta-deep:   #A8502F; /* app-icon block, pressed states */
+  --terracotta-bright: #CF6E45; /* the same role on DARK chrome (provider app) */
+  --terracotta-tint:   #F3E5DC; /* soft terracotta fill (selected, focus halo) */
+
+  /* --- TIER 2 — verified / trust (emerald, reserved) ------------------ */
+  --verified:        #2C8A63; /* the verified check on light */
+  --verified-bright: #57B98E; /* verified on DARK chrome */
+
+  /* --- TIER 3 — category / wayfinding (service families) -------------- */
+  --cat-water:     #2E6FB0; /* Plumbing · drains · water heater · pool & spa */
+  --cat-power:     #E0A12E; /* Electrical · lighting · solar · EV charger */
+  --cat-climate:   #2C8A8A; /* HVAC · ventilation · insulation */
+  --cat-structure: #4E6378; /* Carpentry · framing · drywall · roofing · masonry */
+  --cat-surfaces:  #6B5BD0; /* Painting · flooring · tile · wallpaper */
+  --cat-grounds:   #6F8F3F; /* Landscaping · tree work · snow removal · fencing */
+  --cat-care:      #A86A86; /* Cleaning · junk & haul · pest · pressure wash */
+  --cat-fixtures:  #7B7064; /* Handyman · locksmith · appliance · garage · smart home */
+
+  /* --- Chrome (provider app — dark) ----------------------------------- */
+  --chrome:        #1A1916; /* near-black warm chrome (app bg) */
+  --chrome-card:   #252320; /* card on chrome */
+  --chrome-card-2: #2E2B27; /* raised card (offers) */
+  --chrome-line:   #36332E; /* hairline on chrome */
+  --chrome-cream:  #E9E6DD; /* primary text on chrome */
+  --chrome-dim:    #8C887D; /* secondary text on chrome */
+  --cream:         #F4F1E8; /* mark + text on terracotta block */
+
+  /* --- Tag (descriptive pills: credentials, trades) ------------------- */
+  --tag-bg:  #F1EFE9; /* quiet pill background */
+  --tag-ink: #6E6C63; /* pill text */
+
+  /* --- Marketing-only accent (NOT for product UI) --------------------- */
+  --blue:     #1C4471; /* legacy brand blue — marketing site only */
+  --blue-ink: #EAF1FA; /* mark/text on blue */
+  --blue-soft:#92B5DF; /* light blue — marketing only */
+
+  /* --- Avatar soft-tint palette (was Avatar.jsx TINTS[]) -------------- */
+  /* Stable name->tint lookup; kept as tokens so components hold no hex. */
+  --tint-1: #E4F0EA;
+  --tint-2: #F3E7D8;
+  --tint-3: #E6E9F2;
+  --tint-4: #F1E6E6;
+  --tint-5: #E8EFE6;
+  --tint-6: #EFE9F1;
+  --tint-7: #E9EEF0;
+
+  /* Category chip-tint ratio: how much family hue mixes into the neutral
+     chip surface. Overridden to 22% on dark in ui.css. */
+  --cat-chip-mix: 14%;
+
+  /* --- Type families / weights / scales ------------------------------- */
+  --font-display: 'Fraunces', Georgia, 'Times New Roman', serif;
+  --font-ui:      'Hanken Grotesk', system-ui, -apple-system, sans-serif;
+  --font-mono:    ui-monospace, 'SF Mono', Menlo, monospace;
+  --w-regular: 400;
+  --w-medium:  500;
+
+  --display-xl: 44px;
+  --display-lg: 34px;
+  --display-md: 26px;
+  --display-sm: 20px;
+  --text-lg:   18px;
+  --text-base: 15px;
+  --text-sm:   13px;
+  --text-xs:   11px;
+
+  --lh-tight:  1.1;
+  --lh-snug:   1.3;
+  --lh-normal: 1.5;
+  --ls-display: -0.015em;
+  --ls-tight:   -0.01em;
+  --ls-eyebrow:  0.08em;
+
+  /* --- Radius ladder (inherited, do not fork) ------------------------- */
+  --r-chip: 10px; /* small chips, inputs, tight controls */
+  --r-card: 18px; /* cards, panels, sheets */
+  --r-lg:   24px; /* large hero surfaces, panels, app-icon block */
+  --r-pill: 999px; /* pills, tags, avatars, primary buttons */
+
+  /* --- Shadows — soft, warm, restrained ------------------------------- */
+  --shadow-sm:   0 1px 2px rgba(27, 28, 25, 0.04);
+  --shadow-card: 0 1px 3px rgba(27, 28, 25, 0.05),
+                 0 6px 18px rgba(27, 28, 25, 0.04);
+  --shadow-lift: 0 4px 12px rgba(27, 28, 25, 0.07),
+                 0 18px 40px rgba(27, 28, 25, 0.07);
+
+  /* --- Motion — fades + gentle ease, no bounce ------------------------ */
+  --ease:       cubic-bezier(0.22, 0.61, 0.36, 1);
+  --dur-fast:   120ms;
+  --dur-normal: 220ms;
+  --dur-slow:   420ms;
+
+  /* --- Layout --------------------------------------------------------- */
+  --container: 960px;
+  --app-width: 420px;
+}
