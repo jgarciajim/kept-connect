@@ -1,0 +1,25 @@
+/* Kept Connect — design tokens.
+   Paste this :root block into src/app/globals.css (below the Tailwind import).
+   Everything consumes these — never hardcode hex in components. */
+:root{
+  /* surfaces */
+  --canvas:#F6F4EF; --paper:#FFFFFF; --hairline:#ECEAE3; --row-hover:#FAF8F2;
+  /* ink */
+  --ink:#1B1C19; --ink-2:#6E6C63; --ink-3:#A4A299;
+  /* brand / action — terracotta (TIER 1) */
+  --terracotta:#BD5E39; --terracotta-deep:#A8502F; --terracotta-bright:#CF6E45;
+  /* verified / trust — emerald, semantic & reserved (TIER 2) */
+  --verified:#2C8A63; --verified-bright:#57B98E;
+  /* human-moment warmth (requester app only, never behind data) */
+  --moment:#F2ECDF;
+  /* chrome — provider app / dark surfaces */
+  --chrome:#1A1916; --chrome-card:#252320; --chrome-line:#36332E;
+  --chrome-ink:#E9E6DD; --chrome-dim:#8C887D;
+  /* tags */
+  --tag-bg:#F1F0EA; --tag-ink:#6E6C63;
+  /* category families — wayfinding, ONLY on trade icons (TIER 3) */
+  --cat-water:#2E6FB0; --cat-power:#E0A12E; --cat-climate:#2C8A8A; --cat-structure:#4E6378;
+  --cat-surfaces:#6B5BD0; --cat-grounds:#6F8F3F; --cat-care:#A86A86; --cat-fixtures:#7B7064;
+  /* radius ladder */
+  --r-chip:10px; --r-row:14px; --r-card:16px; --r-panel:18px; --r-surface:20px; --r-pill:999px;
+}

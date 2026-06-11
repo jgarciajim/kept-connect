@@ -1,0 +1,96 @@
+<meta charset="utf-8">
+<title>Kept Connect — fan-out, refined</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500&family=Hanken+Grotesk:wght@400;500&display=swap');
+  :root{
+    --canvas:#F6F4EF; --paper:#FFFFFF; --hairline:#EEEDE7;
+    --ink:#1B1C19; --ink-2:#6E6C63; --ink-3:#A4A299;
+    --emerald:#2C8A63; --chrome:#1A1916; --cream:#F4F1E8;
+    --blue:#1C4471; --blue-ink:#EAF1FA;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--canvas);color:var(--ink);
+    font-family:'Hanken Grotesk',system-ui,sans-serif;-webkit-font-smoothing:antialiased;line-height:1.5}
+  .wrap{max-width:960px;margin:0 auto;padding:40px 24px 64px}
+  .eyebrow{font-size:12px;letter-spacing:.08em;color:var(--ink-3);margin:0 0 6px}
+  h1{font-family:'Fraunces',Georgia,serif;font-weight:500;font-size:30px;margin:0 0 8px;letter-spacing:-.01em}
+  h1 .dot{color:var(--emerald)}
+  .lede{color:var(--ink-2);font-size:15px;max-width:64ch;margin:0 0 24px}
+  .panel{background:var(--paper);border:1px solid var(--hairline);border-radius:18px;padding:24px;margin-bottom:18px}
+  .panel h2{font-family:'Fraunces',Georgia,serif;font-weight:500;font-size:17px;margin:0 0 16px}
+  .tiles{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end}
+  .tile{display:flex;flex-direction:column;align-items:center;gap:8px}
+  .swatch{border-radius:26px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+  .swatch.light,.swatch.mono{border:1px solid var(--hairline)}
+  .tlab{font-size:11px;color:var(--ink-3)}
+  .lockup{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+  .wordmark{font-family:'Fraunces',Georgia,serif;font-weight:500;font-size:36px;letter-spacing:-.015em;line-height:1}
+  .wordmark .con{font-weight:400}
+  .wordmark .dot{color:var(--emerald)}
+  .sizes{display:flex;align-items:flex-end;gap:22px}
+  .foot{margin-top:22px;color:var(--ink-3);font-size:12.5px;border-top:1px solid var(--hairline);padding-top:14px}
+</style>
+
+<div class="wrap">
+  <p class="eyebrow">Kept Connect · brand · direction A</p>
+  <h1>Fan-out, refined<span class="dot">.</span></h1>
+  <p class="lede">Bigger K, and the three arms now fire from the vertex with chevron arrowheads — dispatch outward to providers. Chevrons (not solid triangles) keep the round-cap, soft-corner discipline of the family. Checked down to 24px so the arrows still read.</p>
+
+  <div class="panel">
+    <h2>Lockup</h2>
+    <div class="lockup">
+      <div class="swatch" data-t="icon" style="width:76px;height:76px;border-radius:18px"></div>
+      <div class="wordmark">Kept <span class="con">Connect</span><span class="dot">.</span></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Treatments</h2>
+    <div class="tiles">
+      <div class="tile"><div class="swatch" data-t="icon"   style="width:112px;height:112px"></div><span class="tlab">app icon · emerald</span></div>
+      <div class="tile"><div class="swatch light" data-t="light" style="width:112px;height:112px"></div><span class="tlab">on light</span></div>
+      <div class="tile"><div class="swatch" data-t="chrome" style="width:112px;height:112px"></div><span class="tlab">on chrome</span></div>
+      <div class="tile"><div class="swatch" data-t="blue"   style="width:112px;height:112px"></div><span class="tlab">blue accent</span></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Small sizes — legibility check</h2>
+    <div class="sizes">
+      <div class="tile"><div class="swatch" data-t="icon" style="width:56px;height:56px;border-radius:14px"></div><span class="tlab">56</span></div>
+      <div class="tile"><div class="swatch" data-t="icon" style="width:40px;height:40px;border-radius:11px"></div><span class="tlab">40</span></div>
+      <div class="tile"><div class="swatch" data-t="icon" style="width:32px;height:32px;border-radius:9px"></div><span class="tlab">32</span></div>
+      <div class="tile"><div class="swatch" data-t="icon" style="width:24px;height:24px;border-radius:7px"></div><span class="tlab">24</span></div>
+    </div>
+  </div>
+
+  <div class="foot">Squircle shown as a rounded rect; upgrade to <code>corner-shape: superellipse</code> where supported. The mark is pure vector — fonts shown (Fraunces + Hanken Grotesk) don’t affect it.</div>
+</div>
+
+<script>
+const C={emerald:'#2C8A63',chrome:'#1A1916',cream:'#F4F1E8',blue:'#1C4471',blueInk:'#EAF1FA',ink:'#1B1C19'};
+function mark(){return `
+  <g fill="none" stroke="var(--mk)" stroke-width="9.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M38 30 V90"/>
+    <path d="M38 60 L82 36"/>
+    <path d="M38 60 L86 60"/>
+    <path d="M38 60 L82 84"/>
+  </g>
+  <g fill="none" stroke="var(--mk)" stroke-width="8.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M77.45 46.46 L82 36 L70.75 34.16"/>
+    <path d="M77 67 L86 60 L77 53"/>
+    <path d="M77.45 73.54 L82 84 L70.75 85.84"/>
+  </g>`;}
+function svg(){return `<svg viewBox="0 0 120 120" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+  <rect class="blk" x="6" y="6" width="108" height="108" rx="32"/>${mark()}</svg>`;}
+function paint(el,t){
+  let blk='none',mk;
+  if(t==='icon'){blk=C.emerald;mk=C.cream;}
+  if(t==='light'){blk='none';mk=C.emerald;}
+  if(t==='chrome'){blk=C.chrome;mk=C.cream;}
+  if(t==='blue'){blk=C.blue;mk=C.blueInk;}
+  el.style.setProperty('--mk',mk);
+  const b=el.querySelector('.blk'); if(b)b.setAttribute('fill',blk);
+}
+document.querySelectorAll('.swatch[data-t]').forEach(el=>{el.innerHTML=svg();paint(el,el.dataset.t);});
+</script>

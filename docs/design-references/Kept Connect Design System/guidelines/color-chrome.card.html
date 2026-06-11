@@ -1,0 +1,26 @@
+<!-- @dsCard group="Colors" viewport="700x150" name="Chrome — provider app" subtitle="Dark surfaces, cards, lines, and cream/dim text" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../styles.css">
+<style>
+  body { margin: 0; background: var(--canvas); font-family: var(--font-ui); }
+  .grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 11px; padding: 20px; }
+  .sw { border-radius: var(--r-chip); height: 76px; border: 1px solid var(--hairline); }
+  .n { font-size: 11.5px; color: var(--ink); margin: 9px 0 2px; font-weight: 500; }
+  .h { font-size: 10.5px; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+  .cell { display: flex; flex-direction: column; }
+</style>
+</head>
+<body>
+<div class="grid">
+  <div class="cell"><div class="sw" style="background:var(--chrome)"></div><div class="n">Chrome</div><div class="h">#1A1916</div></div>
+  <div class="cell"><div class="sw" style="background:var(--chrome-card)"></div><div class="n">Card</div><div class="h">#252320</div></div>
+  <div class="cell"><div class="sw" style="background:var(--chrome-card-2)"></div><div class="n">Card 2</div><div class="h">#2E2B27</div></div>
+  <div class="cell"><div class="sw" style="background:var(--chrome-line)"></div><div class="n">Line</div><div class="h">#36332E</div></div>
+  <div class="cell"><div class="sw" style="background:var(--chrome-cream)"></div><div class="n">Cream</div><div class="h">#E9E6DD · text</div></div>
+  <div class="cell"><div class="sw" style="background:var(--chrome-dim)"></div><div class="n">Dim</div><div class="h">#8C887D · 2nd</div></div>
+</div>
+</body>
+</html>

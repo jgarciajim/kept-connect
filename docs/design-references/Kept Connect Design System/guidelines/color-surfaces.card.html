@@ -1,0 +1,25 @@
+<!-- @dsCard group="Colors" viewport="700x150" name="Surfaces" subtitle="Canvas, paper, moment cream, quiet neutral, hairline" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../styles.css">
+<style>
+  body { margin: 0; background: var(--canvas); font-family: var(--font-ui); }
+  .grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; padding: 20px; }
+  .sw { border-radius: var(--r-chip); height: 76px; border: 1px solid var(--hairline); }
+  .n { font-size: 12px; color: var(--ink); margin: 9px 0 2px; font-weight: 500; }
+  .h { font-size: 11px; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+  .cell { display: flex; flex-direction: column; }
+</style>
+</head>
+<body>
+<div class="grid">
+  <div class="cell"><div class="sw" style="background:var(--canvas)"></div><div class="n">Canvas</div><div class="h">#F6F4EF</div></div>
+  <div class="cell"><div class="sw" style="background:var(--paper)"></div><div class="n">Paper</div><div class="h">#FFFFFF · data</div></div>
+  <div class="cell"><div class="sw" style="background:var(--moment)"></div><div class="n">Moment</div><div class="h">#F2ECDF · warmth</div></div>
+  <div class="cell"><div class="sw" style="background:var(--neutral)"></div><div class="n">Neutral</div><div class="h">#F4F3F0 · controls</div></div>
+  <div class="cell"><div class="sw" style="background:var(--hairline)"></div><div class="n">Hairline</div><div class="h">#ECEAE3 · edges</div></div>
+</div>
+</body>
+</html>

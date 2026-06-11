@@ -1,0 +1,80 @@
+<!-- @template name="Requester app — post a job" description="Warm consumer composer screen on the Kept Connect moment surface — the make-or-break post-a-job flow." -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kept Connect — Requester template</title>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="./ds-base.js"></script>
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+  body { background: #E9E6DF; font-family: var(--font-ui, sans-serif); -webkit-font-smoothing: antialiased;
+    display: flex; align-items: center; justify-content: center; padding: 24px; }
+  .phone { width: 390px; height: 760px; background: var(--canvas); border-radius: 44px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1), 0 30px 70px rgba(27,28,25,0.22);
+    border: 11px solid #16150F; overflow: hidden; position: relative; }
+  ::-webkit-scrollbar { width: 0; }
+</style>
+</head>
+<body>
+<div class="phone"><div id="app" style="position:absolute;inset:0;display:flex;flex-direction:column"></div></div>
+<script type="text/babel" data-presets="react">
+  function waitForNS(cb) {
+    const ns = window.KeptConnectDesignSystem_4a1eb7;
+    if (ns && ns.Button) return cb(ns);
+    setTimeout(() => waitForNS(cb), 30);
+  }
+  waitForNS((DS) => {
+    const { Button, Input, Avatar, KeptConnectLogo } = DS;
+    function Composer() {
+      const [trade, setTrade] = React.useState('Plumbing');
+      const [when, setWhen] = React.useState('Same day');
+      return (
+        <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '44px 20px 14px' }}>
+            <KeptConnectLogo treatment="on-light" size={28} />
+            <span style={{ fontWeight: 500, fontSize: 16, color: 'var(--ink)' }}>Post a job</span>
+            <span style={{ marginLeft: 'auto' }}><Avatar name="Alex Doss" size={30} /></span>
+          </div>
+          <div style={{ flex: 1, overflowY: 'auto', padding: '0 20px 20px' }}>
+            <div style={{ background: 'var(--moment)', borderRadius: 'var(--r-lg)', padding: '24px 22px', marginBottom: 18 }}>
+              <p style={{ fontFamily: 'var(--font-display)', fontWeight: 500, fontSize: 30, lineHeight: 1.12, letterSpacing: '-0.015em', margin: 0, color: 'var(--ink)' }}>
+                What needs doing<span style={{ color: 'var(--terracotta)' }}>?</span>
+              </p>
+              <p style={{ fontSize: 14, color: 'var(--ink-2)', margin: '8px 0 0' }}>Describe it once. We'll match you with vetted providers nearby.</p>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              <Input label="What's the job?" multiline rows={3} placeholder="Describe what needs doing…" />
+              <div style={{ display: 'flex', alignItems: 'center', gap: 11, padding: '12px 14px', background: 'var(--paper)', border: '1px solid var(--hairline)', borderRadius: 'var(--r-chip)' }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--terracotta)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 21s-6.5-5.6-6.5-10.2A6.5 6.5 0 0 1 12 4.3a6.5 6.5 0 0 1 6.5 6.5C18.5 15.4 12 21 12 21z"/><circle cx="12" cy="10.6" r="2.3"/></svg>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--ink)' }}>14 Birch Lane</div>
+                  <div style={{ fontSize: 12, color: 'var(--ink-3)' }}>Saved property · Home</div>
+                </div>
+              </div>
+              <div>
+                <span style={{ display: 'block', fontWeight: 500, fontSize: 13, color: 'var(--ink-2)', marginBottom: 8 }}>When?</span>
+                <div style={{ display: 'flex', gap: 9 }}>
+                  {['Whenever', 'Same day', 'Emergency'].map((u) => {
+                    const on = when === u;
+                    return <button key={u} onClick={() => setWhen(u)} style={{ flex: 1, padding: '10px 6px', borderRadius: 'var(--r-pill)', cursor: 'pointer', background: on ? 'var(--ink)' : 'var(--paper)', border: `1.5px solid ${on ? 'var(--ink)' : 'var(--hairline)'}`, color: on ? 'var(--cream)' : 'var(--ink-2)', fontFamily: 'var(--font-ui)', fontWeight: 500, fontSize: 12.5 }}>{u}</button>;
+                  })}
+                </div>
+              </div>
+            </div>
+          </div>
+          <div style={{ padding: '14px 20px', borderTop: '1px solid var(--hairline)' }}>
+            <Button fullWidth size="lg">Post</Button>
+          </div>
+        </div>
+      );
+    }
+    ReactDOM.createRoot(document.getElementById('app')).render(<Composer />);
+  });
+</script>
+</body>
+</html>

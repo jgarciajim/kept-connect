@@ -1,0 +1,71 @@
+<!-- @dsCard group="Requester app" viewport="440x860" name="Requester app" subtitle="Home → post → live match → quotes → track" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kept Connect — Requester app</title>
+<link rel="stylesheet" href="../../styles.css">
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+  body { background: #E9E6DF; font-family: var(--font-ui); -webkit-font-smoothing: antialiased;
+    display: flex; align-items: center; justify-content: center; padding: 24px; }
+  .phone { width: 390px; height: 820px; background: var(--canvas); border-radius: 46px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.10), 0 30px 70px rgba(27,28,25,0.22);
+    border: 11px solid #16150F; overflow: hidden; position: relative; }
+  .notch { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 128px; height: 30px;
+    background: #16150F; border-radius: 0 0 18px 18px; z-index: 50; }
+  .screen { position: absolute; inset: 0; display: flex; flex-direction: column; }
+  ::-webkit-scrollbar { width: 0; }
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="notch"></div>
+  <div id="app" class="screen"></div>
+</div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="../../_ds_bundle.js"></script>
+<script type="text/babel" src="icons.jsx"></script>
+<script type="text/babel" src="ComposerScreen.jsx"></script>
+<script type="text/babel" src="MatchScreen.jsx"></script>
+<script type="text/babel" src="ProfileScreen.jsx"></script>
+<script type="text/babel" src="ThreadScreen.jsx"></script>
+<script type="text/babel">
+  const { useState, useEffect } = React;
+  function App() {
+    // flow: compose -> finding -> quotes -> (profile) -> booked
+    const [screen, setScreen] = useState('home');
+
+    // auto-advance the "finding" moment to "quotes"
+    useEffect(() => {
+      if (screen === 'finding') {
+        const t = setTimeout(() => setScreen('quotes'), 2600);
+        return () => clearTimeout(t);
+      }
+    }, [screen]);
+
+    if (screen === 'home')
+      return <HomeScreen onCompose={() => setScreen('compose')} onOpenJob={() => setScreen('track')} onTab={(t) => setScreen(t === 'jobs' ? 'track' : 'home')} />;
+    if (screen === 'compose')
+      return <ComposerScreen onPost={() => setScreen('finding')} onBack={() => setScreen('home')} />;
+    if (screen === 'finding')
+      return <MatchScreen phase="finding" onResolved={() => setScreen('quotes')} />;
+    if (screen === 'quotes')
+      return <MatchScreen phase="quotes" onResolved={() => setScreen('track')} onOpen={() => setScreen('profile')} />;
+    if (screen === 'profile')
+      return <ProfileScreen onBack={() => setScreen('quotes')} onAward={() => setScreen('track')} />;
+    if (screen === 'thread')
+      return <ThreadScreen onBack={() => setScreen('track')} />;
+    if (screen === 'rate')
+      return <RatingScreen onDone={() => setScreen('home')} />;
+    return <TrackScreen onBack={() => setScreen('home')} onTab={() => setScreen('home')} onMessage={() => setScreen('thread')} onRate={() => setScreen('rate')} />;
+  }
+  ReactDOM.createRoot(document.getElementById('app')).render(<App />);
+</script>
+</body>
+</html>

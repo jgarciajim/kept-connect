@@ -1,0 +1,49 @@
+/* ============================================================
+   Kept Connect — Spacing, radius, shadow tokens
+   The radius LADDER is inherited verbatim from the ops system:
+   --r-chip 10 → --r-pill 999. Use continuous corners
+   (corner-shape: superellipse) where supported.
+   Shadows are restrained — this is a calm, paper-first system.
+   ============================================================ */
+
+:root {
+  /* --- Spacing scale (4px base) ----------------------------------- */
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  20px;
+  --space-6:  24px;
+  --space-8:  32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* --- Radius ladder (inherited, do not fork) --------------------- */
+  --r-chip:  10px; /* small chips, inputs, tight controls */
+  --r-card:  18px; /* cards, panels, sheets */
+  --r-lg:    24px; /* large hero surfaces, app-icon block */
+  --r-pill:  999px; /* pills, tags, avatars, primary buttons */
+
+  /* --- Hairline border (the default edge) ------------------------- */
+  --border:  1px solid var(--hairline);
+
+  /* --- Shadows — soft, warm, restrained --------------------------- */
+  --shadow-none:  none;
+  --shadow-sm:    0 1px 2px rgba(27, 28, 25, 0.04);
+  --shadow-card:  0 1px 3px rgba(27, 28, 25, 0.05),
+                  0 6px 18px rgba(27, 28, 25, 0.04);
+  --shadow-lift:  0 4px 12px rgba(27, 28, 25, 0.07),
+                  0 18px 40px rgba(27, 28, 25, 0.07);
+  --shadow-ring:  0 0 0 2px var(--paper); /* 2px white inner border for avatars */
+
+  /* --- Motion — fades + gentle ease, no bounce -------------------- */
+  --ease:        cubic-bezier(0.22, 0.61, 0.36, 1); /* @kind other */
+  --dur-fast:    120ms; /* @kind other */
+  --dur-normal:  220ms; /* @kind other */
+  --dur-slow:    420ms; /* @kind other */
+
+  /* --- Layout ----------------------------------------------------- */
+  --container:   960px; /* marketing / wide content max width */
+  --app-width:   420px; /* mobile-first app column */
+}

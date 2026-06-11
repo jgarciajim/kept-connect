@@ -1,0 +1,167 @@
+<meta charset="utf-8">
+<title>Kept Connect — provider app</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500&family=Hanken+Grotesk:wght@400;500&display=swap');
+  :root{
+    --chrome:#1A1916; --card:#252320; --card-2:#2E2B27; --line:#36332E;
+    --cream:#E9E6DD; --dim:#8C887D; --tc:#CF6E45; --tc-deep:#A8502F;
+    --em:#57B98E; --canvas:#F6F4EF; --ink-3:#A4A299;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--canvas);color:#1B1C19;font-family:'Hanken Grotesk',system-ui,sans-serif;-webkit-font-smoothing:antialiased;line-height:1.5}
+  .wrap{max-width:760px;margin:0 auto;padding:36px 20px 60px}
+  .eyebrow{font-size:12px;letter-spacing:.08em;color:var(--ink-3);margin:0 0 6px}
+  h1{font-family:'Fraunces',Georgia,serif;font-weight:500;font-size:28px;margin:0 0 8px;letter-spacing:-.01em}
+  h1 .dot{color:var(--tc-deep)}
+  .lede{color:#6E6C63;font-size:14.5px;max-width:70ch;margin:0 0 26px}
+  .row{display:grid;grid-template-columns:1fr;gap:30px;justify-items:center}
+  @media(min-width:620px){.row{grid-template-columns:repeat(2,1fr)}}
+  .col{display:flex;flex-direction:column;align-items:center;gap:11px;width:100%}
+  .cap{font-family:'Fraunces',Georgia,serif;font-weight:500;font-size:15px}
+
+  .phone{width:300px;max-width:100%;background:#000;border-radius:42px;padding:9px;box-shadow:0 22px 54px -18px rgba(0,0,0,.5)}
+  .screen{background:var(--chrome);border-radius:34px;overflow:hidden;height:606px;display:flex;flex-direction:column;color:var(--cream)}
+  .statusbar{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--dim);padding:10px 18px 4px}
+  .statusbar .dots{display:flex;gap:4px}.statusbar .dots i{width:5px;height:5px;border-radius:9px;background:var(--dim);display:block}
+  .pad{padding:14px 16px 0;flex:1;display:flex;flex-direction:column;min-height:0;overflow:hidden}
+
+  .phead{display:flex;align-items:center;gap:10px}
+  .phead .mk{width:30px;height:30px;border-radius:9px;overflow:hidden;flex:0 0 auto}.phead .mk svg{width:30px;height:30px;display:block}
+  .phead .hi{font-family:'Fraunces',Georgia,serif;font-weight:500;font-size:16px}
+  .phead .online{margin-left:auto;display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--em)}
+  .phead .online .d{width:7px;height:7px;border-radius:9px;background:var(--em)}
+
+  .earn{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:13px 15px;display:flex;align-items:center;margin-top:14px}
+  .earn .lab{font-size:11.5px;color:var(--dim)}
+  .earn .amt{font-family:'Fraunces',Georgia,serif;font-weight:500;font-size:21px;font-variant-numeric:tabular-nums;margin-top:1px}
+  .cash{margin-left:auto;background:var(--tc);color:#fff;font-size:12.5px;font-weight:500;border-radius:999px;padding:9px 15px}
+
+  .sec{font-size:11.5px;color:var(--dim);margin:18px 4px 9px;letter-spacing:.02em;text-transform:none}
+
+  .offer{background:var(--card-2);border:1px solid var(--tc-deep);border-radius:18px;padding:14px;position:relative}
+  .offer .timer{position:absolute;top:12px;right:14px;font-size:11px;color:var(--tc);font-variant-numeric:tabular-nums}
+  .otop{display:flex;align-items:center;gap:11px}
+  .catic{width:42px;height:42px;border-radius:13px;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+  .catic svg{width:22px;height:22px;display:block}
+  .ojob{font-size:14.5px;font-weight:500}
+  .ometa{font-size:12px;color:var(--dim);margin-top:1px}
+  .opay{display:flex;align-items:baseline;gap:8px;margin:12px 0 12px}
+  .opay .p{font-family:'Fraunces',Georgia,serif;font-weight:500;font-size:24px;font-variant-numeric:tabular-nums}
+  .opay .pl{font-size:11.5px;color:var(--dim)}
+  .oacts{display:flex;gap:9px}
+  .btn{flex:1;text-align:center;border-radius:999px;padding:11px;font-size:13.5px;font-weight:500}
+  .btn.accept{background:var(--tc);color:#fff}
+  .btn.decline{background:transparent;color:var(--dim);border:1px solid var(--line)}
+
+  .sched{display:flex;align-items:center;gap:11px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:11px 12px;margin-top:9px}
+  .sched .catic{width:36px;height:36px;border-radius:11px}.sched .catic svg{width:19px;height:19px}
+  .sched .sj{font-size:13.5px;font-weight:500}.sched .sm{font-size:11.5px;color:var(--dim)}
+  .sched .st{margin-left:auto;text-align:right;font-size:11.5px;color:var(--dim)}
+
+  /* active job */
+  .topbar{display:flex;align-items:center;gap:10px}
+  .topbar .bk{width:30px;height:30px;border-radius:999px;background:var(--card);display:flex;align-items:center;justify-content:center}
+  .topbar .ti{font-family:'Fraunces',Georgia,serif;font-weight:500;font-size:17px}
+  .map{height:120px;border-radius:16px;overflow:hidden;margin:14px 0 0;border:1px solid var(--line)}
+  .map svg{display:block;width:100%;height:100%}
+  .cust{display:flex;align-items:center;gap:11px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px;margin-top:12px}
+  .av{width:38px;height:38px;border-radius:999px;background:#4a463f;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--cream);border:2px solid #2a2823;flex:0 0 auto}
+  .cust .nm{font-size:14px;font-weight:500}.cust .cm{font-size:11.5px;color:var(--dim)}
+  .cbtns{margin-left:auto;display:flex;gap:8px}
+  .cb{width:36px;height:36px;border-radius:999px;background:var(--card-2);display:flex;align-items:center;justify-content:center}.cb svg{width:17px;height:17px}
+  .pcap{display:flex;gap:9px;margin-top:12px}
+  .pslot{flex:1;height:62px;border:1.5px dashed var(--line);border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:var(--dim);font-size:10.5px}
+  .pslot svg{width:18px;height:18px}
+  .payline{display:flex;align-items:center;justify-content:space-between;margin-top:13px;font-size:12.5px;color:var(--dim)}
+  .payline b{color:var(--cream);font-weight:500;font-variant-numeric:tabular-nums}
+  .bigact{margin-top:auto}
+  .bigbtn{background:var(--tc);color:#fff;text-align:center;border-radius:16px;padding:15px;font-size:15px;font-weight:500}
+
+  .nav{display:flex;justify-content:space-around;align-items:center;padding:11px 18px 15px;border-top:1px solid var(--line)}
+  .nav .it{display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--dim)}
+  .nav .it.on{color:var(--tc)}
+  .nav .it svg{width:22px;height:22px;display:block}.nav .it span{font-size:9.5px}
+  .foot{margin-top:30px;color:var(--ink-3);font-size:12.5px;border-top:1px solid #ECEAE3;padding-top:14px}
+</style>
+
+<div class="wrap">
+  <p class="eyebrow">Kept Connect · provider app</p>
+  <h1>The pro side, in cool<span class="dot">.</span></h1>
+  <p class="lede">Same family, opposite temperature: dark chrome, dense, built for someone working — the Uber-driver analog. Terracotta is the only accent (brightened for dark), emerald still means verified/safe, category color tags the trade. Round-robin offer with a respond timer, fast cash-out front and center.</p>
+  <div class="row" id="row"></div>
+  <div class="foot">Provider app = work tool, not hospitality. One emerald action per state, fast pay always reachable, lean proof capture, 44px targets, safe-area insets, nav stays in the WKWebView.</div>
+</div>
+
+<script>
+const MARK=(block,stroke)=>`<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+  <rect x="6" y="6" width="108" height="108" rx="32" fill="${block}"/>
+  <g fill="none" stroke="${stroke}" stroke-width="9.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M38 30 V90"/><path d="M38 60 L82 36"/><path d="M38 60 L86 60"/><path d="M38 60 L82 84"/></g>
+  <g fill="none" stroke="${stroke}" stroke-width="8.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M77.45 46.46 L82 36 L70.75 34.16"/><path d="M77 67 L86 60 L77 53"/><path d="M77.45 73.54 L82 84 L70.75 85.84"/></g></svg>`;
+const I={
+  droplet:'<path d="M12 3.5C12 3.5 6.5 9.5 6.5 14a5.5 5.5 0 0 0 11 0C17.5 9.5 12 3.5 12 3.5z"/>',
+  bolt:'<path d="M13 3 6.5 13H11l-.5 8 7-10.5H12.5z"/>',
+  home:'<path d="M4 11 12 4l8 7v8a1 1 0 0 1-1 1h-4v-5h-6v5H5a1 1 0 0 1-1-1z"/>',
+  clip:'<rect x="6" y="4" width="12" height="17" rx="2.5"/><path d="M9 4.5h6v2.5H9z"/><path d="M9 11h6M9 15h4"/>',
+  wallet:'<rect x="3.5" y="6" width="17" height="12" rx="2.5"/><path d="M3.5 9.5h17M16 13h1.5"/>',
+  user:'<circle cx="12" cy="8.5" r="3.5"/><path d="M5.5 20a6.5 6.5 0 0 1 13 0"/>',
+  back:'<path d="M14 6l-6 6 6 6"/>',
+  phone:'<path d="M6 4h3l1.6 4-2 1.2c.9 2.3 2.5 3.9 4.8 4.8l1.2-2 4 1.6V17c0 .6-.4 1-1 1C11.3 18 6 12.7 6 6c0-.6.4-1 1-1z"/>',
+  chat:'<path d="M5 5h14a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H9l-4 4V6a1 1 0 0 1 1-1z"/>',
+  cam:'<rect x="3.5" y="7" width="17" height="12" rx="2.5"/><circle cx="12" cy="13" r="3.2"/><path d="M9 7l1.2-2h3.6L15 7"/>',
+};
+const ic=(n,c,sw=2)=>`<svg viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round">${I[n]}</svg>`;
+const tint=(hex)=>{const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);const mix=c=>Math.round(c*0.22+37*0.78);return `rgb(${mix(r)},${mix(g)},${mix(b)})`;};
+const WATER='#3E83C6';
+
+const navBar=(a)=>`<div class="nav">${['home','clip','wallet','user'].map((n,i)=>{const L=['Jobs','Active','Earnings','You'];const on=i===a;return `<div class="it ${on?'on':''}">${ic(n,on?'#CF6E45':'#8C887D',2)}<span>${L[i]}</span></div>`;}).join('')}</div>`;
+const shell=(inner,nav)=>`<div class="phone"><div class="screen"><div class="statusbar"><span>9:41</span><div class="dots"><i></i><i></i><i></i></div></div><div class="pad">${inner}</div>${nav}</div></div>`;
+
+function feed(){
+  const inner=`
+    <div class="phead"><div class="mk">${MARK('#A8502F','#E9E6DD')}</div><div class="hi">Morning, Marco</div>
+      <div class="online"><span class="d"></span> Online</div></div>
+    <div class="earn"><div><div class="lab">Available to cash out</div><div class="amt">$340.00</div></div><div class="cash">Cash out</div></div>
+    <div class="sec">New offer</div>
+    <div class="offer">
+      <div class="timer">0:43</div>
+      <div class="otop"><div class="catic" style="background:${tint(WATER)}">${ic('droplet',WATER,2)}</div>
+        <div><div class="ojob">Faucet replacement</div><div class="ometa">Breckenridge · 1.2 mi away</div></div></div>
+      <div class="opay"><span class="p">$120</span><span class="pl">est. 45 min · paid on completion</span></div>
+      <div class="oacts"><div class="btn decline">Decline</div><div class="btn accept">Accept</div></div>
+    </div>
+    <div class="sec">Scheduled today</div>
+    <div class="sched"><div class="catic" style="background:${tint('#E0A12E')}">${ic('bolt','#E0A12E',2)}</div>
+      <div><div class="sj">Outlet install ×3</div><div class="sm">Frisco · Power</div></div><div class="st">2:30 PM<br>$180</div></div>`;
+  return shell(inner, navBar(0));
+}
+
+function active(){
+  const map=`<svg viewBox="0 0 280 120" preserveAspectRatio="xMidYMid slice">
+    <rect width="280" height="120" fill="#211F1B"/>
+    <g stroke="#2E2B27" stroke-width="6" stroke-linecap="round"><path d="M-10 36 H290"/><path d="M-10 92 H290"/><path d="M80 -10 V130"/><path d="M205 -10 V130"/></g>
+    <path d="M80 92 L80 60 L205 60 L205 36" fill="none" stroke="#CF6E45" stroke-width="4" stroke-linecap="round"/>
+    <circle cx="80" cy="92" r="7" fill="#CF6E45" stroke="#1A1916" stroke-width="3"/>
+    <g transform="translate(205 36)"><path d="M0 6 C0 6 8 0 8 -6 A8 8 0 1 0 -8 -6 C-8 0 0 6 0 6 z" fill="#E9E6DD"/><circle cx="0" cy="-6" r="3" fill="#1A1916"/></g>
+  </svg>`;
+  const inner=`
+    <div class="topbar"><div class="bk">${ic('back','#E9E6DD',2)}</div><div class="ti">Faucet replacement</div></div>
+    <div class="map">${map}</div>
+    <div class="cust"><div class="av">SK</div>
+      <div><div class="nm">Sarah K.</div><div class="cm">142 Ski Hill Rd · gate code in notes</div></div>
+      <div class="cbtns"><div class="cb">${ic('phone','#E9E6DD',2)}</div><div class="cb">${ic('chat','#E9E6DD',2)}</div></div></div>
+    <div class="pcap">
+      <div class="pslot">${ic('cam','#8C887D',2)}<span>Before</span></div>
+      <div class="pslot">${ic('cam','#8C887D',2)}<span>After</span></div>
+    </div>
+    <div class="payline"><span>Payout on completion</span><b>$120.00</b></div>
+    <div class="bigact"><div class="bigbtn">Start job</div></div>`;
+  return shell(inner, navBar(1));
+}
+
+const row=document.getElementById('row');
+[['Job feed · live offer',feed()],['Active job',active()]].forEach(([cap,html])=>{
+  const col=document.createElement('div');col.className='col';col.innerHTML=`${html}<div class="cap">${cap}</div>`;row.appendChild(col);
+});
+</script>

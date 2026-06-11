@@ -1,0 +1,24 @@
+<!-- @dsCard group="Spacing" viewport="700x170" name="Radius ladder" subtitle="Chip 10 → card 18 → lg 24 → pill 999" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../styles.css">
+<style>
+  body { margin: 0; background: var(--canvas); font-family: var(--font-ui); color: var(--ink); }
+  .row { display: flex; gap: 22px; padding: 24px; align-items: flex-end; }
+  .cell { display: flex; flex-direction: column; align-items: center; gap: 9px; }
+  .box { width: 88px; height: 64px; background: var(--paper); border: 1px solid var(--hairline); box-shadow: var(--shadow-sm); }
+  .n { font-size: 12px; font-weight: 500; }
+  .h { font-size: 11px; color: var(--ink-3); }
+</style>
+</head>
+<body>
+<div class="row">
+  <div class="cell"><div class="box" style="border-radius:var(--r-chip)"></div><div class="n">chip</div><div class="h">10px</div></div>
+  <div class="cell"><div class="box" style="border-radius:var(--r-card)"></div><div class="n">card</div><div class="h">18px</div></div>
+  <div class="cell"><div class="box" style="border-radius:var(--r-lg)"></div><div class="n">lg</div><div class="h">24px</div></div>
+  <div class="cell"><div class="box" style="border-radius:var(--r-pill);width:120px"></div><div class="n">pill</div><div class="h">999px</div></div>
+</div>
+</body>
+</html>

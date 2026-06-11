@@ -1,0 +1,59 @@
+/* ============================================================
+   Kept Connect — Typography tokens
+   Fraunces leads human moments; Hanken carries UI + data.
+   Sentence case everywhere. tabular-nums on figures. Money
+   right-aligned on the decimal. The signature emerald period
+   ends key headlines and the wordmark.
+   ============================================================ */
+
+:root {
+  /* --- Families --------------------------------------------------- */
+  --font-display: 'Fraunces', Georgia, 'Times New Roman', serif;
+  --font-ui:      'Hanken Grotesk', system-ui, -apple-system, sans-serif;
+  --font-mono:    ui-monospace, 'SF Mono', Menlo, monospace;
+
+  /* --- Weights (400 / 500 only) ----------------------------------- */
+  --w-regular: 400; /* @kind other */
+  --w-medium:  500; /* @kind other */
+
+  /* --- Display scale (Fraunces — human moments) ------------------- */
+  --display-xl: 44px; /* onboarding / marketing hero */
+  --display-lg: 34px; /* composer greeting, status headline */
+  --display-md: 26px; /* page titles */
+  --display-sm: 20px; /* section headings, card titles */
+
+  /* --- Text scale (Hanken — UI + data) ---------------------------- */
+  --text-lg:   18px; /* prominent body, primary price */
+  --text-base: 15px; /* default body */
+  --text-sm:   13px; /* secondary, list meta */
+  --text-xs:   11px; /* tags, captions, quiet headers */
+
+  /* --- Line heights ----------------------------------------------- */
+  --lh-tight:   1.1;  /* @kind other */ /* display headlines */
+  --lh-snug:    1.3;  /* @kind other */ /* titles, dense rows */
+  --lh-normal:  1.5;  /* @kind other */ /* body copy (requester app is airy) */
+
+  /* --- Letter spacing --------------------------------------------- */
+  --ls-display: -0.015em; /* Fraunces headlines tighten slightly */
+  --ls-tight:   -0.01em;
+  --ls-eyebrow:  0.08em;  /* uppercase eyebrows / quiet labels */
+
+  /* --- Numeric features (always on for data) ---------------------- */
+  --num-feat: "tnum" 1, "lnum" 1; /* @kind other */ /* tabular, lining figures */
+}
+
+/* Convenience utility classes (optional — components use tokens directly) */
+.kc-display {
+  font-family: var(--font-display);
+  font-weight: var(--w-medium);
+  letter-spacing: var(--ls-display);
+  line-height: var(--lh-tight);
+  color: var(--ink);
+}
+.kc-display .dot { color: var(--terracotta); } /* signature period flourish */
+
+.kc-num {
+  font-family: var(--font-ui);
+  font-variant-numeric: tabular-nums lining-nums;
+  font-feature-settings: var(--num-feat);
+}

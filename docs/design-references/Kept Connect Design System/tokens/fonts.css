@@ -1,0 +1,13 @@
+/* ============================================================
+   Kept Connect — Font faces
+   Fraunces (display / human moments) + Hanken Grotesk (UI / data).
+   Weights 400 + 500 ONLY across the system.
+
+   NOTE: These are loaded from Google Fonts CDN rather than self-hosted
+   binaries (no font files were supplied). Both ARE the real brand faces,
+   so this is the genuine type, not a substitute. To self-host, drop the
+   .woff2 files into assets/fonts/ and replace this @import with local
+   @font-face rules.
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500&family=Hanken+Grotesk:wght@400;500&display=swap');

@@ -1,0 +1,99 @@
+/* ============================================================
+   Kept Connect — Color tokens  (v2: the three-tier system)
+
+   Uber-style discipline: the chrome is black-and-white, and COLOR
+   ONLY EVER APPEARS WHEN IT CARRIES MEANING. Three tiers, each one job:
+     TIER 1  terracotta  = brand + every primary action + the live state
+     TIER 2  emerald     = verified / trust, and NOTHING else
+     TIER 3  category     = wayfinding, only on trade icons
+   Everything else is neutral. Color is an event, not decoration.
+   ============================================================ */
+
+:root {
+  /* --- Neutral base (inherited surface tokens) -------------------- */
+  --canvas:   #F6F4EF; /* app background — warm near-white */
+  --paper:    #FFFFFF; /* clean data surface (quotes, prices, history) */
+  --moment:   #F2ECDF; /* warm cream — HUMAN MOMENTS ONLY, never behind data */
+  --neutral:  #F4F3F0; /* quiet fill: compose bar, category chip, controls */
+  --hairline: #ECEAE3; /* 1px separators, card borders */
+
+  /* --- Ink (text) -------------------------------------------------- */
+  --ink:      #1B1C19; /* primary text */
+  --ink-2:    #6E6C63; /* secondary text, supporting copy */
+  --ink-3:    #A4A299; /* tertiary — quiet headers, captions, placeholders, neutral ring */
+
+  /* ================================================================
+     TIER 1 — BRAND / ACTION  (terracotta)
+     If it's terracotta, it's the brand or it's actionable. Never decorative.
+     ================================================================ */
+  --terracotta:        #BD5E39; /* brand + every primary action + live/active state */
+  --terracotta-deep:   #A8502F; /* app-icon block, pressed states */
+  --terracotta-bright: #CF6E45; /* the same role on DARK chrome (provider app) */
+  --terracotta-tint:   #F3E5DC; /* soft terracotta fill (selected, focus halo) */
+
+  /* ================================================================
+     TIER 2 — VERIFIED / TRUST  (emerald — semantic, reserved)
+     The verified check + "safe" affirmations. NOTHING else.
+     ================================================================ */
+  --verified:        #2C8A63; /* the verified check on light */
+  --verified-bright: #57B98E; /* verified on DARK chrome */
+
+  /* ================================================================
+     TIER 3 — CATEGORY / WAYFINDING  (service-family palette)
+     ONLY ever on trade icons, to say "which trade". Color = family,
+     glyph = the trade. Terracotta + emerald are excluded by design.
+     Chips are a NEUTRAL surface with a family-colored glyph — never a
+     solid color block — so a wall of categories reads calm, not rainbow.
+     ================================================================ */
+  --cat-water:     #2E6FB0; /* Plumbing · drains · water heater · pool & spa */
+  --cat-power:     #E0A12E; /* Electrical · lighting · solar · EV charger */
+  --cat-climate:   #2C8A8A; /* HVAC · ventilation · insulation */
+  --cat-structure: #4E6378; /* Carpentry · framing · drywall · roofing · masonry */
+  --cat-surfaces:  #6B5BD0; /* Painting · flooring · tile · wallpaper */
+  --cat-grounds:   #6F8F3F; /* Landscaping · tree work · snow removal · fencing */
+  --cat-care:      #A86A86; /* Cleaning · junk & haul · pest · pressure wash */
+  --cat-fixtures:  #7B7064; /* Handyman · locksmith · appliance · garage · smart home */
+
+  /* --- Chrome (provider app — dark) ------------------------------- */
+  --chrome:        #1A1916; /* near-black warm chrome (app bg) */
+  --chrome-card:   #252320; /* card on chrome */
+  --chrome-card-2: #2E2B27; /* raised card (offers) */
+  --chrome-line:   #36332E; /* hairline on chrome */
+  --chrome-cream:  #E9E6DD; /* primary text on chrome */
+  --chrome-dim:    #8C887D; /* secondary text on chrome */
+  --cream:         #F4F1E8; /* mark + text on terracotta block */
+
+  /* --- Tag (descriptive pills: credentials, trades) --------------- */
+  --tag-bg:  #F1EFE9; /* quiet pill background */
+  --tag-ink: #6E6C63; /* pill text */
+
+  /* --- Marketing-only accent (NOT for product UI) ----------------- */
+  --blue:     #1C4471; /* legacy brand blue — marketing site only */
+  --blue-ink: #EAF1FA; /* mark/text on blue */
+  --blue-soft:#92B5DF; /* light blue — marketing only */
+
+  /* ================================================================
+     Semantic aliases — prefer these in components
+     ================================================================ */
+  --surface-app:    var(--canvas);
+  --surface-card:   var(--paper);
+  --surface-moment: var(--moment);
+  --surface-quiet:  var(--neutral);
+  --surface-chrome: var(--chrome);
+
+  --text-strong:    var(--ink);
+  --text-body:      var(--ink-2);
+  --text-muted:     var(--ink-3);
+  --text-on-action: var(--cream);
+
+  --action:         var(--terracotta);
+  --action-press:   var(--terracotta-deep);
+  --action-soft:    var(--terracotta-tint);
+  --action-on-dark: var(--terracotta-bright);
+  --live:           var(--terracotta);
+
+  --verify:         var(--verified);
+  --verify-on-dark: var(--verified-bright);
+
+  --border-hairline: var(--hairline);
+}

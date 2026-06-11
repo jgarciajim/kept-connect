@@ -1,0 +1,27 @@
+<!-- @dsCard group="Spacing" viewport="700x150" name="Spacing scale" subtitle="4px base — 4 / 8 / 12 / 16 / 24 / 32 / 48" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../styles.css">
+<style>
+  body { margin: 0; background: var(--canvas); font-family: var(--font-ui); color: var(--ink); }
+  .row { display: flex; gap: 18px; padding: 24px; align-items: flex-end; }
+  .cell { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .bar { background: var(--emerald-soft); border: 1px solid var(--emerald); border-radius: 4px; width: 100%; }
+  .col { width: 48px; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 64px; }
+  .h { font-size: 11px; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+</style>
+</head>
+<body>
+<div class="row">
+  <div class="cell"><div class="col"><div class="bar" style="height:4px"></div></div><div class="h">4</div></div>
+  <div class="cell"><div class="col"><div class="bar" style="height:8px"></div></div><div class="h">8</div></div>
+  <div class="cell"><div class="col"><div class="bar" style="height:12px"></div></div><div class="h">12</div></div>
+  <div class="cell"><div class="col"><div class="bar" style="height:16px"></div></div><div class="h">16</div></div>
+  <div class="cell"><div class="col"><div class="bar" style="height:24px"></div></div><div class="h">24</div></div>
+  <div class="cell"><div class="col"><div class="bar" style="height:32px"></div></div><div class="h">32</div></div>
+  <div class="cell"><div class="col"><div class="bar" style="height:48px"></div></div><div class="h">48</div></div>
+</div>
+</body>
+</html>
