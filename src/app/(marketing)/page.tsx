@@ -1,15 +1,23 @@
-import { KeptConnectLogo } from "@/components/KeptConnectLogo";
+import type { Metadata } from "next";
+import { Hero } from "./_components/Hero";
+import { HowItWorks } from "./_components/HowItWorks";
+import { TrustStrip } from "./_components/TrustStrip";
+import { ForProviders } from "./_components/ForProviders";
 
-// Public landing page → "/"
+export const metadata: Metadata = {
+  title: "Kept Connect — the Uber for getting things done at a property",
+  description:
+    "Post a job, get matched with a vetted local pro, and watch it get done. Payment held safe until the work is finished.",
+};
+
+// Public landing page → "/" (static; no auth, no data).
 export default function MarketingHome() {
   return (
-    <main className="mx-auto flex max-w-3xl flex-col items-center gap-6 px-6 py-24 text-center">
-      <KeptConnectLogo className="h-12 w-auto" />
-      <h1 className="text-4xl font-semibold tracking-tight">Kept Connect</h1>
-      <p className="text-lg text-foreground/70">
-        Connecting homeowners, property managers, and realtors with trusted trades.
-      </p>
-      <p className="text-sm text-foreground/50">Marketing surface — placeholder.</p>
+    <main>
+      <Hero />
+      <HowItWorks />
+      <TrustStrip />
+      <ForProviders />
     </main>
   );
 }
