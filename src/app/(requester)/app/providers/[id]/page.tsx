@@ -1,9 +1,9 @@
 import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
-import { Card, Avatar, StatusRing, VerifiedCheck, Tag } from "@/components/ui";
+import { Button, Card, Avatar, StatusRing, VerifiedCheck, Tag } from "@/components/ui";
 import { getProvider, getQuotes } from "@/lib/requester/mock";
+import { awardQuote } from "@/lib/requester/actions";
 import { AppHeader } from "../../../_components/AppHeader";
-import { LinkButton } from "../../../_components/LinkButton";
 import { IconStar, IconCheck, IconChat } from "../../../_components/icons";
 
 export default async function ProfileScreen({
@@ -104,7 +104,11 @@ export default async function ProfileScreen({
             <div style={{ fontSize: 11, color: "var(--ink-3)", fontFamily: "var(--font-ui)" }}>Sealed quote</div>
             <div style={{ fontFamily: "var(--font-ui)", fontSize: 20, fontWeight: 500, fontVariantNumeric: "tabular-nums", color: "var(--ink)" }}>${quote.price}</div>
           </div>
-          <LinkButton href={`/app/jobs/${job}/track`} size="lg" fullWidth style={{ flex: 1 }}>Award</LinkButton>
+          <form action={awardQuote} style={{ flex: 1 }}>
+            <input type="hidden" name="quoteId" value={quote.id} />
+            <input type="hidden" name="requestId" value={job} />
+            <Button type="submit" size="lg" fullWidth>Award</Button>
+          </form>
         </div>
       )}
     </>

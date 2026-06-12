@@ -47,7 +47,7 @@ export default async function FeedScreen() {
         {/* live round-robin offer */}
         <SectionHead>New offer</SectionHead>
         {offer ? (
-          <OfferCard offer={offer} activeHref="/work/jobs/active" />
+          <OfferCard offer={offer} />
         ) : (
           <div style={{ color: "var(--chrome-dim)", fontSize: 13, padding: "8px 4px", fontFamily: "var(--font-ui)" }}>No offers right now — hang tight.</div>
         )}

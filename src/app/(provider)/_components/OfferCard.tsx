@@ -1,8 +1,8 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { CategoryIcon } from "@/components/ui";
+import { acceptOffer } from "@/lib/provider/actions";
 import type { Offer } from "@/lib/provider/mock";
 
 /**
@@ -16,10 +16,10 @@ function fmt(seconds: number): string {
   return `${m}:${String(s).padStart(2, "0")}`;
 }
 
-export function OfferCard({ offer, activeHref }: { offer: Offer; activeHref: string }) {
-  const router = useRouter();
+export function OfferCard({ offer }: { offer: Offer }) {
   const [remaining, setRemaining] = useState(offer.respondSeconds);
   const [dismissed, setDismissed] = useState(false);
+  const [accepting, setAccepting] = useState(false);
 
   useEffect(() => {
     if (remaining <= 0) return;
@@ -66,11 +66,11 @@ export function OfferCard({ offer, activeHref }: { offer: Offer; activeHref: str
         </button>
         <button
           type="button"
-          disabled={expired}
-          onClick={() => router.push(activeHref)}
-          style={{ flex: 1, borderRadius: "var(--r-pill)", padding: 11, fontSize: 13.5, fontWeight: 500, background: "var(--terracotta-bright)", color: "var(--cream)", border: "none", cursor: expired ? "not-allowed" : "pointer", opacity: expired ? 0.5 : 1, fontFamily: "var(--font-ui)" }}
+          disabled={expired || accepting}
+          onClick={() => { setAccepting(true); acceptOffer(offer.id); }}
+          style={{ flex: 1, borderRadius: "var(--r-pill)", padding: 11, fontSize: 13.5, fontWeight: 500, background: "var(--terracotta-bright)", color: "var(--cream)", border: "none", cursor: expired || accepting ? "not-allowed" : "pointer", opacity: expired || accepting ? 0.5 : 1, fontFamily: "var(--font-ui)" }}
         >
-          Accept
+          {accepting ? "Accepting…" : "Accept"}
         </button>
       </div>
     </div>

@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { getThread } from "@/lib/requester/mock";
+import { sendMessage } from "@/lib/requester/actions";
 import { AppHeader } from "../../../_components/AppHeader";
 import { IconPhone, IconCam, IconArrow } from "../../../_components/icons";
 
@@ -56,18 +57,24 @@ export default async function ThreadScreen({ params }: { params: Promise<{ id: s
         })}
       </main>
 
-      {/* composer (visual) */}
-      <div style={{ padding: "10px 18px 16px", borderTop: "1px solid var(--hairline)", display: "flex", alignItems: "center", gap: 10, background: "var(--canvas)" }}>
+      {/* composer — real: posts a message scoped to this request */}
+      <form action={sendMessage} style={{ padding: "10px 18px 16px", borderTop: "1px solid var(--hairline)", display: "flex", alignItems: "center", gap: 10, background: "var(--canvas)" }}>
+        <input type="hidden" name="requestId" value={thread.id} />
         <span style={{ width: 40, height: 40, borderRadius: "var(--r-pill)", background: "var(--neutral)", color: "var(--ink-2)", display: "flex", alignItems: "center", justifyContent: "center", flex: "0 0 auto" }}>
           <IconCam size={20} />
         </span>
         <div style={{ flex: 1, display: "flex", alignItems: "center", background: "var(--paper)", border: "1px solid var(--hairline)", borderRadius: "var(--r-pill)", padding: "0 6px 0 14px", height: 44 }}>
-          <span style={{ flex: 1, fontSize: 14, color: "var(--ink-3)", fontFamily: "var(--font-ui)" }}>Message…</span>
-          <span style={{ width: 32, height: 32, borderRadius: "var(--r-pill)", background: "var(--terracotta)", color: "var(--cream)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <input
+            name="body"
+            placeholder="Message…"
+            autoComplete="off"
+            style={{ flex: 1, border: "none", outline: "none", background: "transparent", fontSize: 14, color: "var(--ink)", fontFamily: "var(--font-ui)" }}
+          />
+          <button type="submit" aria-label="Send" style={{ width: 32, height: 32, borderRadius: "var(--r-pill)", background: "var(--terracotta)", color: "var(--cream)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
             <IconArrow size={16} sw={2.2} />
-          </span>
+          </button>
         </div>
-      </div>
+      </form>
     </>
   );
 }
