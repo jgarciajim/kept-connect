@@ -3,17 +3,37 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Avatar, StatusRing, Field, Button } from "@/components/ui";
+import { submitReview } from "@/lib/requester/actions";
 import { IconStar } from "./icons";
 
 /**
  * RatingForm — two-sided ratings (§3.5): a warm --moment moment, one-tap
- * terracotta stars + optional note, then a "Thanks." confirmation. Client-side
- * (local star + submitted state); the job/provider it rates come from the server.
+ * terracotta stars + optional note, then a "Thanks." confirmation. On submit it
+ * inserts a real review (RLS-scoped) for the rated provider.
  */
-export function RatingForm({ providerName, jobSummary }: { providerName: string; jobSummary: string }) {
+export function RatingForm({
+  providerName,
+  jobSummary,
+  requestId,
+  subjectId,
+}: {
+  providerName: string;
+  jobSummary: string;
+  requestId: string;
+  subjectId: string;
+}) {
   const router = useRouter();
   const [stars, setStars] = useState(0);
+  const [note, setNote] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  async function submit() {
+    if (stars === 0 || saving) return;
+    setSaving(true);
+    await submitReview(requestId, subjectId, stars, note);
+    setSubmitted(true);
+  }
 
   if (submitted) {
     return (
@@ -63,13 +83,13 @@ export function RatingForm({ providerName, jobSummary }: { providerName: string;
         </div>
 
         <div style={{ width: "100%", maxWidth: 320 }}>
-          <Field multiline rows={2} placeholder="Add a note (optional)" />
+          <Field multiline rows={2} placeholder="Add a note (optional)" value={note} onChange={(e) => setNote(e.target.value)} />
         </div>
       </div>
 
       <div style={{ padding: "14px 18px 24px" }}>
-        <Button fullWidth size="lg" disabled={stars === 0} onClick={() => setSubmitted(true)}>
-          Submit rating
+        <Button fullWidth size="lg" disabled={stars === 0 || saving} onClick={submit}>
+          {saving ? "Submitting…" : "Submit rating"}
         </Button>
       </div>
     </div>

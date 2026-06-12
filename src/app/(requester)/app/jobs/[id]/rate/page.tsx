@@ -11,7 +11,12 @@ export default async function RateScreen({ params }: { params: Promise<{ id: str
   return (
     <>
       <AppHeader title="Rate" backHref={`/app/jobs/${job.id}/track`} />
-      <RatingForm providerName={job.provider.name} jobSummary={`${job.title} · done in 38 min`} />
+      <RatingForm
+        providerName={job.provider.name}
+        jobSummary={`${job.title} · done in 38 min`}
+        requestId={job.id}
+        subjectId={job.provider.id}
+      />
     </>
   );
 }

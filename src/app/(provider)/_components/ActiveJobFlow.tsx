@@ -3,19 +3,36 @@
 import Link from "next/link";
 import { useState } from "react";
 import { Avatar } from "@/components/ui";
+import { startJob, completeJob, markPaid } from "@/lib/provider/actions";
 import type { ActiveJob } from "@/lib/provider/mock";
 import { PIconPhone, PIconChat, PIconCam, PIconCheck } from "./icons";
 
 /**
  * ActiveJobFlow — the live job. One terracotta action per state:
- * Start job → Mark complete → Mark paid → "Paid — nice work." Masked customer
- * contact, before/after proof capture. Client: the stage advances on tap.
+ * Start job → Mark complete → Mark paid → "Paid — nice work." Each tap runs the
+ * matching SECURITY DEFINER RPC (column-safe transition), then advances.
  */
 const STAGES = ["Start job", "Mark complete", "Mark paid"] as const;
+const STAGE_ACTIONS = [startJob, completeJob, markPaid];
 
 export function ActiveJobFlow({ job }: { job: ActiveJob }) {
   const [stage, setStage] = useState(0);
+  const [busy, setBusy] = useState(false);
   const done = stage >= STAGES.length;
+
+  async function advance() {
+    if (busy) return;
+    const action = STAGE_ACTIONS[stage];
+    if (action) {
+      setBusy(true);
+      try {
+        await action(job.id);
+      } finally {
+        setBusy(false);
+      }
+    }
+    setStage((s) => s + 1);
+  }
 
   return (
     <main style={{ flex: 1, overflowY: "auto", padding: "0 16px 16px", display: "flex", flexDirection: "column" }}>
@@ -67,10 +84,11 @@ export function ActiveJobFlow({ job }: { job: ActiveJob }) {
         {!done ? (
           <button
             type="button"
-            onClick={() => setStage((s) => s + 1)}
-            style={{ width: "100%", background: "var(--terracotta-bright)", color: "var(--cream)", textAlign: "center", borderRadius: 16, padding: 15, fontSize: 15, fontWeight: 500, border: "none", cursor: "pointer", fontFamily: "var(--font-ui)" }}
+            onClick={advance}
+            disabled={busy}
+            style={{ width: "100%", background: "var(--terracotta-bright)", color: "var(--cream)", textAlign: "center", borderRadius: 16, padding: 15, fontSize: 15, fontWeight: 500, border: "none", cursor: busy ? "not-allowed" : "pointer", opacity: busy ? 0.6 : 1, fontFamily: "var(--font-ui)" }}
           >
-            {STAGES[stage]}
+            {busy ? "…" : STAGES[stage]}
           </button>
         ) : (
           <div style={{ textAlign: "center", color: "var(--verified-bright)", fontWeight: 500, fontSize: 15, padding: 15, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontFamily: "var(--font-ui)" }}>

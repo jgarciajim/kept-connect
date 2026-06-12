@@ -1,40 +1,13 @@
 import type { CategoryKey } from "@/components/ui";
+import { createServerSupabaseClient } from "@/lib/supabase/server";
+import * as q from "./queries";
 
 /**
- * Provider app — the ONLY data access point. Every screen reads from these
- * accessors, never inline literals. Today they return seeded mock data; when the
- * backend is ready, swap each function BODY for a Supabase query — the async
- * signatures already match, so callers don't change.
- *
- * Types are shaped to the D11 identity foundation (members / requests /
- * job_grants) plus view models the schema doesn't carry yet (offers, payouts).
+ * Provider app data layer — the ONLY data access point for the screens. The
+ * view-model TYPES below are the data contract; the accessors at the bottom create
+ * the RLS-scoped Supabase client (via Clerk) and delegate to ./queries.ts.
+ * (Filename kept as mock.ts so screen imports don't change; data is now real.)
  */
-
-// ---------------------------------------------------------------------------
-// Foundation core — mirrors the D11 schema.
-// ---------------------------------------------------------------------------
-export interface Member {
-  id: string;
-  clerkUserId: string;
-  isRequester: boolean;
-  isProvider: boolean;
-  createdAt: string;
-}
-
-export interface Request {
-  id: string;
-  requesterId: string;
-  trade: CategoryKey;
-  description: string;
-  createdAt: string;
-}
-
-export interface JobGrant {
-  id: string;
-  requestId: string;
-  providerId: string;
-  createdAt: string;
-}
 
 // ---------------------------------------------------------------------------
 // View models
@@ -101,78 +74,24 @@ export interface ProviderSelf {
 }
 
 // ---------------------------------------------------------------------------
-// Seed
+// Accessors — create the RLS-scoped client and delegate to ./queries.ts.
 // ---------------------------------------------------------------------------
-const MARCO: ProviderSelf = {
-  id: "marco",
-  name: "Marco Reyes",
-  rating: 4.9,
-  jobsDone: 212,
-  yearsOnKept: 4,
-  verified: true,
-  online: true,
-  availableToCashOut: "340.00",
-  credentials: ["Licensed", "Insured", "Background checked"],
-  trades: ["Plumbing", "Drains", "Water heater"],
-};
-
-const OFFER: Offer = {
-  id: "offer-1",
-  requestId: "req-faucet",
-  trade: "water",
-  title: "Faucet replacement",
-  place: "Breckenridge",
-  distance: "1.2 mi away",
-  pay: "120.00",
-  note: "est. 45 min · paid on completion",
-  respondSeconds: 45,
-};
-
-const SCHEDULED: ScheduledJob[] = [
-  { id: "sched-1", trade: "power", title: "Outlet install ×3", place: "Frisco", time: "2:30 PM", pay: "180.00" },
-];
-
-const ACTIVE: ActiveJob = {
-  id: "active",
-  trade: "water",
-  title: "Faucet replacement",
-  customerName: "Sarah K.",
-  addressLine: "142 Ski Hill Rd · gate code in notes",
-  payout: "120.00",
-};
-
-const EARNINGS: EarningsSummary = {
-  availableToCashOut: "340.00",
-  thisWeek: "3,180",
-  jobsThisWeek: 14,
-  rating: 4.9,
-  payouts: [
-    { id: "p1", job: "Clear shower drain", who: "Joan Ek", when: "Today", amount: "120.00", status: "Pending" },
-    { id: "p2", job: "Faucet replacement", who: "Priya Nair", when: "Yesterday", amount: "180.00", status: "Paid" },
-    { id: "p3", job: "Leak repair", who: "Theo Vance", when: "Mon", amount: "240.00", status: "Paid" },
-    { id: "p4", job: "Water heater flush", who: "Sam Cole", when: "Sun", amount: "160.00", status: "Paid" },
-  ],
-};
-
-// ---------------------------------------------------------------------------
-// Accessors — async so a Supabase query can slot in without touching callers.
-// ---------------------------------------------------------------------------
-export async function getProviderSelf(): Promise<ProviderSelf> {
-  return MARCO;
+export async function getProviderSelf(): Promise<ProviderSelf | null> {
+  return q.qGetProviderSelf(await createServerSupabaseClient());
 }
 
 export async function getCurrentOffer(): Promise<Offer | null> {
-  return OFFER;
+  return q.qGetCurrentOffer(await createServerSupabaseClient());
 }
 
 export async function getScheduledJobs(): Promise<ScheduledJob[]> {
-  return SCHEDULED;
+  return q.qGetScheduledJobs(await createServerSupabaseClient());
 }
 
 export async function getActiveJob(id: string): Promise<ActiveJob | null> {
-  return id === ACTIVE.id ? ACTIVE : null;
+  return q.qGetActiveJob(await createServerSupabaseClient(), id);
 }
 
 export async function getEarnings(): Promise<EarningsSummary> {
-  return EARNINGS;
+  return q.qGetEarnings(await createServerSupabaseClient());
 }

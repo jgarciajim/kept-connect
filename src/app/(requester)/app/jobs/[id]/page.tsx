@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
-import { Card, Avatar, StatusRing, VerifiedCheck, type RingState } from "@/components/ui";
+import { Button, Card, Avatar, StatusRing, VerifiedCheck, type RingState } from "@/components/ui";
 import { getJob, getQuotes, type Quote } from "@/lib/requester/mock";
+import { awardQuote } from "@/lib/requester/actions";
 import { AppHeader } from "../../../_components/AppHeader";
 import { LinkButton } from "../../../_components/LinkButton";
 import { IconStar } from "../../../_components/icons";
@@ -77,8 +78,12 @@ function QuoteCard({ quote, jobId, best }: { quote: Quote; jobId: string; best: 
           <div style={{ fontSize: 11.5, color: "var(--ink-3)", marginTop: 1, fontFamily: "var(--font-ui)" }}>{quote.eta}</div>
         </div>
         <div style={{ display: "flex", gap: 8 }}>
-          <LinkButton href={`/app/providers/${p.id}`} variant="ghost" size="sm">Profile</LinkButton>
-          <LinkButton href={`/app/jobs/${jobId}/track`} variant={best ? "primary" : "outline"} size="sm">Award</LinkButton>
+          <LinkButton href={`/app/providers/${p.id}?job=${jobId}`} variant="ghost" size="sm">Profile</LinkButton>
+          <form action={awardQuote}>
+            <input type="hidden" name="quoteId" value={quote.id} />
+            <input type="hidden" name="requestId" value={jobId} />
+            <Button type="submit" variant={best ? "primary" : "outline"} size="sm">Award</Button>
+          </form>
         </div>
       </div>
     </Card>
