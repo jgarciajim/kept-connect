@@ -55,13 +55,13 @@ export default async function TrackScreen({ params }: { params: Promise<{ id: st
           </StatusRing>
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 14, fontWeight: 500, color: "var(--ink)", fontFamily: "var(--font-ui)" }}>
-              Marco R. {provider.verified && <VerifiedCheck size={14} />}
+              {provider.name} {provider.verified && <VerifiedCheck size={14} />}
             </div>
             <div style={{ fontSize: 12, color: "var(--ink-2)", marginTop: 1, fontFamily: "var(--font-ui)" }}>Plumbing · Licensed · Insured</div>
           </div>
           <div style={{ display: "flex", gap: 8 }}>
-            <Link href="/app/messages/marco" aria-label="Call" style={iconBtn}><IconPhone size={18} /></Link>
-            <Link href="/app/messages/marco" aria-label="Message" style={iconBtn}><IconChat size={18} /></Link>
+            <Link href={`/app/messages/${job.id}`} aria-label="Call" style={iconBtn}><IconPhone size={18} /></Link>
+            <Link href={`/app/messages/${job.id}`} aria-label="Message" style={iconBtn}><IconChat size={18} /></Link>
           </div>
         </div>
 

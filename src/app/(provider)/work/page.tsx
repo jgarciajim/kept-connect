@@ -3,6 +3,7 @@ import { KeptConnectLogo, CategoryIcon } from "@/components/ui";
 import { getProviderSelf, getCurrentOffer, getScheduledJobs } from "@/lib/provider/mock";
 import { VBottomNav } from "../_components/VBottomNav";
 import { OfferCard } from "../_components/OfferCard";
+import { ProviderEmptyState } from "../_components/ProviderEmptyState";
 
 export default async function FeedScreen() {
   const [self, offer, scheduled] = await Promise.all([
@@ -10,6 +11,8 @@ export default async function FeedScreen() {
     getCurrentOffer(),
     getScheduledJobs(),
   ]);
+
+  if (!self) return <ProviderEmptyState tab="jobs" />;
 
   return (
     <>

@@ -10,7 +10,7 @@ type Tab = "home" | "jobs" | "messages" | "you";
 const ITEMS: { id: Tab; label: string; href: string; Icon: typeof IconHome }[] = [
   { id: "home", label: "Home", href: "/app", Icon: IconHome },
   { id: "jobs", label: "Jobs", href: "/app", Icon: IconJobs },
-  { id: "messages", label: "Messages", href: "/app/messages/marco", Icon: IconChat },
+  { id: "messages", label: "Messages", href: "/app", Icon: IconChat },
   { id: "you", label: "You", href: "/app", Icon: IconUser },
 ];
 

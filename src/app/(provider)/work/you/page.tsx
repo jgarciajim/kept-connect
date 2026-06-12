@@ -3,10 +3,12 @@ import type { ReactNode } from "react";
 import { Avatar, VerifiedCheck, Tag } from "@/components/ui";
 import { getProviderSelf } from "@/lib/provider/mock";
 import { VBottomNav } from "../../_components/VBottomNav";
+import { ProviderEmptyState } from "../../_components/ProviderEmptyState";
 import { PIconStar, PIconCheck, PIconWallet } from "../../_components/icons";
 
 export default async function ProfileScreen() {
   const self = await getProviderSelf();
+  if (!self) return <ProviderEmptyState tab="you" />;
 
   return (
     <>

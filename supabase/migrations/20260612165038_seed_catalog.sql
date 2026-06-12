@@ -35,14 +35,14 @@ insert into public.members (id, clerk_user_id, is_requester, display_name) value
 on conflict (id) do nothing;
 
 insert into public.provider_profiles
-  (member_id, rating, jobs_done, years_on_kept, verified, online, credentials, trades, trade_labels) values
-  ('10000000-0000-0000-0000-000000000001',4.9,212,4,true,true,
+  (member_id, display_name, rating, jobs_done, years_on_kept, verified, online, credentials, trades, trade_labels) values
+  ('10000000-0000-0000-0000-000000000001','Marco Reyes',4.9,212,4,true,true,
    array['Licensed','Insured','Background checked'], array['water']::public.category_key[], array['Plumbing','Drains','Water heater']),
-  ('10000000-0000-0000-0000-000000000002',4.9,128,5,true,false,
+  ('10000000-0000-0000-0000-000000000002','Summit Drywall',4.9,128,5,true,false,
    array['Licensed','Insured','Background checked'], array['structure']::public.category_key[], array['Drywall','Plaster','Texture & finish']),
-  ('10000000-0000-0000-0000-000000000003',4.8,74,3,true,false,
+  ('10000000-0000-0000-0000-000000000003','A. Vega Finishes',4.8,74,3,true,false,
    array['Licensed','Background checked'], array['structure','surfaces']::public.category_key[], array['Drywall','Painting']),
-  ('10000000-0000-0000-0000-000000000004',5.0,41,2,true,false,
+  ('10000000-0000-0000-0000-000000000004','Peak Interiors',5.0,41,2,true,false,
    array['Insured'], array['structure']::public.category_key[], array['Drywall','Carpentry'])
 on conflict (member_id) do nothing;
 
@@ -51,14 +51,14 @@ insert into public.provider_wallets (member_id, available_to_cashout, week_total
 on conflict (member_id) do nothing;
 
 -- provider-subject reviews (public trust content; null request_id = imported)
-insert into public.reviews (request_id, author_id, subject_id, subject_role, stars, body, created_at) values
-  (null,'20000000-0000-0000-0000-000000000001','10000000-0000-0000-0000-000000000001','provider',5,
+insert into public.reviews (request_id, author_id, author_name, subject_id, subject_role, stars, body, created_at) values
+  (null,'20000000-0000-0000-0000-000000000001','Priya N.','10000000-0000-0000-0000-000000000001','provider',5,
    'Fixed a stubborn leak fast and left the cabinet cleaner than he found it. Walked me through what went wrong.', now() - interval '14 days'),
-  (null,'20000000-0000-0000-0000-000000000002','10000000-0000-0000-0000-000000000001','provider',5,
+  (null,'20000000-0000-0000-0000-000000000002','Theo V.','10000000-0000-0000-0000-000000000001','provider',5,
    'On time, clear quote, no upsell. Exactly what you want when a stranger is in your home.', now() - interval '30 days'),
-  (null,'20000000-0000-0000-0000-000000000003','10000000-0000-0000-0000-000000000002','provider',5,
+  (null,'20000000-0000-0000-0000-000000000003','Dana L.','10000000-0000-0000-0000-000000000002','provider',5,
    'Patched a ceiling so well you can''t tell where the damage was. Tidy and careful.', now() - interval '21 days'),
-  (null,'20000000-0000-0000-0000-000000000004','10000000-0000-0000-0000-000000000002','provider',5,
+  (null,'20000000-0000-0000-0000-000000000004','Marcus B.','10000000-0000-0000-0000-000000000002','provider',5,
    'Clear sealed quote, started when they said, cleaned up after. No surprises.', now() - interval '30 days');
 
 -- ----------------------------------------------------------------------------
@@ -84,8 +84,8 @@ begin
   delete from requests where requester_id = m;  -- idempotent re-run
 
   -- en-route job with Marco
-  insert into requests (requester_id, category, title, description, status, urgency, location_label, awarded_provider_id, agreed_price, eta_minutes)
-    values (m,'water','Leak under kitchen sink','Kitchen faucet is leaking at the base — water pooling under the sink.','enroute','same_day','14 Birch Lane', marco, 120.00, 12)
+  insert into requests (requester_id, requester_name, category, title, description, status, urgency, location_label, awarded_provider_id, agreed_price, eta_minutes)
+    values (m,'Demo User','water','Leak under kitchen sink','Kitchen faucet is leaking at the base — water pooling under the sink.','enroute','same_day','14 Birch Lane', marco, 120.00, 12)
     returning id into r_enroute;
   insert into job_grants (request_id, provider_id) values (r_enroute, marco) on conflict do nothing;
   insert into messages (request_id, sender_id, body, has_photo, created_at) values
@@ -95,8 +95,8 @@ begin
     (r_enroute, m,     'Amazing. Go ahead.', false, now() - interval '1 min');
 
   -- quoted job with three sealed quotes
-  insert into requests (requester_id, category, title, description, status, urgency, location_label)
-    values (m,'structure','Drywall repair','Water-stained drywall on the hallway ceiling needs patching and repaint.','quoted','same_day','14 Birch Lane')
+  insert into requests (requester_id, requester_name, category, title, description, status, urgency, location_label)
+    values (m,'Demo User','structure','Drywall repair','Water-stained drywall on the hallway ceiling needs patching and repaint.','quoted','same_day','14 Birch Lane')
     returning id into r_quoted;
   insert into job_grants (request_id, provider_id) values (r_quoted, summit),(r_quoted, vega),(r_quoted, peak) on conflict do nothing;
   insert into quotes (request_id, provider_id, price, eta_label) values
@@ -122,9 +122,9 @@ begin
     on conflict (clerk_user_id) do update set is_provider = true
     returning id into m;
 
-  insert into provider_profiles (member_id, rating, jobs_done, years_on_kept, verified, online, credentials, trades, trade_labels)
-    values (m, 4.9, 212, 4, true, true, array['Licensed','Insured','Background checked'], array['water']::category_key[], array['Plumbing','Drains','Water heater'])
-    on conflict (member_id) do update set online = true, rating = 4.9, jobs_done = 212, verified = true;
+  insert into provider_profiles (member_id, display_name, rating, jobs_done, years_on_kept, verified, online, credentials, trades, trade_labels)
+    values (m, 'Marco Reyes', 4.9, 212, 4, true, true, array['Licensed','Insured','Background checked'], array['water']::category_key[], array['Plumbing','Drains','Water heater'])
+    on conflict (member_id) do update set online = true, rating = 4.9, jobs_done = 212, verified = true, display_name = 'Marco Reyes';
   insert into provider_wallets (member_id, available_to_cashout, week_total, week_jobs)
     values (m, 340.00, 3180.00, 14)
     on conflict (member_id) do update set available_to_cashout = 340.00, week_total = 3180.00, week_jobs = 14;
@@ -139,14 +139,14 @@ begin
   delete from payouts  where provider_id = m;
 
   -- awarded/active job
-  insert into requests (requester_id, category, title, status, location_label, awarded_provider_id, agreed_price)
-    values (cust,'water','Faucet replacement','awarded','142 Ski Hill Rd · gate code in notes', m, 120.00)
+  insert into requests (requester_id, requester_name, category, title, status, location_label, awarded_provider_id, agreed_price)
+    values (cust,'Sarah K.','water','Faucet replacement','awarded','142 Ski Hill Rd · gate code in notes', m, 120.00)
     returning id into r_active;
   insert into job_grants (request_id, provider_id) values (r_active, m) on conflict do nothing;
 
   -- pending round-robin offer
-  insert into requests (requester_id, category, title, status, location_label)
-    values (cust,'water','Faucet replacement','finding','Breckenridge')
+  insert into requests (requester_id, requester_name, category, title, status, location_label)
+    values (cust,'Sarah K.','water','Faucet replacement','finding','Breckenridge')
     returning id into r_offer;
   insert into job_grants (request_id, provider_id) values (r_offer, m) on conflict do nothing;
   insert into offers (request_id, provider_id, pay, note, status, respond_by, distance_label)

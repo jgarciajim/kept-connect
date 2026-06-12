@@ -56,6 +56,7 @@ alter table public.requests
   add column location_label      text,
   add column location_lat        numeric(9,6),
   add column location_lng        numeric(9,6),
+  add column requester_name      text,  -- denormalized requester name (party-readable by the awarded provider; members is RLS-private)
   add column awarded_provider_id uuid references public.members(id),
   add column awarded_quote_id    uuid,  -- FK omitted to avoid the requests<->quotes cycle; award goes through an RPC that validates the quote
   add column agreed_price        numeric(10,2),
@@ -75,6 +76,8 @@ create index requests_category_idx         on public.requests (category);
 -- ----------------------------------------------------------------------------
 create table public.provider_profiles (
   member_id     uuid primary key references public.members(id) on delete cascade,
+  display_name  text,         -- denormalized: members.display_name is RLS-private to its owner,
+                              -- so the public profile carries the name a requester can read
   rating        numeric(2,1) not null default 0,
   jobs_done     int          not null default 0,
   years_on_kept int          not null default 0,
@@ -142,6 +145,7 @@ create table public.reviews (
   id           uuid primary key default gen_random_uuid(),
   request_id   uuid not null references public.requests(id) on delete cascade,
   author_id    uuid not null references public.members(id),
+  author_name  text,  -- denormalized reviewer name (reviews are public/party-read; members is private)
   subject_id   uuid not null references public.members(id),
   subject_role public.review_role not null,
   stars        int not null check (stars between 1 and 5),

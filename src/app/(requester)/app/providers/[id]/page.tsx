@@ -6,19 +6,26 @@ import { AppHeader } from "../../../_components/AppHeader";
 import { LinkButton } from "../../../_components/LinkButton";
 import { IconStar, IconCheck, IconChat } from "../../../_components/icons";
 
-export default async function ProfileScreen({ params }: { params: Promise<{ id: string }> }) {
+export default async function ProfileScreen({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ job?: string }>;
+}) {
   const { id } = await params;
+  const { job } = await searchParams;
   const provider = await getProvider(id);
   if (!provider) notFound();
 
-  // The sealed quote (if any) this provider gave on the open job → Award footer.
-  const quote = (await getQuotes("quoted")).find((q) => q.provider.id === id);
+  // The sealed quote (if any) this provider gave on the linked job → Award footer.
+  const quote = job ? (await getQuotes(job)).find((q) => q.provider.id === id) : undefined;
 
   return (
     <>
       <AppHeader
         title="Provider"
-        backHref="/app/jobs/quoted"
+        backHref={job ? `/app/jobs/${job}` : "/app"}
         right={<span style={{ color: "var(--ink-3)", display: "flex" }}><IconChat /></span>}
       />
 
@@ -97,7 +104,7 @@ export default async function ProfileScreen({ params }: { params: Promise<{ id: 
             <div style={{ fontSize: 11, color: "var(--ink-3)", fontFamily: "var(--font-ui)" }}>Sealed quote</div>
             <div style={{ fontFamily: "var(--font-ui)", fontSize: 20, fontWeight: 500, fontVariantNumeric: "tabular-nums", color: "var(--ink)" }}>${quote.price}</div>
           </div>
-          <LinkButton href="/app/jobs/quoted/track" size="lg" fullWidth style={{ flex: 1 }}>Award</LinkButton>
+          <LinkButton href={`/app/jobs/${job}/track`} size="lg" fullWidth style={{ flex: 1 }}>Award</LinkButton>
         </div>
       )}
     </>
