@@ -64,8 +64,8 @@ select is((select count(*) from public.quotes)::int, 2, 'A (owner) sees BOTH quo
 select is((select count(*) from public.offers)::int, 1, 'A (owner) sees the offer on their request');
 select is((select count(*) from public.messages)::int, 2, 'A sees the full thread on their request');
 select is((select count(*) from public.payouts)::int, 0, 'A (requester) is BLIND to provider payouts');
-select is((select count(*) from public.provider_profiles)::int, 3, 'A sees the public provider catalog');
-select is((select count(*) from public.reviews where subject_role='provider')::int, 1, 'A sees the public provider review');
+select is((select count(*) from public.provider_profiles where member_id in ('cccccccc-cccc-cccc-cccc-cccccccccccc','dddddddd-dddd-dddd-dddd-dddddddddddd','eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee'))::int, 3, 'A sees the public provider catalog');
+select is((select count(*) from public.reviews where subject_id='cccccccc-cccc-cccc-cccc-cccccccccccc' and subject_role='provider')::int, 1, 'A sees the public provider review');
 select is((select count(*) from public.reviews where subject_role='requester')::int, 1, 'A (party) sees the review written about them');
 
 -- ===== Provider V (granted rA, quoted) ======================================
@@ -76,7 +76,7 @@ select is((select count(*) from public.requests where id='22222222-2222-2222-222
 select is((select count(*) from public.offers)::int, 1, 'V sees their own offer');
 select is((select count(*) from public.messages)::int, 2, 'V (party) sees the thread');
 select is((select count(*) from public.payouts)::int, 1, 'V sees their own payout');
-select is((select count(*) from public.provider_profiles)::int, 3, 'V sees the public catalog');
+select is((select count(*) from public.provider_profiles where member_id in ('cccccccc-cccc-cccc-cccc-cccccccccccc','dddddddd-dddd-dddd-dddd-dddddddddddd','eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee'))::int, 3, 'V sees the public catalog');
 
 -- ===== Provider D (no grants) ===============================================
 set local request.jwt.claims = '{"sub":"user_D"}';
@@ -84,7 +84,7 @@ select is((select count(*) from public.requests)::int, 0, 'D (ungranted) sees ze
 select is((select count(*) from public.quotes)::int, 0, 'D sees zero quotes');
 select is((select count(*) from public.messages)::int, 0, 'D sees zero messages');
 select is((select count(*) from public.payouts)::int, 0, 'D sees zero payouts');
-select is((select count(*) from public.provider_profiles)::int, 3, 'D can still browse the public catalog');
+select is((select count(*) from public.provider_profiles where member_id in ('cccccccc-cccc-cccc-cccc-cccccccccccc','dddddddd-dddd-dddd-dddd-dddddddddddd','eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee'))::int, 3, 'D can still browse the public catalog');
 
 -- ===== Requester B (owns rB, unrelated to rA) ===============================
 set local request.jwt.claims = '{"sub":"user_B"}';
