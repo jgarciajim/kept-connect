@@ -1,0 +1,92 @@
+/* ============================================================
+   Kept Connect — UI library stylesheet. Consumers import THIS file.
+   It pulls in the token layer, then defines the dark surface remap,
+   motion keyframes, and the few interaction rules that let every
+   primitive stay a server component (no client-side state).
+   ============================================================ */
+
+@import "./tokens.css";
+
+/* ------------------------------------------------------------
+   Surface remap — the dark mechanism.
+   <Surface tone="dark"> renders .kc-surface-dark. Re-pointing the
+   semantic tokens here means every primitive (Button, Card, Tag,
+   Avatar, Field, CategoryIcon…) renders correctly on the provider
+   app's chrome with ZERO per-component dark code. Each override
+   targets a base token that is NOT itself remapped (chrome-*,
+   *-bright, literal hex), so there are no circular var() references.
+   ------------------------------------------------------------ */
+.kc-surface {
+  background: var(--canvas);
+  color: var(--ink);
+}
+
+.kc-surface-dark {
+  --canvas:   var(--chrome);
+  --paper:    var(--chrome-card);
+  --moment:   var(--chrome-card);
+  --neutral:  var(--chrome-card-2);
+  --hairline: var(--chrome-line);
+
+  --ink:   var(--chrome-cream);
+  --ink-2: var(--chrome-dim);
+  --ink-3: var(--chrome-dim);
+
+  --terracotta: var(--terracotta-bright);
+  --verified:   var(--verified-bright);
+
+  --tag-bg:  var(--chrome-card-2);
+  --tag-ink: var(--chrome-dim);
+
+  /* Category hues brighten ~9% on dark for legibility against chrome.
+     Redefined off literal base hex (not var(--cat-*)) to avoid a
+     circular self-reference. Chips also mix more hue in. */
+  --cat-water:     color-mix(in srgb, #2E6FB0, white 18%);
+  --cat-power:     color-mix(in srgb, #E0A12E, white 18%);
+  --cat-climate:   color-mix(in srgb, #2C8A8A, white 18%);
+  --cat-structure: color-mix(in srgb, #4E6378, white 18%);
+  --cat-surfaces:  color-mix(in srgb, #6B5BD0, white 18%);
+  --cat-grounds:   color-mix(in srgb, #6F8F3F, white 18%);
+  --cat-care:      color-mix(in srgb, #A86A86, white 18%);
+  --cat-fixtures:  color-mix(in srgb, #7B7064, white 18%);
+  --cat-chip-mix:  22%;
+
+  background: var(--canvas);
+  color: var(--ink);
+}
+
+/* ------------------------------------------------------------
+   Motion — the single orchestrated animation: the live-match
+   "responding" ring gently pulses while the network searches.
+   ------------------------------------------------------------ */
+@keyframes kc-ring-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--ink-3) 0%, transparent); }
+  50%      { box-shadow: 0 0 0 5px color-mix(in srgb, var(--ink-3) 20%, transparent); }
+}
+.kc-ring--responding { animation: kc-ring-pulse 1.6s var(--ease) infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .kc-ring--responding { animation: none !important; }
+}
+
+/* ------------------------------------------------------------
+   Interaction CSS — kept here (not inline) so primitives need no
+   client-side state and stay server components.
+   ------------------------------------------------------------ */
+.kc-btn {
+  transition: background var(--dur-fast) var(--ease),
+              border-color var(--dur-fast) var(--ease),
+              transform var(--dur-fast) var(--ease);
+}
+.kc-btn:not(:disabled):active { transform: scale(0.97); }
+
+/* Field focus: terracotta border + soft tint halo, via :focus-within
+   so the <Field> wrapper reacts without a useState focus flag. */
+.kc-field__control {
+  transition: border-color var(--dur-fast) var(--ease),
+              box-shadow var(--dur-fast) var(--ease);
+}
+.kc-field:focus-within .kc-field__control {
+  border-color: var(--terracotta);
+  box-shadow: 0 0 0 3px var(--terracotta-tint);
+}
