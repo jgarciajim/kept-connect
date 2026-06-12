@@ -1,0 +1,28 @@
+name: CI
+
+# The identity foundation's isolation boundary is enforced in Postgres (RLS) and
+# proven by a pgTAP test. Run it on every push so any regression that would let a
+# provider see an ungranted request fails the build.
+on:
+  push:
+  pull_request:
+
+jobs:
+  db-isolation:
+    name: RLS isolation test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: 2.106.0
+
+      # Starts local Postgres and applies supabase/migrations (schema + RLS).
+      - name: Start local database
+        run: supabase db start
+
+      # pgTAP: asserts grant-based isolation. Non-zero exit (any leaked row) fails CI.
+      - name: Run isolation test
+        run: supabase db test
