@@ -33,13 +33,13 @@ export interface Service {
 
 export const SERVICES: Service[] = [
   { slug: "plumbing", label: "Plumbing", family: "water", icon: "water-plumbing.png", featured: true },
-  { slug: "electrical", label: "Electrical", family: "power", icon: "power-electrical.png" },
+  { slug: "electrical", label: "Electrical", family: "power", icon: "power-electrical.png", featured: true },
   { slug: "heating", label: "Heating & Cooling", family: "climate", icon: "climate-heating.png", featured: true },
   { slug: "handyman", label: "Handyman", family: "structure", icon: "structure-handyman.png", featured: true },
-  { slug: "roofing", label: "Roofing", family: "structure", icon: "structure-roofing.png" },
-  { slug: "painting", label: "Painting", family: "surfaces", icon: "surfaces-paint.png" },
+  { slug: "roofing", label: "Roofing", family: "structure", icon: "structure-roofing.png", featured: true },
+  { slug: "painting", label: "Painting", family: "surfaces", icon: "surfaces-paint.png", featured: true },
   { slug: "window-cleaning", label: "Window Cleaning", family: "surfaces", icon: "surfaces-window.png" },
-  { slug: "flooring", label: "Flooring", family: "surfaces", icon: "surfaces-flooring.png" },
+  { slug: "flooring", label: "Flooring", family: "surfaces", icon: "surfaces-flooring.png", featured: true },
   { slug: "yard", label: "Yard & Landscaping", family: "grounds", icon: "grounds-yard.png", featured: true },
   {
     slug: "snow-removal",
@@ -49,8 +49,8 @@ export const SERVICES: Service[] = [
     season: { fromMonth: 11, toMonth: 4 }, // Nov–Apr, wraps the year
     featured: true, // only ever reaches the home row while in season (resolver gates it)
   },
-  { slug: "home-care", label: "Home Care", family: "care", icon: "care-homecare.png" },
-  { slug: "appliances", label: "Appliances", family: "fixtures", icon: "fixtures-appliance.png" },
+  { slug: "home-care", label: "Home Care", family: "care", icon: "care-homecare.png", featured: true },
+  { slug: "appliances", label: "Appliances", family: "fixtures", icon: "fixtures-appliance.png", featured: true },
 ];
 
 /**

@@ -49,7 +49,10 @@ export default async function HomeScreen() {
       </div>
 
       <main style={{ flex: 1, overflowY: "auto", padding: "0 16px 18px" }}>
-        {/* post bar — the make-or-break flow */}
+        {/* seasonal hero — whatever campaign is live today */}
+        {hero && <SeasonalHero campaign={hero} />}
+
+        {/* post bar — the make-or-break flow (sits below the seasonal/regional banner) */}
         <Link
           href="/app/new"
           style={{
@@ -60,6 +63,7 @@ export default async function HomeScreen() {
             border: "1px solid var(--hairline)",
             borderRadius: 16,
             padding: "13px 15px",
+            marginTop: 16,
             boxShadow: "var(--shadow-card)",
             textDecoration: "none",
           }}
@@ -69,9 +73,6 @@ export default async function HomeScreen() {
             <IconArrow size={16} sw={2.2} />
           </span>
         </Link>
-
-        {/* seasonal hero — whatever campaign is live today */}
-        {hero && <SeasonalHero campaign={hero} />}
 
         {/* popular this season — featured services */}
         <SectionHeader title="Popular this season" action={{ label: "See all", href: "/app/services" }} />
