@@ -1,18 +1,19 @@
 "use client";
 
 import { useMemo, useState, type ReactNode } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { getAvailableServices, optionSlug } from "@/lib/requester/services";
-import { createRequest, type Urgency } from "@/lib/requester/requests";
+import { useSearchParams } from "next/navigation";
+import { getAvailableServices, optionSlug, getServiceOptionLabel } from "@/lib/requester/services";
+import { postRequest } from "@/lib/requester/actions";
 import { benchmarkFor, formatUsd } from "@/lib/pricing";
 import { ServiceTile } from "./ServiceTile";
 import { Button, TextField, TextArea, Segmented, PhotoPicker } from "./controls";
 
 /**
  * Composer — the calm single-scroll request form (/app/new). Reads ?service=<slug>
- * (or ?category=<family>) to pre-select, then posts through the createRequest
- * seam and routes to the request detail. Timing maps to the real `urgency` enum;
- * a scheduled date/time is held client-side (no column for it yet — flagged).
+ * (or ?category=<family>) to pre-select, then posts the real request through the
+ * postRequest server action, which redirects to /app/jobs/[id]. Timing maps to the
+ * real `urgency` enum; photos + a scheduled date/time are collected but have no
+ * columns yet (flagged for later).
  */
 type Timing = "asap" | "scheduled";
 
@@ -21,7 +22,6 @@ type Timing = "asap" | "scheduled";
 const SOMETHING_ELSE = "__else__";
 
 export function Composer() {
-  const router = useRouter();
   const params = useSearchParams();
 
   // Availability is month-stable, so computing once is safe (no hydration drift).
@@ -59,19 +59,22 @@ export function Composer() {
   async function submit() {
     if (!service || !valid || submitting) return;
     setSubmitting(true);
-    const urgency: Urgency = timing === "asap" ? "same_day" : "whenever";
-    const request = await createRequest({
-      serviceSlug: service.slug,
-      category: service.family,
-      title: service.label,
-      description: description.trim(),
-      option: picked && picked !== SOMETHING_ELSE ? picked : null,
-      photos,
-      locationLabel: address.trim(),
-      urgency,
-      scheduledFor: timing === "scheduled" ? scheduledFor : null,
-    });
-    router.push(`/app/requests/${request.id}`);
+    const urgency = timing === "asap" ? "same_day" : "whenever";
+    const optionPicked = picked && picked !== SOMETHING_ELSE ? picked : null;
+    const optionLabel = optionPicked ? getServiceOptionLabel(service.slug, optionPicked) : null;
+    const title = optionLabel ? `${service.label} · ${optionLabel}` : service.label;
+
+    // Post the real request (RLS-scoped); the action redirects to /app/jobs/[id].
+    // photos + scheduledFor have no columns yet — collected but not persisted (flagged).
+    const fd = new FormData();
+    fd.set("serviceSlug", service.slug);
+    fd.set("category", service.family);
+    fd.set("title", title);
+    if (optionPicked) fd.set("option", optionPicked);
+    fd.set("description", description.trim());
+    fd.set("urgency", urgency);
+    fd.set("locationLabel", address.trim());
+    await postRequest(fd);
   }
 
   return (

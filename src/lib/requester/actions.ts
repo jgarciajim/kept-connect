@@ -16,28 +16,37 @@ async function myMember(sb: Awaited<ReturnType<typeof createServerSupabaseClient
   return data as { id: string; display_name: string | null } | null;
 }
 
-/** Post a job → inserts a real request (status 'finding'), then opens it. */
+/**
+ * Post a job → inserts a real request (status 'finding'), then opens it. Accepts
+ * the composer's full shape (service slug, headline title, chosen option, location)
+ * and stays backward-compatible with the simpler /app/post form (those fields just
+ * default). `service_slug` keys provider pricing; `category` keys trade matching.
+ */
 export async function postRequest(formData: FormData): Promise<void> {
+  const serviceSlug = String(formData.get("serviceSlug") || "").trim();
   const category = String(formData.get("category") || "fixtures");
   const urgency = String(formData.get("urgency") || "same_day");
   const description = String(formData.get("description") || "").trim();
+  const locationLabel = String(formData.get("locationLabel") || "").trim() || "14 Birch Lane";
+  const titleInput = String(formData.get("title") || "").trim();
 
   const sb = await createServerSupabaseClient();
   const me = await myMember(sb);
   if (!me) redirect("/app");
 
-  const title = description ? description.split(/[.\n]/)[0].slice(0, 48) : "New job";
+  const title = titleInput || (description ? description.split(/[.\n]/)[0].slice(0, 48) : "New job");
   const { data, error } = await sb
     .from("requests")
     .insert({
       requester_id: me!.id,
       requester_name: me!.display_name,
       category,
+      service_slug: serviceSlug || null,
       urgency,
       description,
       title,
       status: "finding",
-      location_label: "14 Birch Lane",
+      location_label: locationLabel,
     })
     .select("id")
     .single();

@@ -1,6 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { CategoryKey } from "@/components/ui";
-import type { Offer, ScheduledJob, ActiveJob, Payout, EarningsSummary, ProviderSelf } from "./mock";
+import type { Offer, ScheduledJob, ActiveJob, Payout, EarningsSummary, ProviderSelf, ProviderRate, OpenRequest } from "./mock";
 
 /**
  * Provider data layer — PURE query functions (take a Supabase client; no Clerk/
@@ -45,6 +45,7 @@ export async function qGetProviderSelf(c: SupabaseClient): Promise<ProviderSelf 
     availableToCashOut: money(w?.available_to_cashout),
     credentials: p.credentials ?? [],
     trades: p.trade_labels ?? [],
+    tradeKeys: (p.trades ?? []) as CategoryKey[],
   };
 }
 
@@ -116,6 +117,60 @@ export async function qGetActiveJob(c: SupabaseClient, id: string): Promise<Acti
     addressLine: r.location_label ?? "",
     payout: money(r.agreed_price),
   };
+}
+
+export async function qGetProviderRates(c: SupabaseClient): Promise<ProviderRate[]> {
+  const meId = await myMemberId(c);
+  if (!meId) return [];
+  const { data } = await c
+    .from("provider_rates")
+    .select("service_slug, amount, rate_source")
+    .eq("member_id", meId);
+  return (data ?? []).map((r) => ({
+    serviceSlug: r.service_slug,
+    amount: money(r.amount),
+    rateSource: r.rate_source === "benchmark" ? "benchmark" : "own",
+  }));
+}
+
+function mapOpenRequest(r: {
+  id: string; category: CategoryKey | null; service_slug: string | null;
+  title: string | null; description: string | null; location_label: string | null;
+  urgency: string | null; created_at: string;
+}): OpenRequest {
+  return {
+    id: r.id,
+    trade: (r.category ?? "fixtures") as CategoryKey,
+    serviceSlug: r.service_slug ?? null,
+    title: r.title ?? "",
+    place: r.location_label ?? "",
+    description: r.description ?? "",
+    urgency: r.urgency ?? "same_day",
+    when: relativeWhen(r.created_at),
+  };
+}
+
+// Open (finding) requests in the provider's trade — RLS does the trade/status
+// filtering (requests_select_open_for_trade_provider). Excludes the member's own.
+export async function qGetOpenRequests(c: SupabaseClient): Promise<OpenRequest[]> {
+  const meId = await myMemberId(c);
+  const { data } = await c
+    .from("requests")
+    .select("id, category, service_slug, title, description, location_label, urgency, created_at, requester_id")
+    .eq("status", "finding")
+    .order("created_at", { ascending: false });
+  return (data ?? []).filter((r) => r.requester_id !== meId).map(mapOpenRequest);
+}
+
+export async function qGetOpenRequest(c: SupabaseClient, id: string): Promise<OpenRequest | null> {
+  const { data } = await c
+    .from("requests")
+    .select("id, category, service_slug, title, description, location_label, urgency, created_at")
+    .eq("id", id)
+    .eq("status", "finding")
+    .maybeSingle();
+  if (!data) return null;
+  return mapOpenRequest(data);
 }
 
 export async function qGetEarnings(c: SupabaseClient): Promise<EarningsSummary> {

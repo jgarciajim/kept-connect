@@ -34,6 +34,10 @@ export const feeConfig: Record<FeeMode, FeeConfig> = {
 export const activeFeeMode: FeeMode = raw.connectFeeConfig.active === "mature" ? "MATURE" : "SEED";
 export const activeFeeConfig: FeeConfig = feeConfig[activeFeeMode];
 
+// The seed's pull date — the version stamped on a provider's benchmark opt-in so
+// the classification audit trail records exactly which benchmark they accepted.
+export const BENCHMARK_VERSION: string = raw._meta.pulled;
+
 // 94 catalog services, money in cents.
 export const services: SeedService[] = raw.services.map((s) => ({
   slug: s.slug,

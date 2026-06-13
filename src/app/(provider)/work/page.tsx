@@ -1,15 +1,16 @@
 import Link from "next/link";
 import { KeptConnectLogo, CategoryIcon } from "@/components/ui";
-import { getProviderSelf, getCurrentOffer, getScheduledJobs } from "@/lib/provider/mock";
+import { getProviderSelf, getCurrentOffer, getScheduledJobs, getOpenRequests } from "@/lib/provider/mock";
 import { VBottomNav } from "../_components/VBottomNav";
 import { OfferCard } from "../_components/OfferCard";
 import { ProviderEmptyState } from "../_components/ProviderEmptyState";
 
 export default async function FeedScreen() {
-  const [self, offer, scheduled] = await Promise.all([
+  const [self, offer, scheduled, openRequests] = await Promise.all([
     getProviderSelf(),
     getCurrentOffer(),
     getScheduledJobs(),
+    getOpenRequests(),
   ]);
 
   if (!self) return <ProviderEmptyState tab="jobs" />;
@@ -50,6 +51,34 @@ export default async function FeedScreen() {
           <OfferCard offer={offer} />
         ) : (
           <div style={{ color: "var(--chrome-dim)", fontSize: 13, padding: "8px 4px", fontFamily: "var(--font-ui)" }}>No offers right now — hang tight.</div>
+        )}
+
+        {/* open requests in your trade — browse + send an offer */}
+        <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", margin: "18px 4px 9px" }}>
+          <span style={{ fontSize: 11.5, color: "var(--chrome-dim)", fontFamily: "var(--font-ui)" }}>Open requests near you</span>
+          <Link href="/work/rates" style={{ fontSize: 11.5, color: "var(--terracotta-bright)", fontFamily: "var(--font-ui)", textDecoration: "none", fontWeight: 500 }}>
+            Set your rates
+          </Link>
+        </div>
+        {openRequests.length === 0 ? (
+          <div style={{ color: "var(--chrome-dim)", fontSize: 13, padding: "8px 4px", fontFamily: "var(--font-ui)" }}>No open requests in your trade right now.</div>
+        ) : (
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {openRequests.map((r) => (
+              <Link
+                key={r.id}
+                href={`/work/requests/${r.id}`}
+                style={{ display: "flex", alignItems: "center", gap: 11, background: "var(--chrome-card)", border: "1px solid var(--chrome-line)", borderRadius: 14, padding: "11px 12px", textDecoration: "none" }}
+              >
+                <CategoryIcon category={r.trade} size={36} />
+                <div style={{ minWidth: 0 }}>
+                  <div style={{ fontSize: 13.5, fontWeight: 500, color: "var(--chrome-cream)", fontFamily: "var(--font-ui)" }}>{r.title}</div>
+                  <div style={{ fontSize: 11.5, color: "var(--chrome-dim)", fontFamily: "var(--font-ui)" }}>{r.place} · {r.when}</div>
+                </div>
+                <span style={{ marginLeft: "auto", fontSize: 11.5, color: "var(--terracotta-bright)", fontFamily: "var(--font-ui)", fontWeight: 500, flex: "0 0 auto" }}>Offer →</span>
+              </Link>
+            ))}
+          </div>
         )}
 
         {/* scheduled */}

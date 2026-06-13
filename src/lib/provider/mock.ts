@@ -70,7 +70,27 @@ export interface ProviderSelf {
   online: boolean;
   availableToCashOut: string;
   credentials: string[];
-  trades: string[];
+  trades: string[]; // display labels
+  tradeKeys: CategoryKey[]; // the category enum keys (for matching services)
+}
+
+/** A provider's own price for a service (the classification spine). */
+export interface ProviderRate {
+  serviceSlug: string;
+  amount: string; // dollars, tabular
+  rateSource: "own" | "benchmark";
+}
+
+/** An open (finding) request in the provider's trade — the supply feed. */
+export interface OpenRequest {
+  id: string;
+  trade: CategoryKey;
+  serviceSlug: string | null;
+  title: string;
+  place: string;
+  description: string;
+  urgency: string;
+  when: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -94,4 +114,16 @@ export async function getActiveJob(id: string): Promise<ActiveJob | null> {
 
 export async function getEarnings(): Promise<EarningsSummary> {
   return q.qGetEarnings(await createServerSupabaseClient());
+}
+
+export async function getProviderRates(): Promise<ProviderRate[]> {
+  return q.qGetProviderRates(await createServerSupabaseClient());
+}
+
+export async function getOpenRequests(): Promise<OpenRequest[]> {
+  return q.qGetOpenRequests(await createServerSupabaseClient());
+}
+
+export async function getOpenRequest(id: string): Promise<OpenRequest | null> {
+  return q.qGetOpenRequest(await createServerSupabaseClient(), id);
 }

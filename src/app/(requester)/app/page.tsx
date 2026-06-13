@@ -15,7 +15,6 @@ import { CAMPAIGN_THEMES } from "@/lib/requester/campaignThemes";
 import { getFeaturedServices } from "@/lib/requester/services";
 import { BottomNav } from "../_components/BottomNav";
 import { ServiceTile } from "../_components/ServiceTile";
-import { InProgressRequests } from "../_components/InProgressRequests";
 import { IconArrow, IconPin, IconChevron } from "../_components/icons";
 
 // The viewer's region. Static for now; later it comes from the member profile —
@@ -107,14 +106,19 @@ export default async function HomeScreen() {
         <SectionHeader title="In your area" />
         <AreaInsightCard insight={insight} />
 
-        {/* in progress — live lifecycle requests first, then seeded examples. No seasonal tint. */}
-        <SectionHeader title="In progress" action={{ label: "See all", href: "/app/requests" }} />
-        <InProgressRequests />
-        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-          {jobs.map((job) => (
-            <JobCard key={job.id} job={job} />
-          ))}
-        </div>
+        {/* in progress — the requester's live jobs (real, RLS-scoped). No seasonal tint. */}
+        <SectionHeader title="In progress" />
+        {jobs.length === 0 ? (
+          <p style={{ fontSize: 13, color: "var(--ink-3)", fontFamily: "var(--font-ui)", margin: "0 2px" }}>
+            Nothing in progress yet — post a job to get started.
+          </p>
+        ) : (
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {jobs.map((job) => (
+              <JobCard key={job.id} job={job} />
+            ))}
+          </div>
+        )}
       </main>
 
       <BottomNav active="home" />

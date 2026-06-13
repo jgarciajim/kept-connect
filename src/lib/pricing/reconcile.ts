@@ -78,6 +78,17 @@ export function benchmarkFor(slug: string): Benchmark | null {
   };
 }
 
+/**
+ * A single representative benchmark amount (cents) for a service — the midpoint of
+ * the family range — used when a provider opts into the benchmark as their rate
+ * (an offer needs one number, not a range). null for gap tiles (no benchmark).
+ */
+export function benchmarkMidpoint(slug: string): number | null {
+  const b = benchmarkFor(slug);
+  if (!b) return null;
+  return Math.round((b.low + b.high) / 2);
+}
+
 export interface CatalogMatch {
   slug: string;
   label: string;
