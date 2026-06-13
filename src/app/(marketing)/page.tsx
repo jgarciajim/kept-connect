@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Hero } from "./_components/Hero";
 import { HowItWorks } from "./_components/HowItWorks";
+import { ServicesShowcase } from "./_components/ServicesShowcase";
 import { TrustStrip } from "./_components/TrustStrip";
 import { ForProviders } from "./_components/ForProviders";
 
@@ -16,6 +17,7 @@ export default function MarketingHome() {
     <main>
       <Hero />
       <HowItWorks />
+      <ServicesShowcase />
       <TrustStrip />
       <ForProviders />
     </main>
