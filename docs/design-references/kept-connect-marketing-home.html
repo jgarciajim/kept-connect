@@ -1,0 +1,164 @@
+<meta charset="utf-8">
+<title>Kept Connect — marketing home</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Hanken+Grotesk:wght@400;500;600&display=swap');
+  :root{
+    --canvas:#F6F4EF;--paper:#FFFFFF;--hairline:#ECEAE3;
+    --ink:#1B1C19;--ink-2:#6E6C63;--ink-3:#A4A299;
+    --tc:#BD5E39;--tc-deep:#A8502F;--moment:#F2ECDF;--verified:#2C8A63;
+    --cat-water:#2E6FB0;--cat-power:#E0A12E;--cat-climate:#2C8A8A;--cat-structure:#4E6378;
+    --cat-surfaces:#6B5BD0;--cat-grounds:#6F8F3F;--cat-care:#A86A86;--cat-fixtures:#7B7064;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:#E7E4DC;color:var(--ink);font-family:'Hanken Grotesk',system-ui,sans-serif;-webkit-font-smoothing:antialiased;line-height:1.5}
+  .wrap{max-width:440px;margin:0 auto;padding:26px 14px 50px}
+  .lead{color:#6E6C63;font-size:13px;margin:0 0 14px;text-align:center}
+  .phone{background:#0c0c0b;border-radius:44px;padding:9px;box-shadow:0 24px 60px -20px rgba(0,0,0,.45)}
+  .screen{background:var(--canvas);border-radius:36px;overflow:hidden}
+  .statusbar{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--ink-2);padding:11px 22px 2px;background:var(--paper)}
+  .statusbar .dots{display:flex;gap:4px}.statusbar .dots i{width:5px;height:5px;border-radius:9px;background:var(--ink-3);display:block}
+  .pad{padding:10px 16px 0}
+
+  .top{display:flex;align-items:center;gap:8px;background:var(--paper);padding:6px 16px 14px}
+  .loc{display:flex;align-items:center;gap:6px;font-weight:600;font-size:15px}
+  .loc svg{width:16px;height:16px}
+  .me{margin-left:auto;width:34px;height:34px;border-radius:999px;background:#d9d4ca;display:flex;align-items:center;justify-content:center;font-size:12px;color:#55514a;border:2px solid #fff}
+
+  .post{display:flex;align-items:center;gap:10px;background:var(--paper);border:1px solid var(--hairline);border-radius:16px;padding:13px 15px;box-shadow:0 6px 18px -12px rgba(0,0,0,.2)}
+  .post .q{flex:1;font-family:'Fraunces',Georgia,serif;font-size:16px;color:var(--ink)}
+  .post .go{width:32px;height:32px;border-radius:999px;background:var(--tc);display:flex;align-items:center;justify-content:center}
+  .post .go svg{width:16px;height:16px}
+
+  /* seasonal campaign hero */
+  .hero{margin-top:16px;border-radius:22px;overflow:hidden;position:relative;
+        background:linear-gradient(135deg,#EAF1F4 0%,#E3EAEE 60%,#DEE7E2 100%);padding:20px 18px}
+  .hero .kick{font-size:11.5px;font-weight:600;letter-spacing:.06em;color:#5C7D8A;text-transform:uppercase}
+  .hero h2{font-family:'Fraunces',Georgia,serif;font-weight:600;font-size:25px;line-height:1.05;margin:7px 0 6px;max-width:78%}
+  .hero h2 .dot{color:var(--tc)}
+  .hero p{font-size:13.5px;color:#41555E;margin:0 0 15px;max-width:74%}
+  .hero .cta{display:inline-flex;background:var(--tc);color:#fff;font-size:13.5px;font-weight:600;border-radius:999px;padding:10px 18px}
+  .hero .art{position:absolute;right:-6px;bottom:-6px;width:138px;height:138px;opacity:.95}
+
+  .sec{display:flex;align-items:baseline;justify-content:space-between;margin:24px 2px 12px}
+  .sec h3{font-family:'Fraunces',Georgia,serif;font-weight:500;font-size:18px;margin:0}
+  .sec a{font-size:12.5px;color:var(--tc);font-weight:500}
+
+  /* category tiles with seasonal/promo badges */
+  .cats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+  .cat{position:relative;display:flex;flex-direction:column;align-items:center;gap:7px}
+  .cat .ic{width:100%;aspect-ratio:1;border-radius:18px;background:var(--paper);border:1px solid var(--hairline);display:flex;align-items:center;justify-content:center}
+  .cat .ic svg{width:28px;height:28px}
+  .cat span{font-size:11.5px;color:var(--ink-2)}
+  .badge{position:absolute;top:-7px;left:50%;transform:translateX(-50%);font-size:9.5px;font-weight:600;color:#fff;background:var(--tc);padding:2px 8px;border-radius:999px;white-space:nowrap;z-index:2}
+  .badge.pop{background:var(--ink)}
+
+  /* editorial carousel */
+  .rail{display:flex;gap:12px;overflow-x:auto;padding:2px 2px 4px;margin:0 -16px;padding-left:16px;padding-right:16px;scrollbar-width:none}
+  .rail::-webkit-scrollbar{display:none}
+  .ecard{flex:0 0 188px;background:var(--paper);border:1px solid var(--hairline);border-radius:18px;overflow:hidden}
+  .ecard .top-img{height:108px;display:flex;align-items:center;justify-content:center}
+  .ecard .body{padding:11px 13px 14px}
+  .ecard h4{font-family:'Fraunces',Georgia,serif;font-weight:500;font-size:15px;margin:0 0 3px;line-height:1.1}
+  .ecard p{font-size:12px;color:var(--ink-2);margin:0}
+
+  /* local insight */
+  .insight{margin-top:8px;background:var(--moment);border-radius:18px;padding:16px 18px}
+  .insight .k{font-size:11.5px;font-weight:600;letter-spacing:.05em;color:var(--tc-deep);text-transform:uppercase}
+  .insight h4{font-family:'Fraunces',Georgia,serif;font-weight:500;font-size:17px;margin:5px 0 10px}
+  .insight .stats{display:flex;gap:18px}
+  .insight .st{display:flex;flex-direction:column}
+  .insight .st b{font-size:17px;font-weight:600;font-variant-numeric:tabular-nums;font-family:'Fraunces',Georgia,serif}
+  .insight .st span{font-size:11px;color:var(--ink-2)}
+
+  /* in progress */
+  .job{display:flex;align-items:center;gap:11px;background:var(--paper);border:1px solid var(--hairline);border-radius:16px;padding:12px;margin-top:10px}
+  .avw{padding:2px;border-radius:999px;background:var(--tc);flex:0 0 auto}
+  .av{width:36px;height:36px;border-radius:999px;background:#cfd6dd;display:flex;align-items:center;justify-content:center;font-size:12px;color:#46505a;border:2px solid #fff}
+  .nm{display:flex;align-items:center;gap:5px;font-size:14px;font-weight:500}
+  .nm .vf{width:14px;height:14px}
+  .meta{font-size:12px;color:var(--ink-2);display:flex;align-items:center;gap:6px;margin-top:1px}
+  .meta .liv{width:6px;height:6px;border-radius:9px;background:var(--tc);display:inline-block}
+  .rt{margin-left:auto;text-align:right}.rt .pr{font-size:14px;font-weight:600;font-variant-numeric:tabular-nums}.rt .et{font-size:11px;color:var(--ink-3)}
+
+  .nav{display:flex;justify-content:space-around;align-items:center;padding:12px 18px 18px;border-top:1px solid var(--hairline);background:var(--paper);margin-top:22px}
+  .nav .it{display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--ink-3)}
+  .nav .it.on{color:var(--tc)}
+  .nav .it svg{width:22px;height:22px}.nav .it span{font-size:9.5px}
+</style>
+
+<div class="wrap">
+  <p class="lead">Uber's marketing layer, translated into Connect — seasonal campaign hero, badged categories, an editorial rail, and a local-insight card. Terracotta identity throughout; the action color never changes, only the campaign art carries the season.</p>
+  <div class="phone"><div class="screen">
+    <div class="statusbar"><span>8:55</span><div class="dots"><i></i><i></i><i></i></div></div>
+    <div class="top">
+      <div class="loc">Breckenridge ▾</div>
+      <div class="me">G</div>
+    </div>
+    <div class="pad">
+      <div class="post"><span class="q">What needs doing?</span>
+        <div class="go"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M13 6l6 6-6 6"/></svg></div>
+      </div>
+
+      <!-- SEASONAL CAMPAIGN HERO -->
+      <div class="hero">
+        <div class="kick">Seasonal · Summit County</div>
+        <h2>Winter's coming<span class="dot">.</span></h2>
+        <p>Get your sprinklers blown out before the first hard freeze.</p>
+        <span class="cta">Schedule a blowout</span>
+        <svg class="art" viewBox="0 0 120 120" fill="none">
+          <g stroke="#9DB7C2" stroke-width="3" stroke-linecap="round">
+            <path d="M60 26 V94 M60 26 l-8 8 M60 26 l8 8 M60 94 l-8 -8 M60 94 l8 -8"/>
+            <path d="M30 60 H90 M30 60 l8 -8 M30 60 l8 8 M90 60 l-8 -8 M90 60 l8 8"/>
+            <path d="M39 39 L81 81 M39 39 l11 1 M39 39 l-1 11 M81 81 l-11 -1 M81 81 l1 -11"/>
+            <path d="M81 39 L39 81 M81 39 l-11 1 M81 39 l1 11 M39 81 l11 -1 M39 81 l-1 -11"/>
+          </g>
+          <circle cx="60" cy="60" r="6" fill="#C9DCE3"/>
+        </svg>
+      </div>
+
+      <!-- CATEGORIES with seasonal/promo badges -->
+      <div class="sec"><h3>Popular this season</h3><a>See all</a></div>
+      <div class="cats">
+        <div class="cat"><span class="badge">Seasonal</span><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="var(--cat-grounds)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5.5 18.5C5.5 10.5 11 5 19 5c0 8-5.5 13.5-13.5 13.5z"/><path d="M6 18C10 14 14 10 18 6.5"/></svg></div><span>Yard</span></div>
+        <div class="cat"><span class="badge pop">Popular</span><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="var(--cat-climate)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h10a2.4 2.4 0 1 0-2.4-2.4"/><path d="M4 14h14a2.4 2.4 0 1 1-2.4 2.4"/></svg></div><span>Heating</span></div>
+        <div class="cat"><span class="badge">Seasonal</span><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="var(--cat-water)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5C12 3.5 6.5 9.5 6.5 14a5.5 5.5 0 0 0 11 0C17.5 9.5 12 3.5 12 3.5z"/></svg></div><span>Plumbing</span></div>
+        <div class="cat"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="var(--cat-fixtures)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="9" r="3.2"/><path d="M10.3 11.3 19 20M16 17l2-2"/></svg></div><span>Handyman</span></div>
+      </div>
+
+      <!-- EDITORIAL CAROUSEL -->
+      <div class="sec"><h3>Get ahead of the season</h3></div>
+      <div class="rail">
+        <div class="ecard"><div class="top-img" style="background:#EDE5D8"><svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="#9C7B3A" stroke-width="1.6"><path d="M3 9h18l-2 4H5z"/><path d="M5 13v6M19 13v6"/></svg></div><div class="body"><h4>Gutter cleaning</h4><p>Before the leaves pile up</p></div></div>
+        <div class="ecard"><div class="top-img" style="background:#E5EAEA"><svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="#2C8A8A" stroke-width="1.6"><rect x="4" y="5" width="16" height="11" rx="2"/><path d="M8 20h8M12 16v4"/></svg></div><div class="body"><h4>Furnace tune-up</h4><p>Beat the winter rush</p></div></div>
+        <div class="ecard"><div class="top-img" style="background:#E7EDE0"><svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="#6F8F3F" stroke-width="1.6"><path d="M5.5 18.5C5.5 10.5 11 5 19 5c0 8-5.5 13.5-13.5 13.5z"/></svg></div><div class="body"><h4>Fall yard reset</h4><p>Leaf haul + winterize beds</p></div></div>
+      </div>
+
+      <!-- LOCAL INSIGHT -->
+      <div class="sec"><h3>In your area</h3></div>
+      <div class="insight">
+        <div class="k">Summit County · right now</div>
+        <h4>Pros are responding fast this week.</h4>
+        <div class="stats">
+          <div class="st"><b>~$140</b><span>avg quote</span></div>
+          <div class="st"><b>2 hrs</b><span>avg response</span></div>
+          <div class="st"><b>38</b><span>pros nearby</span></div>
+        </div>
+      </div>
+
+      <!-- IN PROGRESS -->
+      <div class="sec"><h3>In progress</h3></div>
+      <div class="job">
+        <div class="avw"><div class="av">MR</div></div>
+        <div><div class="nm">Marco R. <svg class="vf" viewBox="0 0 24 24" fill="none" stroke="var(--verified)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5 10 17 19 6.5"/></svg></div>
+          <div class="meta"><span class="liv"></span> Plumbing · On the way</div></div>
+        <div class="rt"><div class="pr">$120</div><div class="et">12 min</div></div>
+      </div>
+    </div>
+    <div class="nav">
+      <div class="it on"><svg viewBox="0 0 24 24" fill="none" stroke="var(--tc)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11 12 4l8 7v8a1 1 0 0 1-1 1h-4v-5h-6v5H5a1 1 0 0 1-1-1z"/></svg><span>Home</span></div>
+      <div class="it"><svg viewBox="0 0 24 24" fill="none" stroke="#A4A299" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="12" height="17" rx="2.5"/><path d="M9 11h6M9 15h4"/></svg><span>Jobs</span></div>
+      <div class="it"><svg viewBox="0 0 24 24" fill="none" stroke="#A4A299" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 5h14a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H9l-4 4V6a1 1 0 0 1 1-1z"/></svg><span>Messages</span></div>
+      <div class="it"><svg viewBox="0 0 24 24" fill="none" stroke="#A4A299" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8.5" r="3.5"/><path d="M5.5 20a6.5 6.5 0 0 1 13 0"/></svg><span>You</span></div>
+    </div>
+  </div></div>
+</div>
