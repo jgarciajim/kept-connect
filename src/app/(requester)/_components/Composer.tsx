@@ -2,7 +2,7 @@
 
 import { useMemo, useState, type ReactNode } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { getAvailableServices } from "@/lib/requester/services";
+import { getAvailableServices, optionSlug } from "@/lib/requester/services";
 import { createRequest, type Urgency } from "@/lib/requester/requests";
 import { benchmarkFor, formatUsd } from "@/lib/pricing";
 import { ServiceTile } from "./ServiceTile";
@@ -15,6 +15,10 @@ import { Button, TextField, TextArea, Segmented, PhotoPicker } from "./controls"
  * a scheduled date/time is held client-side (no column for it yet — flagged).
  */
 type Timing = "asap" | "scheduled";
+
+// Sentinel for the "Something else" chip: an explicit choice to lean on free text
+// (distinct from null = nothing picked yet). Never persisted — maps to no option.
+const SOMETHING_ELSE = "__else__";
 
 export function Composer() {
   const router = useRouter();
@@ -35,6 +39,9 @@ export function Composer() {
   }, [params, services]);
 
   const [slug, setSlug] = useState(initialSlug);
+  // The chosen quick-pick: an option slug, the SOMETHING_ELSE sentinel, or null
+  // (nothing picked). Resets whenever the service changes.
+  const [picked, setPicked] = useState<string | null>(null);
   const [description, setDescription] = useState("");
   const [photos, setPhotos] = useState<string[]>([]);
   const [address, setAddress] = useState("");
@@ -58,6 +65,7 @@ export function Composer() {
       category: service.family,
       title: service.label,
       description: description.trim(),
+      option: picked && picked !== SOMETHING_ELSE ? picked : null,
       photos,
       locationLabel: address.trim(),
       urgency,
@@ -71,7 +79,16 @@ export function Composer() {
       <Section label="Service">
         <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10 }}>
           {services.map((s) => (
-            <ServiceTile key={s.slug} service={s} iconSize={48} selected={s.slug === slug} onSelect={() => setSlug(s.slug)} />
+            <ServiceTile
+              key={s.slug}
+              service={s}
+              iconSize={48}
+              selected={s.slug === slug}
+              onSelect={() => {
+                setSlug(s.slug);
+                setPicked(null); // a new service clears the previous job pick
+              }}
+            />
           ))}
         </div>
         {service && (
@@ -91,6 +108,18 @@ export function Composer() {
           </div>
         )}
       </Section>
+
+      {service && service.options.length > 0 && (
+        <Section label="Common jobs" hint="Optional">
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+            {service.options.map((label) => {
+              const value = optionSlug(label);
+              return <OptionChip key={value} label={label} selected={picked === value} onSelect={() => setPicked(value)} />;
+            })}
+            <OptionChip label="Something else" selected={picked === SOMETHING_ELSE} onSelect={() => setPicked(SOMETHING_ELSE)} />
+          </div>
+        </Section>
+      )}
 
       <Section label="What needs doing?">
         <TextArea value={description} onChange={setDescription} placeholder="What needs doing? Where in the home?" rows={4} />
@@ -134,6 +163,32 @@ export function Composer() {
         </Button>
       </div>
     </div>
+  );
+}
+
+// A single quick-pick job chip. Selected = terracotta (the action color);
+// unselected stays neutral on paper. Tokens only, no hexes.
+function OptionChip({ label, selected, onSelect }: { label: string; selected: boolean; onSelect: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onSelect}
+      aria-pressed={selected}
+      style={{
+        padding: "8px 14px",
+        borderRadius: "var(--r-pill)",
+        cursor: "pointer",
+        fontFamily: "var(--font-ui)",
+        fontSize: 13.5,
+        fontWeight: 500,
+        background: selected ? "var(--terracotta)" : "var(--paper)",
+        color: selected ? "var(--cream)" : "var(--ink)",
+        border: selected ? "1px solid var(--terracotta)" : "1px solid var(--hairline)",
+        transition: "background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease)",
+      }}
+    >
+      {label}
+    </button>
   );
 }
 

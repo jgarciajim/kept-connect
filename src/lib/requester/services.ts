@@ -29,18 +29,81 @@ export interface Service {
   icon: string; // filename under /icons/services/
   season?: Season; // omitted = year-round
   featured?: boolean; // surfaces on the home "Popular this season" row
+  options: string[]; // common jobs (quick-pick chips); a stable slug is derived per label
 }
 
 export const SERVICES: Service[] = [
-  { slug: "plumbing", label: "Plumbing", family: "water", icon: "water-plumbing.png", featured: true },
-  { slug: "electrical", label: "Electrical", family: "power", icon: "power-electrical.png", featured: true },
-  { slug: "heating", label: "Heating & Cooling", family: "climate", icon: "climate-heating.png", featured: true },
-  { slug: "handyman", label: "Handyman", family: "structure", icon: "structure-handyman.png", featured: true },
-  { slug: "roofing", label: "Roofing", family: "structure", icon: "structure-roofing.png", featured: true },
-  { slug: "painting", label: "Painting", family: "surfaces", icon: "surfaces-paint.png", featured: true },
-  { slug: "window-cleaning", label: "Window Cleaning", family: "surfaces", icon: "surfaces-window.png" },
-  { slug: "flooring", label: "Flooring", family: "surfaces", icon: "surfaces-flooring.png", featured: true },
-  { slug: "yard", label: "Yard & Landscaping", family: "grounds", icon: "grounds-yard.png", featured: true },
+  {
+    slug: "plumbing",
+    label: "Plumbing",
+    family: "water",
+    icon: "water-plumbing.png",
+    featured: true,
+    options: ["Leak repair", "Clogged drain", "Faucet repair or replace", "Toilet repair", "Water heater", "Sprinkler blowout / winterization", "Frozen pipe", "Garbage disposal"],
+  },
+  {
+    slug: "electrical",
+    label: "Electrical",
+    family: "power",
+    icon: "power-electrical.png",
+    featured: true,
+    options: ["Outlet or switch", "Light fixture install", "Ceiling fan", "Panel or breaker", "EV charger", "Power troubleshooting", "Smoke / CO detectors"],
+  },
+  {
+    slug: "heating",
+    label: "Heating & Cooling",
+    family: "climate",
+    icon: "climate-heating.png",
+    featured: true,
+    options: ["Furnace tune-up", "No heat (repair)", "Thermostat install", "AC / mini-split service", "Boiler service", "Filter change", "Vent cleaning"],
+  },
+  {
+    slug: "handyman",
+    label: "Handyman",
+    family: "structure",
+    icon: "structure-handyman.png",
+    featured: true,
+    options: ["Mount TV or shelves", "Drywall patch", "Door repair", "Furniture assembly", "Caulking", "General repairs", "Punch list"],
+  },
+  {
+    slug: "roofing",
+    label: "Roofing",
+    family: "structure",
+    icon: "structure-roofing.png",
+    featured: true,
+    options: ["Leak repair", "Roof inspection", "Ice dam removal", "Gutter repair", "Shingle replacement"],
+  },
+  {
+    slug: "painting",
+    label: "Painting",
+    family: "surfaces",
+    icon: "surfaces-paint.png",
+    featured: true,
+    options: ["Interior room", "Exterior", "Touch-ups", "Deck or fence stain", "Cabinet refinish"],
+  },
+  {
+    slug: "window-cleaning",
+    label: "Window Cleaning",
+    family: "surfaces",
+    icon: "surfaces-window.png",
+    options: ["Interior + exterior", "Exterior only", "Screens", "Track cleaning", "Hard-water removal"],
+  },
+  {
+    slug: "flooring",
+    label: "Flooring",
+    family: "surfaces",
+    icon: "surfaces-flooring.png",
+    featured: true,
+    options: ["Floor repair", "New install", "Refinish hardwood", "Tile", "Carpet"],
+  },
+  {
+    slug: "yard",
+    label: "Yard & Landscaping",
+    family: "grounds",
+    icon: "grounds-yard.png",
+    featured: true,
+    options: ["Mowing", "Leaf cleanup", "Tree or shrub trim", "Weeding / beds", "Mulch", "Spring or fall cleanup", "Irrigation"],
+  },
   {
     slug: "snow-removal",
     label: "Snow Removal",
@@ -48,9 +111,24 @@ export const SERVICES: Service[] = [
     icon: "grounds-snow.png",
     season: { fromMonth: 11, toMonth: 4 }, // Nov–Apr, wraps the year
     featured: true, // only ever reaches the home row while in season (resolver gates it)
+    options: ["Driveway clear", "Walkway & steps", "Roof rake", "Seasonal contract", "Ice dam", "De-icing"],
   },
-  { slug: "home-care", label: "Home Care", family: "care", icon: "care-homecare.png", featured: true },
-  { slug: "appliances", label: "Appliances", family: "fixtures", icon: "fixtures-appliance.png", featured: true },
+  {
+    slug: "home-care",
+    label: "Home Care",
+    family: "care",
+    icon: "care-homecare.png",
+    featured: true,
+    options: ["Home check visit", "Vacancy watch", "Key / access", "Storm check", "Pre-arrival check", "Pest"],
+  },
+  {
+    slug: "appliances",
+    label: "Appliances",
+    family: "fixtures",
+    icon: "fixtures-appliance.png",
+    featured: true,
+    options: ["Appliance repair", "New install", "Washer / dryer", "Dishwasher", "Refrigerator", "Oven / range", "Haul away old"],
+  },
 ];
 
 /**
@@ -73,4 +151,27 @@ export function getFeaturedServices(opts: { now: Date }): Service[] {
   return getAvailableServices(opts)
     .filter((s) => s.featured)
     .slice(0, 8);
+}
+
+/**
+ * Stable kebab-case slug for a quick-pick option label. This is what the request
+ * carries (not the label), so a label tweak doesn't silently churn the slug —
+ * when options move to the DB they keep these derived slugs. Pure + deterministic.
+ */
+export function optionSlug(label: string): string {
+  return label
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+/**
+ * Resolve a stored option slug back to its human label for display
+ * (e.g. "Plumbing · Water heater"). Returns null if the service or option is
+ * unknown — the caller falls back to the service title alone.
+ */
+export function getServiceOptionLabel(serviceSlug: string, optionSlugValue: string | null | undefined): string | null {
+  if (!optionSlugValue) return null;
+  const service = SERVICES.find((s) => s.slug === serviceSlug);
+  return service?.options.find((label) => optionSlug(label) === optionSlugValue) ?? null;
 }

@@ -44,6 +44,16 @@ describe("createRequest", () => {
     expect(await getRequest(r.id)).toMatchObject({ id: r.id, description: "Patch ceiling" });
     expect(await listMyRequests()).toHaveLength(1);
   });
+
+  it("carries the chosen quick-pick option slug", async () => {
+    const r = await createRequest(input({ option: "water-heater" }));
+    expect(r.option).toBe("water-heater");
+  });
+
+  it("defaults option to null when none is chosen ('Something else' / free text)", async () => {
+    const r = await createRequest(input());
+    expect(r.option).toBeNull();
+  });
 });
 
 describe("getQuotesForRequest", () => {

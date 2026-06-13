@@ -52,6 +52,7 @@ export interface ServiceRequest {
 
   // --- view-model only — NO column in `requests` yet (reconcile later) ----
   serviceSlug: string; // catalog slug; schema persists `category`, not the slug
+  option: string | null; // chosen quick-pick option slug (catalog-derived); NO column yet — FLAG
   photos: string[]; // object URLs; real photo storage is a later subsystem
   scheduledFor: string | null; // chosen date/time; NO `scheduledFor` column exists — FLAG
 }
@@ -74,6 +75,7 @@ export interface NewRequestInput {
   category: ServiceFamily;
   title?: string;
   description: string;
+  option?: string | null;
   photos?: string[];
   locationLabel: string;
   urgency: Urgency;
@@ -179,6 +181,7 @@ export async function createRequest(input: NewRequestInput): Promise<ServiceRequ
     awardedProviderId: null,
     createdAt: nowIso(),
     serviceSlug: input.serviceSlug,
+    option: input.option ?? null,
     photos: input.photos ?? [],
     scheduledFor: input.scheduledFor ?? null,
   };

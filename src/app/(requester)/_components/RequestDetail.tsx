@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { Avatar, VerifiedCheck, CategoryIcon } from "@/components/ui";
 import { awardQuote, type ServiceRequest, type Quote } from "@/lib/requester/requests";
+import { getServiceOptionLabel } from "@/lib/requester/services";
 import { useRequest, useQuotes } from "./useRequests";
 import { Button } from "./controls";
 import { StatusPill } from "./StatusPill";
@@ -48,6 +49,14 @@ export function RequestDetail({ id }: { id: string }) {
   );
 }
 
+// The job headline = service title, plus the chosen quick-pick option when set
+// (e.g. "Plumbing · Water heater"). Resolves the stored slug back to its label.
+function jobHeadline(request: ServiceRequest): string {
+  const base = request.title ?? "Request";
+  const option = getServiceOptionLabel(request.serviceSlug, request.option);
+  return option ? `${base} · ${option}` : base;
+}
+
 // --- request summary -------------------------------------------------------
 function Summary({ request }: { request: ServiceRequest }) {
   const timing = request.scheduledFor
@@ -60,7 +69,7 @@ function Summary({ request }: { request: ServiceRequest }) {
       <CategoryIcon category={request.category} size={44} />
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
-          <span style={{ fontFamily: "var(--font-ui)", fontWeight: 600, fontSize: 15, color: "var(--ink)" }}>{request.title ?? "Request"}</span>
+          <span style={{ fontFamily: "var(--font-ui)", fontWeight: 600, fontSize: 15, color: "var(--ink)" }}>{jobHeadline(request)}</span>
           <StatusPill status={request.status} />
         </div>
         <p style={{ fontSize: 13, color: "var(--ink-2)", margin: "4px 0 8px", fontFamily: "var(--font-ui)", lineHeight: 1.4 }}>{request.description}</p>
@@ -163,7 +172,7 @@ function Tracking({ request, quote }: { request: ServiceRequest; quote: Quote })
 
       <div style={{ background: "var(--paper)", border: "1px solid var(--hairline)", borderRadius: "var(--r-card)", padding: 16 }}>
         <div style={{ fontSize: 11.5, fontWeight: 600, letterSpacing: "0.05em", textTransform: "uppercase", color: "var(--ink-3)", marginBottom: 8 }}>Job</div>
-        <div style={{ fontSize: 14, fontWeight: 500, color: "var(--ink)", fontFamily: "var(--font-ui)" }}>{request.title ?? "Request"}</div>
+        <div style={{ fontSize: 14, fontWeight: 500, color: "var(--ink)", fontFamily: "var(--font-ui)" }}>{jobHeadline(request)}</div>
         <p style={{ fontSize: 13, color: "var(--ink-2)", margin: "4px 0 0", fontFamily: "var(--font-ui)", lineHeight: 1.4 }}>{request.description}</p>
         <div style={{ fontSize: 12, color: "var(--ink-3)", marginTop: 8, fontFamily: "var(--font-ui)", display: "inline-flex", alignItems: "center", gap: 4 }}>
           <IconPin size={13} /> {request.locationLabel}
