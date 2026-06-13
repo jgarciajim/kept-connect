@@ -4,6 +4,7 @@ import { useMemo, useState, type ReactNode } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { getAvailableServices } from "@/lib/requester/services";
 import { createRequest, type Urgency } from "@/lib/requester/requests";
+import { benchmarkFor, formatUsd } from "@/lib/pricing";
 import { ServiceTile } from "./ServiceTile";
 import { Button, TextField, TextArea, Segmented, PhotoPicker } from "./controls";
 
@@ -42,6 +43,10 @@ export function Composer() {
   const [submitting, setSubmitting] = useState(false);
 
   const service = services.find((s) => s.slug === slug);
+  // Soft, informational benchmark for the selected tile — a mountain-adjusted
+  // typical range from the seed catalog. null = a gap (no seed match), shown as a
+  // quote prompt instead of an invented price. Display-only; never posted.
+  const benchmark = useMemo(() => benchmarkFor(slug), [slug]);
   const valid = Boolean(service && description.trim() && address.trim() && (timing === "asap" || scheduledFor));
 
   async function submit() {
@@ -69,6 +74,22 @@ export function Composer() {
             <ServiceTile key={s.slug} service={s} iconSize={48} selected={s.slug === slug} onSelect={() => setSlug(s.slug)} />
           ))}
         </div>
+        {service && (
+          <div style={{ marginTop: 12 }}>
+            {benchmark ? (
+              <>
+                <div style={{ fontFamily: "var(--font-ui)", fontSize: 15, fontWeight: 500, fontVariantNumeric: "tabular-nums", color: "var(--ink)" }}>
+                  ~{formatUsd(benchmark.low)}–{formatUsd(benchmark.high)} near you
+                </div>
+                <div style={{ fontFamily: "var(--font-ui)", fontSize: 12, color: "var(--ink-3)", marginTop: 2 }}>
+                  benchmark · not a quote
+                </div>
+              </>
+            ) : (
+              <div style={{ fontFamily: "var(--font-ui)", fontSize: 14, color: "var(--ink-3)" }}>Get a quote →</div>
+            )}
+          </div>
+        )}
       </Section>
 
       <Section label="What needs doing?">
