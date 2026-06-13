@@ -1,6 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { CategoryKey } from "@/components/ui";
-import type { Job, JobStatus, ProviderProfile, Quote, Review, Thread, Member } from "./mock";
+import type { Job, JobStatus, ProviderProfile, Quote, Review, Thread, Member, Service } from "./mock";
 
 /**
  * Requester data layer — PURE query functions (take a Supabase client; no Clerk/
@@ -43,6 +43,21 @@ function jobStatus(dbStatus: string): JobStatus {
     case "enroute": return "enroute";
     default: return "complete"; // complete / paid / rated
   }
+}
+
+// ---- services (the fixed-price quick-job catalog) ---------------------------
+export async function qGetServices(c: SupabaseClient): Promise<Service[]> {
+  const { data } = await c
+    .from("services")
+    .select("id, category, name, base_price")
+    .eq("active", true)
+    .order("category", { ascending: true });
+  return (data ?? []).map((s) => ({
+    id: s.id,
+    category: s.category as Service["category"],
+    name: s.name,
+    basePrice: money(s.base_price) ?? "0.00",
+  }));
 }
 
 // ---- member -----------------------------------------------------------------

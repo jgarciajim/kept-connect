@@ -46,6 +46,37 @@ export async function postRequest(formData: FormData): Promise<void> {
   redirect(`/app/jobs/${data.id}`);
 }
 
+/** Post a fixed-price "quick job" → instant dispatch (the engine round-robins it). */
+export async function postInstantRequest(formData: FormData): Promise<void> {
+  const serviceId = String(formData.get("serviceId") || "");
+  const category = String(formData.get("category") || "fixtures");
+
+  const sb = await createServerSupabaseClient();
+  const me = await myMember(sb);
+  if (!me || !serviceId) redirect("/app/post");
+
+  const { data: svc } = await sb.from("services").select("name, base_price").eq("id", serviceId).maybeSingle();
+
+  const { data, error } = await sb
+    .from("requests")
+    .insert({
+      requester_id: me!.id,
+      requester_name: me!.display_name,
+      category,
+      title: svc?.name ?? "Quick job",
+      status: "finding",
+      dispatch_mode: "instant",
+      service_id: serviceId,
+      agreed_price: svc?.base_price ?? null,
+      location_label: "14 Birch Lane",
+    })
+    .select("id")
+    .single();
+
+  if (error || !data) redirect("/app/post");
+  redirect(`/app/jobs/${data.id}`); // the after-insert trigger has already dispatched
+}
+
 /** Award a sealed quote (SECURITY DEFINER RPC) → opens the live job. */
 export async function awardQuote(formData: FormData): Promise<void> {
   const quoteId = String(formData.get("quoteId") || "");

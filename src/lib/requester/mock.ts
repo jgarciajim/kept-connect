@@ -104,6 +104,14 @@ export interface CategoryShortcut {
   label: string;
 }
 
+/** A standardized fixed-price job that can be round-robin dispatched (instant). */
+export interface Service {
+  id: string;
+  category: CategoryKey;
+  name: string;
+  basePrice: string;
+}
+
 // ---------------------------------------------------------------------------
 // Static UI config (not data).
 // ---------------------------------------------------------------------------
@@ -123,6 +131,10 @@ export async function getCurrentMember(): Promise<Member | null> {
 
 export async function getCategoryShortcuts(): Promise<CategoryShortcut[]> {
   return CATEGORY_SHORTCUTS;
+}
+
+export async function getServices(): Promise<Service[]> {
+  return q.qGetServices(await createServerSupabaseClient());
 }
 
 export async function getActiveJobs(): Promise<Job[]> {
