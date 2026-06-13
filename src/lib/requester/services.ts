@@ -68,5 +68,9 @@ export function getAvailableServices(opts: { now: Date }): Service[] {
  * (snow in July) is correctly absent — and rejoins automatically in November.
  */
 export function getFeaturedServices(opts: { now: Date }): Service[] {
-  return getAvailableServices(opts).filter((s) => s.featured);
+  // Cap at 8 so the home "Popular this season" row stays two clean rows of four
+  // (in array order), regardless of how many are featured or seasonally available.
+  return getAvailableServices(opts)
+    .filter((s) => s.featured)
+    .slice(0, 8);
 }
