@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
 import { Button, Card, Avatar, StatusRing, VerifiedCheck, Tag } from "@/components/ui";
 import { getProvider, getQuotes } from "@/lib/requester/mock";
-import { awardQuote } from "@/lib/requester/actions";
+import { payAndAward } from "@/lib/payments/actions";
 import { AppHeader } from "../../../_components/AppHeader";
 import { IconStar, IconCheck, IconChat } from "../../../_components/icons";
 
@@ -104,10 +104,9 @@ export default async function ProfileScreen({
             <div style={{ fontSize: 11, color: "var(--ink-3)", fontFamily: "var(--font-ui)" }}>Sealed quote</div>
             <div style={{ fontFamily: "var(--font-ui)", fontSize: 20, fontWeight: 500, fontVariantNumeric: "tabular-nums", color: "var(--ink)" }}>${quote.price}</div>
           </div>
-          <form action={awardQuote} style={{ flex: 1 }}>
+          <form action={payAndAward} style={{ flex: 1 }}>
             <input type="hidden" name="quoteId" value={quote.id} />
-            <input type="hidden" name="requestId" value={job} />
-            <Button type="submit" size="lg" fullWidth>Award</Button>
+            <Button type="submit" size="lg" fullWidth>Pay &amp; confirm</Button>
           </form>
         </div>
       )}

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Avatar, StatusRing, VerifiedCheck } from "@/components/ui";
 import { getJob } from "@/lib/requester/mock";
+import { getPayment } from "@/lib/payments";
 import { LiveRefresh } from "@/components/LiveRefresh";
 import { AppHeader } from "../../../../_components/AppHeader";
 import { BottomNav } from "../../../../_components/BottomNav";
@@ -20,6 +21,13 @@ export default async function TrackScreen({ params }: { params: Promise<{ id: st
   const job = await getJob(id);
   if (!job || !job.provider) notFound();
   const provider = job.provider;
+  const payment = await getPayment(id);
+  const escrowLabel =
+    payment?.status === "held"
+      ? "Payment held · releases when the job's done"
+      : payment?.status === "released"
+        ? "Payment released to your pro"
+        : null;
 
   return (
     <>
@@ -47,9 +55,15 @@ export default async function TrackScreen({ params }: { params: Promise<{ id: st
         <p style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 24, margin: "10px 2px 2px", letterSpacing: "-0.01em", color: "var(--ink)" }}>
           On the way<span style={{ color: "var(--terracotta)" }}>.</span>
         </p>
-        <p style={{ fontSize: 13, color: "var(--ink-2)", margin: "0 2px 14px", fontFamily: "var(--font-ui)" }}>
+        <p style={{ fontSize: 13, color: "var(--ink-2)", margin: "0 2px 10px", fontFamily: "var(--font-ui)" }}>
           Arriving in about {job.etaMinutes} minutes
         </p>
+        {escrowLabel && (
+          <div style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 12, color: "var(--ink-2)", fontFamily: "var(--font-ui)", background: "var(--moment)", borderRadius: "var(--r-pill)", padding: "5px 12px", margin: "0 2px 14px" }}>
+            <span style={{ width: 7, height: 7, borderRadius: "var(--r-pill)", background: payment?.status === "released" ? "var(--verified)" : "var(--terracotta)" }} />
+            {escrowLabel}
+          </div>
+        )}
 
         {/* masked contact — no raw phone/email; call/message route to the thread */}
         <div style={{ display: "flex", alignItems: "center", gap: 11, border: "1px solid var(--hairline)", borderRadius: "var(--r-card)", padding: 12 }}>

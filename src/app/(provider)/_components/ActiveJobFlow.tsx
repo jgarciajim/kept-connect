@@ -3,17 +3,19 @@
 import Link from "next/link";
 import { useState } from "react";
 import { Avatar } from "@/components/ui";
-import { startJob, completeJob, markPaid } from "@/lib/provider/actions";
+import { startJob, completeJob } from "@/lib/provider/actions";
+import { releaseAndPay } from "@/lib/payments/actions";
 import type { ActiveJob } from "@/lib/provider/mock";
 import { PIconPhone, PIconChat, PIconCam, PIconCheck } from "./icons";
 
 /**
  * ActiveJobFlow — the live job. One terracotta action per state:
  * Start job → Mark complete → Mark paid → "Paid — nice work." Each tap runs the
- * matching SECURITY DEFINER RPC (column-safe transition), then advances.
+ * matching SECURITY DEFINER RPC (column-safe transition), then advances. "Mark
+ * paid" releases the held escrow (payout to the provider's wallet).
  */
 const STAGES = ["Start job", "Mark complete", "Mark paid"] as const;
-const STAGE_ACTIONS = [startJob, completeJob, markPaid];
+const STAGE_ACTIONS = [startJob, completeJob, releaseAndPay];
 
 export function ActiveJobFlow({ job }: { job: ActiveJob }) {
   const [stage, setStage] = useState(0);

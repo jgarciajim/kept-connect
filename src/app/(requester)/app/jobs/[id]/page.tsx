@@ -1,7 +1,8 @@
 import { notFound } from "next/navigation";
 import { Button, Card, Avatar, StatusRing, VerifiedCheck, type RingState } from "@/components/ui";
 import { getJob, getQuotes, type Quote } from "@/lib/requester/mock";
-import { awardQuote } from "@/lib/requester/actions";
+import { payAndAward } from "@/lib/payments/actions";
+import { rateCard, activeFeeConfig, dollarsToCents, formatUsd } from "@/lib/pricing";
 import { LiveRefresh } from "@/components/LiveRefresh";
 import { AppHeader } from "../../../_components/AppHeader";
 import { LinkButton } from "../../../_components/LinkButton";
@@ -59,6 +60,10 @@ export default async function MatchScreen({ params }: { params: Promise<{ id: st
 
 function QuoteCard({ quote, jobId, best }: { quote: Quote; jobId: string; best: boolean }) {
   const p = quote.provider;
+  // All-in the requester pays = the quote + the service fee (lib/pricing, SEED).
+  const rc = rateCard(dollarsToCents(Number(quote.price)), activeFeeConfig);
+  const fee = formatUsd(rc.requesterFee);
+  const allIn = formatUsd(rc.requesterAllIn);
   return (
     <Card tone="paper" padding={14} lift={best}>
       <div style={{ display: "flex", alignItems: "center", gap: 11 }}>
@@ -78,14 +83,16 @@ function QuoteCard({ quote, jobId, best }: { quote: Quote; jobId: string; best: 
       <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginTop: 12 }}>
         <div>
           <div style={{ fontFamily: "var(--font-ui)", fontSize: 19, fontWeight: 500, color: "var(--ink)", fontVariantNumeric: "tabular-nums" }}>${quote.price}</div>
-          <div style={{ fontSize: 11.5, color: "var(--ink-3)", marginTop: 1, fontFamily: "var(--font-ui)" }}>{quote.eta}</div>
+          <div style={{ fontSize: 11.5, color: "var(--ink-3)", marginTop: 1, fontFamily: "var(--font-ui)" }}>
+            {quote.eta} · +{fee} service fee → {allIn} all-in
+          </div>
         </div>
         <div style={{ display: "flex", gap: 8 }}>
           <LinkButton href={`/app/providers/${p.id}?job=${jobId}`} variant="ghost" size="sm">Profile</LinkButton>
-          <form action={awardQuote}>
+          {/* Pay & confirm: opens escrow held until the job's done */}
+          <form action={payAndAward}>
             <input type="hidden" name="quoteId" value={quote.id} />
-            <input type="hidden" name="requestId" value={jobId} />
-            <Button type="submit" variant={best ? "primary" : "outline"} size="sm">Award</Button>
+            <Button type="submit" variant={best ? "primary" : "outline"} size="sm">Pay · {allIn}</Button>
           </form>
         </div>
       </div>
