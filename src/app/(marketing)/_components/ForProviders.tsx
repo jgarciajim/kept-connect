@@ -65,7 +65,7 @@ export function ForProviders() {
           ))}
         </ul>
 
-        <ButtonLink href="/sign-up" size="lg">
+        <ButtonLink href="/sign-up?redirect_url=/work/start" size="lg">
           Start earning
         </ButtonLink>
       </div>

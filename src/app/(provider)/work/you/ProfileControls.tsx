@@ -4,20 +4,8 @@ import { useState, useTransition } from "react";
 import { Avatar, VerifiedCheck, type CategoryKey } from "@/components/ui";
 import { setOnline, updateProviderProfile } from "@/lib/provider/actions";
 import type { ProviderSelf } from "@/lib/provider/mock";
+import { TRADE_LABELS, ALL_TRADES } from "@/lib/provider/trades";
 import { PIconStar } from "../../_components/icons";
-
-// Provider-facing label per trade category (the 8 families).
-export const TRADE_LABELS: Record<CategoryKey, string> = {
-  water: "Plumbing",
-  power: "Electrical",
-  climate: "Heating & Cooling",
-  structure: "Carpentry & Roofing",
-  surfaces: "Painting & Floors",
-  grounds: "Yard & Snow",
-  care: "Home Care",
-  fixtures: "Appliances",
-};
-const ALL_TRADES = Object.keys(TRADE_LABELS) as CategoryKey[];
 
 /**
  * ProfileControls — the editable identity + availability block on /work/you.

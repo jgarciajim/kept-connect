@@ -106,6 +106,17 @@ export async function sendQuote(requestId: string, amount: number): Promise<void
   redirect("/work");
 }
 
+/**
+ * Onboarding — turn the current member into a provider (profile + wallet + online),
+ * then send them to set a rate (sending an offer needs one). No SQL seeding.
+ */
+export async function becomeProvider(displayName: string, trades: string[]): Promise<void> {
+  if (!displayName.trim() || trades.length === 0) return;
+  const sb = await createServerSupabaseClient();
+  await sb.rpc("become_provider", { p_display_name: displayName.trim(), p_trades: trades });
+  redirect("/work/rates");
+}
+
 // ---------------------------------------------------------------------------
 // Profile edits — all via the safe update_provider_profile RPC (trust columns
 // like rating/verified are NOT writable).
