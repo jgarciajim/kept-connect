@@ -13,6 +13,8 @@ import {
 } from "@/lib/requester/campaigns";
 import { CAMPAIGN_THEMES } from "@/lib/requester/campaignThemes";
 import { getFeaturedServices } from "@/lib/requester/services";
+import { getUnreadCount } from "@/lib/notifications";
+import { NotificationBell } from "@/components/NotificationBell";
 import { BottomNav } from "../_components/BottomNav";
 import { ServiceTile } from "../_components/ServiceTile";
 import { IconArrow, IconPin, IconChevron } from "../_components/icons";
@@ -24,11 +26,12 @@ const REGION = "summit-co";
 export default async function HomeScreen() {
   const now = new Date();
   const campaigns = await getActiveCampaigns({ region: REGION, now });
-  const [featured, insight, jobs, member] = await Promise.all([
+  const [featured, insight, jobs, member, unread] = await Promise.all([
     getFeaturedServices({ now }),
     getAreaInsight({ region: REGION }),
     getActiveJobs(),
     getCurrentMember(),
+    getUnreadCount(),
   ]);
 
   const hero = pickHero(campaigns);
@@ -43,9 +46,12 @@ export default async function HomeScreen() {
           Breckenridge
           <IconChevron size={14} sw={2.4} style={{ transform: "rotate(90deg)" }} />
         </span>
-        <Link href="/app/you" aria-label="Your account" style={{ marginLeft: "auto", display: "inline-flex" }}>
-          <Avatar name={member?.displayName ?? "You"} size={32} />
-        </Link>
+        <span style={{ marginLeft: "auto", display: "inline-flex", alignItems: "center", gap: 16, color: "var(--ink)" }}>
+          <NotificationBell href="/app/notifications" count={unread} />
+          <Link href="/app/you" aria-label="Your account" style={{ display: "inline-flex" }}>
+            <Avatar name={member?.displayName ?? "You"} size={32} />
+          </Link>
+        </span>
       </div>
 
       <main style={{ flex: 1, overflowY: "auto", padding: "0 16px 18px" }}>

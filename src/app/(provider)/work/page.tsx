@@ -1,17 +1,20 @@
 import Link from "next/link";
 import { KeptConnectLogo, CategoryIcon } from "@/components/ui";
 import { getProviderSelf, getCurrentOffer, getScheduledJobs, getOpenRequests } from "@/lib/provider/mock";
+import { getUnreadCount } from "@/lib/notifications";
 import { LiveRefresh } from "@/components/LiveRefresh";
+import { NotificationBell } from "@/components/NotificationBell";
 import { VBottomNav } from "../_components/VBottomNav";
 import { OfferCard } from "../_components/OfferCard";
 import { ProviderEmptyState } from "../_components/ProviderEmptyState";
 
 export default async function FeedScreen() {
-  const [self, offer, scheduled, openRequests] = await Promise.all([
+  const [self, offer, scheduled, openRequests, unread] = await Promise.all([
     getProviderSelf(),
     getCurrentOffer(),
     getScheduledJobs(),
     getOpenRequests(),
+    getUnreadCount(),
   ]);
 
   if (!self) return <ProviderEmptyState tab="jobs" />;
@@ -27,11 +30,14 @@ export default async function FeedScreen() {
           <span style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 16, color: "var(--chrome-cream)" }}>
             Morning, {self.name.split(" ")[0]}
           </span>
-          {self.online && (
-            <span style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 6, fontSize: 11.5, color: "var(--verified-bright)", fontFamily: "var(--font-ui)" }}>
-              <span style={{ width: 7, height: 7, borderRadius: "var(--r-pill)", background: "var(--verified-bright)" }} /> Online
-            </span>
-          )}
+          <span style={{ marginLeft: "auto", display: "inline-flex", alignItems: "center", gap: 14, color: "var(--chrome-cream)" }}>
+            {self.online && (
+              <span style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11.5, color: "var(--verified-bright)", fontFamily: "var(--font-ui)" }}>
+                <span style={{ width: 7, height: 7, borderRadius: "var(--r-pill)", background: "var(--verified-bright)" }} /> Online
+              </span>
+            )}
+            <NotificationBell href="/work/notifications" count={unread} />
+          </span>
         </div>
 
         {/* fast-pay earn strip — always reachable */}
