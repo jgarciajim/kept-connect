@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { Button, Card, Avatar, StatusRing, VerifiedCheck, type RingState } from "@/components/ui";
 import { getJob, getQuotes, type Quote } from "@/lib/requester/mock";
 import { awardQuote } from "@/lib/requester/actions";
+import { LiveRefresh } from "@/components/LiveRefresh";
 import { AppHeader } from "../../../_components/AppHeader";
 import { LinkButton } from "../../../_components/LinkButton";
 import { IconStar } from "../../../_components/icons";
@@ -17,6 +18,8 @@ export default async function MatchScreen({ params }: { params: Promise<{ id: st
   return (
     <>
       <AppHeader title="Live match" backHref="/app" />
+      {/* poll while waiting on a provider; stop once a quote is awarded */}
+      <LiveRefresh enabled={finding || job.status === "quoted"} />
 
       <main style={{ flex: 1, overflowY: "auto", padding: "8px 18px 20px" }}>
         {/* warm moment — the signature live-match status */}

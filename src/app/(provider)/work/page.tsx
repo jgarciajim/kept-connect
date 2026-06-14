@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { KeptConnectLogo, CategoryIcon } from "@/components/ui";
 import { getProviderSelf, getCurrentOffer, getScheduledJobs, getOpenRequests } from "@/lib/provider/mock";
+import { LiveRefresh } from "@/components/LiveRefresh";
 import { VBottomNav } from "../_components/VBottomNav";
 import { OfferCard } from "../_components/OfferCard";
 import { ProviderEmptyState } from "../_components/ProviderEmptyState";
@@ -17,6 +18,8 @@ export default async function FeedScreen() {
 
   return (
     <>
+      {/* new open requests + accepted-offer changes appear without a manual refresh */}
+      <LiveRefresh intervalMs={8000} />
       <main style={{ flex: 1, overflowY: "auto", padding: "12px 16px 16px" }}>
         {/* header */}
         <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "4px 2px 2px" }}>
