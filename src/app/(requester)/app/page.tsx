@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { CSSProperties } from "react";
 import { Avatar, StatusRing, VerifiedCheck, CategoryIcon } from "@/components/ui";
-import { getActiveJobs, type Job } from "@/lib/requester/mock";
+import { getActiveJobs, getCurrentMember, type Job } from "@/lib/requester/mock";
 import {
   getActiveCampaigns,
   getAreaInsight,
@@ -24,10 +24,11 @@ const REGION = "summit-co";
 export default async function HomeScreen() {
   const now = new Date();
   const campaigns = await getActiveCampaigns({ region: REGION, now });
-  const [featured, insight, jobs] = await Promise.all([
+  const [featured, insight, jobs, member] = await Promise.all([
     getFeaturedServices({ now }),
     getAreaInsight({ region: REGION }),
     getActiveJobs(),
+    getCurrentMember(),
   ]);
 
   const hero = pickHero(campaigns);
@@ -42,9 +43,9 @@ export default async function HomeScreen() {
           Breckenridge
           <IconChevron size={14} sw={2.4} style={{ transform: "rotate(90deg)" }} />
         </span>
-        <span style={{ marginLeft: "auto" }}>
-          <Avatar name="Grace Olin" size={32} />
-        </span>
+        <Link href="/app/you" aria-label="Your account" style={{ marginLeft: "auto", display: "inline-flex" }}>
+          <Avatar name={member?.displayName ?? "You"} size={32} />
+        </Link>
       </div>
 
       <main style={{ flex: 1, overflowY: "auto", padding: "0 16px 18px" }}>

@@ -1,6 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { CategoryKey } from "@/components/ui";
-import type { Offer, ScheduledJob, ActiveJob, Payout, EarningsSummary, ProviderSelf, ProviderRate, OpenRequest } from "./mock";
+import type { Offer, ScheduledJob, ActiveJob, Payout, EarningsSummary, ProviderSelf, ProviderRate, OpenRequest, ProviderReview, JobHistoryItem } from "./mock";
 
 /**
  * Provider data layer — PURE query functions (take a Supabase client; no Clerk/
@@ -171,6 +171,43 @@ export async function qGetOpenRequest(c: SupabaseClient, id: string): Promise<Op
     .maybeSingle();
   if (!data) return null;
   return mapOpenRequest(data);
+}
+
+export async function qGetMyReviews(c: SupabaseClient): Promise<ProviderReview[]> {
+  const meId = await myMemberId(c);
+  if (!meId) return [];
+  const { data } = await c
+    .from("reviews")
+    .select("id, stars, body, author_name, created_at")
+    .eq("subject_id", meId)
+    .eq("subject_role", "provider")
+    .order("created_at", { ascending: false });
+  return (data ?? []).map((r) => ({
+    id: r.id,
+    author: r.author_name ?? "",
+    when: relativeWhen(r.created_at),
+    stars: r.stars,
+    text: r.body ?? "",
+  }));
+}
+
+export async function qGetJobHistory(c: SupabaseClient): Promise<JobHistoryItem[]> {
+  const meId = await myMemberId(c);
+  if (!meId) return [];
+  const { data } = await c
+    .from("requests")
+    .select("id, category, title, agreed_price, status, completed_at, created_at")
+    .eq("awarded_provider_id", meId)
+    .in("status", ["complete", "paid", "rated"])
+    .order("created_at", { ascending: false });
+  return (data ?? []).map((r) => ({
+    id: r.id,
+    trade: (r.category ?? "fixtures") as CategoryKey,
+    title: r.title ?? "",
+    when: relativeWhen(r.completed_at ?? r.created_at),
+    payout: money(r.agreed_price),
+    status: r.status,
+  }));
 }
 
 export async function qGetEarnings(c: SupabaseClient): Promise<EarningsSummary> {

@@ -81,6 +81,25 @@ export interface ProviderRate {
   rateSource: "own" | "benchmark";
 }
 
+/** A review written about the provider (public trust surface). */
+export interface ProviderReview {
+  id: string;
+  author: string;
+  when: string;
+  stars: number;
+  text: string;
+}
+
+/** A finished job in the provider's history. */
+export interface JobHistoryItem {
+  id: string;
+  trade: CategoryKey;
+  title: string;
+  when: string;
+  payout: string;
+  status: string;
+}
+
 /** An open (finding) request in the provider's trade — the supply feed. */
 export interface OpenRequest {
   id: string;
@@ -126,4 +145,12 @@ export async function getOpenRequests(): Promise<OpenRequest[]> {
 
 export async function getOpenRequest(id: string): Promise<OpenRequest | null> {
   return q.qGetOpenRequest(await createServerSupabaseClient(), id);
+}
+
+export async function getMyReviews(): Promise<ProviderReview[]> {
+  return q.qGetMyReviews(await createServerSupabaseClient());
+}
+
+export async function getJobHistory(): Promise<JobHistoryItem[]> {
+  return q.qGetJobHistory(await createServerSupabaseClient());
 }

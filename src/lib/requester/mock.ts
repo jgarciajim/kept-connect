@@ -21,7 +21,17 @@ export interface Member {
   clerkUserId: string;
   isRequester: boolean;
   isProvider: boolean;
+  displayName: string | null;
+  avatarUrl: string | null;
   createdAt: string;
+}
+
+/** A requester's saved address (account scaffolding). */
+export interface Property {
+  id: string;
+  label: string;
+  addressLine: string;
+  isDefault: boolean;
 }
 
 export interface Request {
@@ -143,4 +153,12 @@ export async function getProvider(id: string): Promise<ProviderProfile | null> {
 
 export async function getThread(id: string): Promise<Thread | null> {
   return q.qGetThread(await createServerSupabaseClient(), id);
+}
+
+export async function getMyProperties(): Promise<Property[]> {
+  return q.qGetMyProperties(await createServerSupabaseClient());
+}
+
+export async function getReviewsAboutMe(): Promise<Review[]> {
+  return q.qGetReviewsAboutMe(await createServerSupabaseClient());
 }

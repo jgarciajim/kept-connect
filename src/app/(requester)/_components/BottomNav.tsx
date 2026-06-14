@@ -3,7 +3,7 @@ import { IconHome, IconJobs, IconChat, IconUser } from "./icons";
 
 /**
  * BottomNav — the app's persistent tab bar. Active tab in terracotta.
- * (Jobs/You point at Home for now — those index screens aren't built yet.)
+ * (Jobs/Messages point at Home for now — those index screens aren't built yet.)
  */
 type Tab = "home" | "jobs" | "messages" | "you";
 
@@ -11,7 +11,7 @@ const ITEMS: { id: Tab; label: string; href: string; Icon: typeof IconHome }[] =
   { id: "home", label: "Home", href: "/app", Icon: IconHome },
   { id: "jobs", label: "Jobs", href: "/app", Icon: IconJobs },
   { id: "messages", label: "Messages", href: "/app", Icon: IconChat },
-  { id: "you", label: "You", href: "/app", Icon: IconUser },
+  { id: "you", label: "You", href: "/app/you", Icon: IconUser },
 ];
 
 export function BottomNav({ active = "home" }: { active?: Tab }) {

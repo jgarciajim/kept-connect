@@ -12,8 +12,8 @@ import { createServerSupabaseClient } from "@/lib/supabase/server";
  */
 
 async function myMember(sb: Awaited<ReturnType<typeof createServerSupabaseClient>>) {
-  const { data } = await sb.from("members").select("id, display_name").limit(1).maybeSingle();
-  return data as { id: string; display_name: string | null } | null;
+  const { data } = await sb.from("members").select("id, display_name, is_provider").limit(1).maybeSingle();
+  return data as { id: string; display_name: string | null; is_provider: boolean } | null;
 }
 
 /**
@@ -77,6 +77,66 @@ export async function sendMessage(formData: FormData): Promise<void> {
   }
   revalidatePath(`/app/messages/${requestId}`);
   redirect(`/app/messages/${requestId}`);
+}
+
+// ---------------------------------------------------------------------------
+// Account: name + saved properties.
+// ---------------------------------------------------------------------------
+
+/** Edit the member's display name. Syncs the public provider name if they're a provider. */
+export async function updateMyName(name: string): Promise<void> {
+  const clean = name.trim();
+  if (!clean) return;
+  const sb = await createServerSupabaseClient();
+  const me = await myMember(sb);
+  if (!me) return;
+  await sb.from("members").update({ display_name: clean }).eq("id", me.id);
+  if (me.is_provider) {
+    // safe column-scoped RPC keeps the public provider_profiles name in sync
+    await sb.rpc("update_provider_profile", { p_display_name: clean });
+  }
+  revalidatePath("/app/you");
+}
+
+/** Add a saved property. The first one becomes the default. */
+export async function addProperty(label: string, address: string): Promise<void> {
+  const addr = address.trim();
+  if (!addr) return;
+  const sb = await createServerSupabaseClient();
+  const me = await myMember(sb);
+  if (!me) return;
+  const { count } = await sb.from("properties").select("id", { count: "exact", head: true });
+  await sb.from("properties").insert({
+    member_id: me.id,
+    label: label.trim() || "Property",
+    address_line: addr,
+    is_default: (count ?? 0) === 0,
+  });
+  revalidatePath("/app/you");
+}
+
+export async function updateProperty(id: string, label: string, address: string): Promise<void> {
+  const addr = address.trim();
+  if (!addr) return;
+  const sb = await createServerSupabaseClient();
+  await sb.from("properties").update({ label: label.trim() || "Property", address_line: addr }).eq("id", id);
+  revalidatePath("/app/you");
+}
+
+export async function deleteProperty(id: string): Promise<void> {
+  const sb = await createServerSupabaseClient();
+  await sb.from("properties").delete().eq("id", id);
+  revalidatePath("/app/you");
+}
+
+/** Make one property the default (clears the others). RLS scopes both writes to the owner. */
+export async function setDefaultProperty(id: string): Promise<void> {
+  const sb = await createServerSupabaseClient();
+  const me = await myMember(sb);
+  if (!me) return;
+  await sb.from("properties").update({ is_default: false }).eq("member_id", me.id);
+  await sb.from("properties").update({ is_default: true }).eq("id", id);
+  revalidatePath("/app/you");
 }
 
 /** Submit a two-sided rating (requester rates the provider). */

@@ -1,6 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { CategoryKey } from "@/components/ui";
-import type { Job, JobStatus, ProviderProfile, Quote, Review, Thread, Member } from "./mock";
+import type { Job, JobStatus, ProviderProfile, Quote, Review, Thread, Member, Property } from "./mock";
 
 /**
  * Requester data layer — PURE query functions (take a Supabase client; no Clerk/
@@ -59,8 +59,45 @@ export async function qGetCurrentMember(c: SupabaseClient): Promise<Member | nul
     clerkUserId: data.clerk_user_id,
     isRequester: data.is_requester,
     isProvider: data.is_provider,
+    displayName: data.display_name ?? null,
+    avatarUrl: data.avatar_url ?? null,
     createdAt: data.created_at,
   };
+}
+
+// A requester's saved addresses (RLS scopes to the owner). Default first.
+export async function qGetMyProperties(c: SupabaseClient): Promise<Property[]> {
+  const { data } = await c
+    .from("properties")
+    .select("id, label, address_line, is_default")
+    .order("is_default", { ascending: false })
+    .order("created_at", { ascending: true });
+  return (data ?? []).map((p) => ({
+    id: p.id,
+    label: p.label,
+    addressLine: p.address_line,
+    isDefault: p.is_default,
+  }));
+}
+
+// Reviews written ABOUT the current member as a requester (the two-sided trust
+// surface, requester side — party-readable).
+export async function qGetReviewsAboutMe(c: SupabaseClient): Promise<Review[]> {
+  const meId = await myMemberId(c);
+  if (!meId) return [];
+  const { data } = await c
+    .from("reviews")
+    .select("id, stars, body, author_name, created_at")
+    .eq("subject_id", meId)
+    .eq("subject_role", "requester")
+    .order("created_at", { ascending: false });
+  return (data ?? []).map((r) => ({
+    id: r.id,
+    author: r.author_name ?? "",
+    when: relativeWhen(r.created_at),
+    stars: r.stars,
+    text: r.body ?? "",
+  }));
 }
 
 // ---- provider profile (public) ---------------------------------------------

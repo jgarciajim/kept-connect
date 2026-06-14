@@ -105,3 +105,36 @@ export async function sendQuote(requestId: string, amount: number): Promise<void
   await sb.rpc("send_offer", { p_request_id: requestId, p_custom_amount: amount });
   redirect("/work");
 }
+
+// ---------------------------------------------------------------------------
+// Profile edits — all via the safe update_provider_profile RPC (trust columns
+// like rating/verified are NOT writable).
+// ---------------------------------------------------------------------------
+
+/** Toggle availability. Drives the feed's Online state + open-request eligibility. */
+export async function setOnline(online: boolean): Promise<void> {
+  const sb = await createServerSupabaseClient();
+  await sb.rpc("update_provider_profile", { p_online: online });
+  revalidatePath("/work/you");
+  revalidatePath("/work");
+}
+
+/** Edit the provider's name, trades, and/or credentials (any subset). */
+export async function updateProviderProfile(input: {
+  displayName?: string;
+  trades?: string[];
+  credentials?: string[];
+}): Promise<void> {
+  const sb = await createServerSupabaseClient();
+  const params: Record<string, unknown> = {};
+  if (input.displayName !== undefined) params.p_display_name = input.displayName.trim();
+  if (input.trades !== undefined) params.p_trades = input.trades;
+  if (input.credentials !== undefined) params.p_credentials = input.credentials;
+  await sb.rpc("update_provider_profile", params);
+  // keep the private members.display_name in sync
+  if (input.displayName !== undefined) {
+    const { data: me } = await sb.from("members").select("id").limit(1).maybeSingle();
+    if (me) await sb.from("members").update({ display_name: input.displayName.trim() }).eq("id", me.id);
+  }
+  revalidatePath("/work/you");
+}
