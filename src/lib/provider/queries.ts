@@ -98,6 +98,26 @@ export async function qGetScheduledJobs(c: SupabaseClient): Promise<ScheduledJob
   }));
 }
 
+// The provider's in-flight jobs (awarded + enroute) — the Active tab list.
+export async function qGetActiveJobsList(c: SupabaseClient): Promise<ScheduledJob[]> {
+  const meId = await myMemberId(c);
+  if (!meId) return [];
+  const { data } = await c
+    .from("requests")
+    .select("id, category, title, location_label, agreed_price, status")
+    .eq("awarded_provider_id", meId)
+    .in("status", ["awarded", "enroute"])
+    .order("created_at", { ascending: false });
+  return (data ?? []).map((r) => ({
+    id: r.id,
+    trade: (r.category ?? "fixtures") as CategoryKey,
+    title: r.title ?? "",
+    place: r.location_label ?? "",
+    time: r.status === "enroute" ? "On the way" : "Scheduled",
+    pay: money(r.agreed_price),
+  }));
+}
+
 export async function qGetActiveJob(c: SupabaseClient, id: string): Promise<ActiveJob | null> {
   const meId = await myMemberId(c);
   if (!meId) return null;

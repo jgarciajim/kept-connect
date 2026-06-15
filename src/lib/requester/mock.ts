@@ -114,6 +114,15 @@ export interface CategoryShortcut {
   label: string;
 }
 
+/** A row in the requester's Messages list (one per job thread). */
+export interface ThreadSummary {
+  id: string; // request id
+  providerName: string;
+  jobTitle: string;
+  lastMessage: string;
+  when: string;
+}
+
 // ---------------------------------------------------------------------------
 // Static UI config (not data).
 // ---------------------------------------------------------------------------
@@ -153,6 +162,14 @@ export async function getProvider(id: string): Promise<ProviderProfile | null> {
 
 export async function getThread(id: string): Promise<Thread | null> {
   return q.qGetThread(await createServerSupabaseClient(), id);
+}
+
+export async function getAllJobs(): Promise<Job[]> {
+  return q.qGetAllJobs(await createServerSupabaseClient());
+}
+
+export async function getMyThreads(): Promise<ThreadSummary[]> {
+  return q.qGetMyThreads(await createServerSupabaseClient());
 }
 
 export async function getMyProperties(): Promise<Property[]> {

@@ -1,6 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { CategoryKey } from "@/components/ui";
-import type { Job, JobStatus, ProviderProfile, Quote, Review, Thread, Member, Property } from "./mock";
+import type { Job, JobStatus, ProviderProfile, Quote, Review, Thread, Member, Property, ThreadSummary } from "./mock";
 
 /**
  * Requester data layer — PURE query functions (take a Supabase client; no Clerk/
@@ -178,6 +178,51 @@ export async function qGetActiveJobs(c: SupabaseClient): Promise<Job[]> {
     .in("status", ["finding", "quoted", "awarded", "enroute"])
     .order("created_at", { ascending: false });
   return Promise.all((data ?? []).map((r) => mapJob(c, r as RequestRow)));
+}
+
+// All of the member's requests, any status (the Activity list).
+export async function qGetAllJobs(c: SupabaseClient): Promise<Job[]> {
+  const meId = await myMemberId(c);
+  if (!meId) return [];
+  const { data } = await c
+    .from("requests")
+    .select("*")
+    .eq("requester_id", meId)
+    .order("created_at", { ascending: false });
+  return Promise.all((data ?? []).map((r) => mapJob(c, r as RequestRow)));
+}
+
+// The member's job threads (one per request with an awarded provider).
+export async function qGetMyThreads(c: SupabaseClient): Promise<ThreadSummary[]> {
+  const meId = await myMemberId(c);
+  if (!meId) return [];
+  const { data } = await c
+    .from("requests")
+    .select("id, title, awarded_provider_id, created_at")
+    .eq("requester_id", meId)
+    .not("awarded_provider_id", "is", null)
+    .order("created_at", { ascending: false })
+    .limit(20);
+  const rows = data ?? [];
+  return Promise.all(
+    rows.map(async (r) => {
+      const prov = r.awarded_provider_id ? await qGetProvider(c, r.awarded_provider_id, false) : null;
+      const { data: msg } = await c
+        .from("messages")
+        .select("body, created_at")
+        .eq("request_id", r.id)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      return {
+        id: r.id,
+        providerName: prov ? shortName(prov.name) : "Your pro",
+        jobTitle: r.title ?? "Job",
+        lastMessage: msg?.body ?? "Tap to message",
+        when: relativeWhen(msg?.created_at ?? r.created_at),
+      };
+    }),
+  );
 }
 
 export async function qGetJob(c: SupabaseClient, id: string): Promise<Job | null> {

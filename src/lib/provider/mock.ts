@@ -127,6 +127,10 @@ export async function getScheduledJobs(): Promise<ScheduledJob[]> {
   return q.qGetScheduledJobs(await createServerSupabaseClient());
 }
 
+export async function getActiveJobsList(): Promise<ScheduledJob[]> {
+  return q.qGetActiveJobsList(await createServerSupabaseClient());
+}
+
 export async function getActiveJob(id: string): Promise<ActiveJob | null> {
   return q.qGetActiveJob(await createServerSupabaseClient(), id);
 }
