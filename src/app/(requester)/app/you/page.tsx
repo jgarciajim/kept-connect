@@ -2,6 +2,8 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { Avatar, Card } from "@/components/ui";
 import { getCurrentMember, getActiveJobs, getReviewsAboutMe, getMyProperties } from "@/lib/requester/mock";
+import { getNotificationPrefs } from "@/lib/notifications";
+import { NotificationPrefs } from "@/components/NotificationPrefs";
 import { BottomNav } from "../../_components/BottomNav";
 import { IconStar } from "../../_components/icons";
 import { EditableName } from "./EditableName";
@@ -11,11 +13,12 @@ import { SignOutRow } from "./SignOutRow";
 // The requester's account page (/app/you). Identity + activity + saved properties
 // + a payment stub + reviews received + sign-out. Real data, RLS-scoped.
 export default async function YouScreen() {
-  const [member, jobs, reviews, properties] = await Promise.all([
+  const [member, jobs, reviews, properties, prefs] = await Promise.all([
     getCurrentMember(),
     getActiveJobs(),
     getReviewsAboutMe(),
     getMyProperties(),
+    getNotificationPrefs(),
   ]);
 
   const name = member?.displayName ?? "You";
@@ -88,10 +91,14 @@ export default async function YouScreen() {
           </Section>
         )}
 
+        {/* notification preferences */}
+        <Section label="Notifications">
+          <NotificationPrefs tone="light" prefs={prefs} />
+        </Section>
+
         {/* settings + sign out */}
         <Section label="Settings" last>
           <Card tone="paper" padding={4}>
-            <SettingRow>Notifications</SettingRow>
             <SettingRow>Help &amp; support</SettingRow>
             <SignOutRow />
           </Card>

@@ -2,13 +2,20 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { Avatar, CategoryIcon } from "@/components/ui";
 import { getProviderSelf, getMyReviews, getJobHistory } from "@/lib/provider/mock";
+import { getNotificationPrefs } from "@/lib/notifications";
+import { NotificationPrefs } from "@/components/NotificationPrefs";
 import { VBottomNav } from "../../_components/VBottomNav";
 import { ProviderEmptyState } from "../../_components/ProviderEmptyState";
 import { PIconStar, PIconWallet } from "../../_components/icons";
 import { ProfileControls } from "./ProfileControls";
 
 export default async function ProfileScreen() {
-  const [self, reviews, history] = await Promise.all([getProviderSelf(), getMyReviews(), getJobHistory()]);
+  const [self, reviews, history, prefs] = await Promise.all([
+    getProviderSelf(),
+    getMyReviews(),
+    getJobHistory(),
+    getNotificationPrefs(),
+  ]);
   if (!self) return <ProviderEmptyState tab="you" />;
 
   return (
@@ -39,6 +46,11 @@ export default async function ProfileScreen() {
             <span style={{ color: "var(--terracotta-bright)", fontSize: 13, fontWeight: 500, fontFamily: "var(--font-ui)" }}>Manage →</span>
           </Link>
         </div>
+
+        {/* notification preferences */}
+        <Section label="Notifications">
+          <NotificationPrefs tone="dark" prefs={prefs} />
+        </Section>
 
         {/* reviews */}
         {reviews.length > 0 && (
