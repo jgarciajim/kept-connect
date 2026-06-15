@@ -1,8 +1,10 @@
+import { stripeAdapter } from "./stripe";
+
 /**
  * Payment adapter — the single seam between the app's escrow flow and a real
- * payment provider. Today it's a mock (no external call); swapping in Stripe
- * (PaymentIntent manual-capture + Connect transfers) is a new implementation of
- * this interface plus a webhook — nothing else in the app changes.
+ * payment provider. Mock by default; the Stripe implementation (PaymentIntent
+ * manual-capture + Connect transfers) lives in ./stripe and is selected by env —
+ * nothing else in the app changes.
  */
 export interface EscrowInput {
   requestId: string;
@@ -23,5 +25,6 @@ const mockAdapter: PaymentAdapter = {
   async refundEscrow() {},
 };
 
-// The active adapter. Replace with a Stripe adapter once keys + Connect exist.
-export const paymentAdapter: PaymentAdapter = mockAdapter;
+// The active adapter — Stripe when keys are configured, else the mock. No keys →
+// today's behavior is byte-for-byte unchanged (the scaffold stays inert).
+export const paymentAdapter: PaymentAdapter = process.env.STRIPE_SECRET_KEY ? stripeAdapter : mockAdapter;
