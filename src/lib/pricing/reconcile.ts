@@ -89,6 +89,92 @@ export function benchmarkMidpoint(slug: string): number | null {
   return Math.round((b.low + b.high) / 2);
 }
 
+// ---------------------------------------------------------------------------
+// Option-level benchmarks — a specific quick-pick job (composer chip) → the seed
+// service that best represents it. Only confident matches are listed; an option
+// with no entry has no estimate (the composer shows nothing). Keyed by Connect
+// service slug → option slug (services.ts optionSlug) → seed service slug.
+// Editorial (George's eye); extend as the catalog firms up.
+// ---------------------------------------------------------------------------
+const OPTION_BENCHMARKS: Record<string, Record<string, string>> = {
+  plumbing: {
+    "leak-repair": "plumbing-general-leak-repair",
+    "clogged-drain": "plumbing-drain-clog-cleaning",
+    "faucet-repair-or-replace": "plumbing-faucet-replacement",
+    "toilet-repair": "plumbing-toilet-repair",
+    "water-heater": "plumbing-water-heater-repair",
+    "garbage-disposal": "plumbing-garbage-disposal-install",
+  },
+  electrical: {
+    "outlet-or-switch": "electrical-outlet-install-replace",
+    "light-fixture-install": "electrical-light-fixture-install",
+    "ceiling-fan": "electrical-ceiling-fan-install",
+    "panel-or-breaker": "electrical-panel-upgrade-100-200a",
+    "ev-charger": "electrical-ev-charger-install-level-2",
+  },
+  heating: {
+    "furnace-tune-up": "hvac-tune-up-ac-or-furnace",
+    "no-heat-repair": "hvac-common-repair",
+    "ac-mini-split-service": "hvac-tune-up-ac-or-furnace",
+    "vent-cleaning": "hvac-duct-cleaning",
+  },
+  handyman: {
+    "mount-tv-or-shelves": "handyman-tv-mount",
+    "drywall-patch": "handyman-drywall-patch-repair",
+    "door-repair": "handyman-interior-door-install",
+    "furniture-assembly": "handyman-furniture-assembly",
+  },
+  roofing: {
+    "ice-dam-removal": "snow-ice-roof-ice-dam-clearing",
+  },
+  painting: {
+    "interior-room": "painting-interior-per-room",
+    exterior: "painting-exterior-whole-home",
+  },
+  "window-cleaning": {
+    "interior-exterior": "cleaning-window-cleaning-whole-house",
+  },
+  yard: {
+    mowing: "landscaping-lawn-mowing",
+    "leaf-cleanup": "landscaping-leaf-removal",
+    "tree-or-shrub-trim": "landscaping-tree-trimming",
+    mulch: "landscaping-mulch-install",
+    "spring-or-fall-cleanup": "landscaping-yard-cleanup",
+    "weeding-beds": "landscaping-weed-control",
+  },
+  "snow-removal": {
+    "driveway-clear": "snow-ice-snow-plow-removal",
+    "seasonal-contract": "snow-ice-seasonal-contract-residential",
+    "ice-dam": "snow-ice-roof-ice-dam-clearing",
+    "de-icing": "snow-ice-salt-de-icing-application",
+  },
+  "home-care": {
+    pest: "pest-control-one-time-treatment",
+  },
+  appliances: {
+    "appliance-repair": "appliance-misc-appliance-repair-typical-job",
+    "washer-dryer": "appliance-misc-appliance-repair-typical-job",
+    dishwasher: "appliance-misc-appliance-repair-typical-job",
+    refrigerator: "appliance-misc-appliance-repair-typical-job",
+    "oven-range": "appliance-misc-appliance-repair-typical-job",
+  },
+};
+
+const seedBySlug = new Map(services.map((s) => [s.slug, s]));
+
+/**
+ * Mountain-adjusted estimate (cents) for a specific quick-pick option, or null
+ * when we don't have a price for it — the composer shows the estimate only when
+ * this returns a value.
+ */
+export function optionBenchmark(serviceSlug: string, optionSlug: string): number | null {
+  const seedSlug = OPTION_BENCHMARKS[serviceSlug]?.[optionSlug];
+  if (!seedSlug) return null;
+  const seed = seedBySlug.get(seedSlug);
+  if (!seed) return null;
+  return mountainPrice(seed.nationalTypical, marketConfig, seed.mountainBump);
+}
+
 export interface CatalogMatch {
   slug: string;
   label: string;
