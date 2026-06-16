@@ -54,7 +54,7 @@ export default async function HomeScreen() {
         </span>
       </div>
 
-      <main style={{ flex: 1, overflowY: "auto", padding: "0 16px 18px" }}>
+      <main style={{ flex: 1, overflowY: "auto", padding: "0 16px 92px" }}>
         {/* seasonal hero — whatever campaign is live today */}
         {hero && <SeasonalHero campaign={hero} />}
 

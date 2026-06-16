@@ -18,7 +18,7 @@ export default async function JobsScreen() {
   return (
     <>
       <AppHeader title="Your jobs" backHref="/app" />
-      <main style={{ flex: 1, overflowY: "auto", padding: "4px 16px 16px" }}>
+      <main style={{ flex: 1, overflowY: "auto", padding: "4px 16px 92px" }}>
         {jobs.length === 0 ? (
           <p style={{ fontSize: 13.5, color: "var(--ink-3)", fontFamily: "var(--font-ui)", padding: "24px 4px", textAlign: "center" }}>
             No jobs yet — post one from Home.

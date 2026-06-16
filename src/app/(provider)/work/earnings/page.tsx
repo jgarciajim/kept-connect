@@ -11,7 +11,7 @@ export default async function EarningsScreen() {
 
   return (
     <>
-      <main style={{ flex: 1, overflowY: "auto", padding: "12px 16px 16px" }}>
+      <main style={{ flex: 1, overflowY: "auto", padding: "12px 16px 92px" }}>
         <h1 style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 26, margin: "6px 2px 16px", color: "var(--chrome-cream)", letterSpacing: "-0.015em" }}>
           Earnings<span style={{ color: "var(--terracotta-bright)" }}>.</span>
         </h1>

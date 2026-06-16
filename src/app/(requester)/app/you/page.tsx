@@ -26,7 +26,7 @@ export default async function YouScreen() {
 
   return (
     <>
-      <main style={{ flex: 1, overflowY: "auto", padding: "4px 16px 16px" }}>
+      <main style={{ flex: 1, overflowY: "auto", padding: "4px 16px 92px" }}>
         <h1 style={{ fontFamily: "var(--font-display)", fontWeight: 600, fontSize: 26, margin: "10px 2px 16px", color: "var(--ink)", letterSpacing: "-0.015em" }}>
           You<span style={{ color: "var(--terracotta)" }}>.</span>
         </h1>

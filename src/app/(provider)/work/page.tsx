@@ -23,7 +23,7 @@ export default async function FeedScreen() {
     <>
       {/* new open requests + accepted-offer changes appear without a manual refresh */}
       <LiveRefresh intervalMs={8000} />
-      <main style={{ flex: 1, overflowY: "auto", padding: "12px 16px 16px" }}>
+      <main style={{ flex: 1, overflowY: "auto", padding: "12px 16px 92px" }}>
         {/* header */}
         <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "4px 2px 2px" }}>
           <KeptConnectLogo variant="mark" treatment="app-icon" size={30} />

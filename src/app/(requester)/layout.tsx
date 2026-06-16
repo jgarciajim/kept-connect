@@ -16,8 +16,9 @@ export default async function RequesterLayout({
         data-surface="requester"
         style={{
           maxWidth: "var(--app-width)",
-          height: "100dvh", // fixed app-shell height so only <main> scrolls; header + bottom nav stay pinned
+          height: "100dvh", // fixed app-shell height so only <main> scrolls; header stays pinned
           overflow: "hidden",
+          position: "relative", // anchor the floating bottom nav (absolute) to this column
           margin: "0 auto",
           background: "var(--canvas)",
           borderInline: "1px solid var(--hairline)",
