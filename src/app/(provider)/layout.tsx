@@ -17,7 +17,8 @@ export default async function ProviderLayout({
         data-surface="provider"
         style={{
           maxWidth: "var(--app-width)",
-          minHeight: "100dvh",
+          height: "100dvh", // fixed app-shell height so only <main> scrolls; header + bottom nav stay pinned
+          overflow: "hidden",
           margin: "0 auto",
           background: "var(--chrome)",
           borderInline: "1px solid var(--chrome-line)",

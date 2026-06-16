@@ -24,3 +24,10 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* App shell: the (requester)/(provider) column is a fixed-height flex column, so
+   the scrolling <main> needs min-height:0 to scroll INSIDE the flex layout instead
+   of growing and pushing the pinned header + bottom nav out of view. */
+[data-surface] > main {
+  min-height: 0;
+}
