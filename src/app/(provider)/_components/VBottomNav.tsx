@@ -19,9 +19,15 @@ export function VBottomNav({ active = "jobs" }: { active?: Tab }) {
       style={{
         display: "flex",
         justifyContent: "space-around",
-        padding: "10px 18px 16px",
-        borderTop: "1px solid var(--chrome-line)",
-        background: "var(--chrome)",
+        alignItems: "center",
+        gap: 4,
+        margin: "0 14px",
+        marginBottom: "max(12px, env(safe-area-inset-bottom))",
+        padding: 7,
+        background: "var(--chrome-card)",
+        border: "1px solid var(--chrome-line)",
+        borderRadius: "var(--r-pill)",
+        boxShadow: "var(--shadow-card)",
       }}
     >
       {ITEMS.map(({ id, label, href, Icon }) => {
@@ -30,17 +36,20 @@ export function VBottomNav({ active = "jobs" }: { active?: Tab }) {
           <Link
             key={id}
             href={href}
+            aria-label={label}
             style={{
               display: "flex",
-              flexDirection: "column",
               alignItems: "center",
-              gap: 3,
+              justifyContent: "center",
+              width: 46,
+              height: 40,
+              borderRadius: "var(--r-pill)",
               textDecoration: "none",
               color: on ? "var(--terracotta-bright)" : "var(--chrome-dim)",
+              background: on ? "var(--chrome-card-2)" : "transparent",
             }}
           >
-            <Icon size={22} sw={on ? 2.2 : 2} />
-            <span style={{ fontSize: 9.5, fontWeight: 500 }}>{label}</span>
+            <Icon size={23} sw={on ? 2.2 : 2} />
           </Link>
         );
       })}

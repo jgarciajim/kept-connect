@@ -19,9 +19,15 @@ export function BottomNav({ active = "home" }: { active?: Tab }) {
       style={{
         display: "flex",
         justifyContent: "space-around",
-        padding: "10px 18px 16px",
-        borderTop: "1px solid var(--hairline)",
-        background: "var(--canvas)",
+        alignItems: "center",
+        gap: 4,
+        margin: "0 14px",
+        marginBottom: "max(12px, env(safe-area-inset-bottom))",
+        padding: 7,
+        background: "var(--paper)",
+        border: "1px solid var(--hairline)",
+        borderRadius: "var(--r-pill)",
+        boxShadow: "var(--shadow-card)",
       }}
     >
       {ITEMS.map(({ id, label, href, Icon }) => {
@@ -30,17 +36,20 @@ export function BottomNav({ active = "home" }: { active?: Tab }) {
           <Link
             key={id}
             href={href}
+            aria-label={label}
             style={{
               display: "flex",
-              flexDirection: "column",
               alignItems: "center",
-              gap: 3,
+              justifyContent: "center",
+              width: 46,
+              height: 40,
+              borderRadius: "var(--r-pill)",
               textDecoration: "none",
               color: on ? "var(--terracotta)" : "var(--ink-3)",
+              background: on ? "var(--terracotta-tint)" : "transparent",
             }}
           >
-            <Icon size={22} sw={on ? 2.2 : 2} />
-            <span style={{ fontSize: 9.5, fontWeight: 500 }}>{label}</span>
+            <Icon size={23} sw={on ? 2.2 : 2} />
           </Link>
         );
       })}
