@@ -37,7 +37,8 @@ export interface Campaign {
   region: string | null; // e.g. "summit-co"; null = everywhere
   startsOn: string; // ISO date, inclusive
   endsOn: string; // ISO date, inclusive
-  theme: CampaignTheme; // drives card art/tint ONLY
+  theme: CampaignTheme; // banner scrim + the art/tint fallback when no bannerImage
+  bannerImage?: string; // filename under /banners/campaigns/; omit = theme-tint fallback
   badge?: string; // e.g. "Seasonal" | "Popular"
   placements: Placement[]; // hero / rail / tileBadge — any combination
   priority: number; // higher surfaces first

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import type { CSSProperties } from "react";
 import { Avatar, StatusRing, VerifiedCheck, CategoryIcon } from "@/components/ui";
 import { getActiveJobs, getCurrentMember, type Job } from "@/lib/requester/mock";
@@ -156,20 +157,47 @@ function SectionHeader({ title, action }: { title: string; action?: { label: str
 function SeasonalHero({ campaign }: { campaign: Campaign }) {
   const t = CAMPAIGN_THEMES[campaign.theme];
   const href = `/app/new?category=${campaign.targetCategory}&campaign=${campaign.slug}`;
-  return (
-    <div style={{ position: "relative", overflow: "hidden", marginTop: 16, borderRadius: 22, background: t.heroBg, padding: "20px 18px" }}>
+
+  // Text block — sits over the banner scrim (or the themed gradient) on the left.
+  const content = (
+    <>
       <div style={{ fontSize: 11.5, fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase", color: t.kicker }}>{campaign.kicker}</div>
-      <h2 style={{ fontFamily: "var(--font-display)", fontWeight: 600, fontSize: 25, lineHeight: 1.05, margin: "7px 0 6px", maxWidth: "78%", color: "var(--ink)" }}>
+      <h2 style={{ fontFamily: "var(--font-display)", fontWeight: 600, fontSize: 25, lineHeight: 1.05, margin: "7px 0 6px", maxWidth: "72%", color: "var(--ink)" }}>
         {campaign.title}
         <span style={{ color: "var(--terracotta)" }}>.</span>
       </h2>
-      <p style={{ fontSize: 13.5, color: t.subtitle, margin: "0 0 15px", maxWidth: "74%" }}>{campaign.subtitle}</p>
+      <p style={{ fontSize: 13.5, color: campaign.bannerImage ? "var(--ink-2)" : t.subtitle, margin: "0 0 15px", maxWidth: "66%" }}>{campaign.subtitle}</p>
       <Link
         href={href}
         style={{ display: "inline-flex", background: "var(--terracotta)", color: "var(--cream)", fontSize: 13.5, fontWeight: 600, borderRadius: "var(--r-pill)", padding: "10px 18px", textDecoration: "none" }}
       >
         {campaign.ctaLabel}
       </Link>
+    </>
+  );
+
+  // Banner-art hero: image anchored right, a left scrim keeps the text legible.
+  if (campaign.bannerImage) {
+    return (
+      <div style={{ position: "relative", overflow: "hidden", marginTop: 16, borderRadius: 22, minHeight: 176 }}>
+        <Image
+          src={`/banners/campaigns/${campaign.bannerImage}`}
+          alt=""
+          fill
+          priority
+          sizes="(max-width: 480px) 100vw, 480px"
+          style={{ objectFit: "cover", objectPosition: "right center" }}
+        />
+        <div style={{ position: "absolute", inset: 0, background: `linear-gradient(90deg, ${t.scrim} 0%, ${t.scrim} 30%, transparent 78%)` }} />
+        <div style={{ position: "relative", padding: "20px 18px" }}>{content}</div>
+      </div>
+    );
+  }
+
+  // Fallback: themed gradient + decorative art (no banner yet).
+  return (
+    <div style={{ position: "relative", overflow: "hidden", marginTop: 16, borderRadius: 22, background: t.heroBg, padding: "20px 18px" }}>
+      {content}
       <HeroArt theme={campaign.theme} color={t.art} />
     </div>
   );
@@ -184,9 +212,15 @@ function RailCard({ campaign }: { campaign: Campaign }) {
       href={href}
       style={{ flex: "0 0 188px", background: "var(--paper)", border: "1px solid var(--hairline)", borderRadius: 18, overflow: "hidden", textDecoration: "none" }}
     >
-      <div style={{ height: 108, background: t.railBg, display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <HeroArt theme={campaign.theme} color={t.railArt} inline />
-      </div>
+      {campaign.bannerImage ? (
+        <div style={{ position: "relative", height: 108 }}>
+          <Image src={`/banners/campaigns/${campaign.bannerImage}`} alt="" fill sizes="188px" style={{ objectFit: "cover" }} />
+        </div>
+      ) : (
+        <div style={{ height: 108, background: t.railBg, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <HeroArt theme={campaign.theme} color={t.railArt} inline />
+        </div>
+      )}
       <div style={{ padding: "11px 13px 14px" }}>
         <h4 style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 15, lineHeight: 1.1, margin: "0 0 3px", color: "var(--ink)" }}>{campaign.title}</h4>
         <p style={{ fontSize: 12, color: "var(--ink-2)", margin: 0, fontFamily: "var(--font-ui)" }}>{campaign.subtitle}</p>
