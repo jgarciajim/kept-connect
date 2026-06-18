@@ -81,6 +81,27 @@ export default async function HomeScreen() {
           </span>
         </Link>
 
+        {/* book now — fixed-price instant jobs (round-robin dispatch) */}
+        <Link
+          href="/app/book"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+            marginTop: 8,
+            padding: "11px 15px",
+            borderRadius: 14,
+            background: "var(--moment)",
+            textDecoration: "none",
+          }}
+        >
+          <span style={{ width: 6, height: 6, borderRadius: "var(--r-pill)", background: "var(--terracotta)" }} />
+          <span style={{ flex: 1, fontFamily: "var(--font-ui)", fontSize: 13.5, fontWeight: 500, color: "var(--ink)" }}>
+            Book a fixed-price job · matched in minutes
+          </span>
+          <IconChevron size={14} sw={2.4} style={{ color: "var(--ink-3)" }} />
+        </Link>
+
         {/* popular this season — featured services */}
         <SectionHeader title="Popular this season" action={{ label: "See all", href: "/app/services" }} />
         <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10 }}>

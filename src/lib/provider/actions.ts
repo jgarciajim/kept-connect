@@ -24,6 +24,13 @@ export async function acceptOffer(offerId: string): Promise<void> {
   redirect("/work/jobs/active");
 }
 
+/** Decline a round-robin offer → the engine advances to the next eligible pro. */
+export async function declineOffer(offerId: string): Promise<void> {
+  const sb = await createServerSupabaseClient();
+  await sb.rpc("decline_offer", { p_offer_id: offerId });
+  revalidatePath("/work");
+}
+
 export async function startJob(requestId: string): Promise<void> {
   const sb = await createServerSupabaseClient();
   await sb.rpc("start_job", { p_request_id: requestId });

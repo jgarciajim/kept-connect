@@ -114,6 +114,14 @@ export interface CategoryShortcut {
   label: string;
 }
 
+/** A standardized, fixed-price job that can be booked instantly (round-robin dispatch). */
+export interface InstantService {
+  id: string;
+  category: CategoryKey;
+  name: string;
+  price: string; // dollars, tabular
+}
+
 /** A row in the requester's Messages list (one per job thread). */
 export interface ThreadSummary {
   id: string; // request id
@@ -178,4 +186,8 @@ export async function getMyProperties(): Promise<Property[]> {
 
 export async function getReviewsAboutMe(): Promise<Review[]> {
   return q.qGetReviewsAboutMe(await createServerSupabaseClient());
+}
+
+export async function getInstantServices(): Promise<InstantService[]> {
+  return q.qGetInstantServices(await createServerSupabaseClient());
 }

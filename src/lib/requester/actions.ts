@@ -55,6 +55,50 @@ export async function postRequest(formData: FormData): Promise<void> {
   redirect(`/app/jobs/${data.id}`);
 }
 
+/**
+ * Book an instant, fixed-price job. Inserts an 'instant' request at status
+ * 'finding'; the DB trigger (dispatch_on_insert) immediately offers it to the
+ * first eligible provider — the round-robin engine takes it from there. The
+ * requester lands on the job page and watches the match arrive (LiveRefresh).
+ */
+export async function postInstantJob(formData: FormData): Promise<void> {
+  const serviceId = String(formData.get("serviceId") || "").trim();
+  const locationLabel = String(formData.get("locationLabel") || "").trim() || "14 Birch Lane";
+  if (!serviceId) redirect("/app/book");
+
+  const sb = await createServerSupabaseClient();
+  const me = await myMember(sb);
+  if (!me) redirect("/app");
+
+  // Pull the catalog row server-side — the requester never sets category/title/mode.
+  const { data: svc } = await sb
+    .from("services")
+    .select("category, name")
+    .eq("id", serviceId)
+    .eq("active", true)
+    .maybeSingle();
+  if (!svc) redirect("/app/book");
+
+  const { data, error } = await sb
+    .from("requests")
+    .insert({
+      requester_id: me!.id,
+      requester_name: me!.display_name,
+      category: svc!.category,
+      title: svc!.name,
+      status: "finding",
+      urgency: "same_day",
+      dispatch_mode: "instant",
+      service_id: serviceId,
+      location_label: locationLabel,
+    })
+    .select("id")
+    .single();
+
+  if (error || !data) redirect("/app/book");
+  redirect(`/app/jobs/${data.id}`);
+}
+
 /** Award a sealed quote (SECURITY DEFINER RPC) → opens the live job. */
 export async function awardQuote(formData: FormData): Promise<void> {
   const quoteId = String(formData.get("quoteId") || "");

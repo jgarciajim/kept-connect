@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { CategoryIcon } from "@/components/ui";
-import { acceptOffer } from "@/lib/provider/actions";
+import { acceptOffer, declineOffer } from "@/lib/provider/actions";
 import type { Offer } from "@/lib/provider/mock";
 
 /**
@@ -59,8 +59,9 @@ export function OfferCard({ offer }: { offer: Offer }) {
       <div style={{ display: "flex", gap: 9 }}>
         <button
           type="button"
-          onClick={() => setDismissed(true)}
-          style={{ flex: 1, borderRadius: "var(--r-pill)", padding: 11, fontSize: 13.5, fontWeight: 500, background: "transparent", color: "var(--chrome-dim)", border: "1px solid var(--chrome-line)", cursor: "pointer", fontFamily: "var(--font-ui)" }}
+          disabled={accepting}
+          onClick={() => { setDismissed(true); declineOffer(offer.id); }}
+          style={{ flex: 1, borderRadius: "var(--r-pill)", padding: 11, fontSize: 13.5, fontWeight: 500, background: "transparent", color: "var(--chrome-dim)", border: "1px solid var(--chrome-line)", cursor: accepting ? "not-allowed" : "pointer", fontFamily: "var(--font-ui)" }}
         >
           Decline
         </button>

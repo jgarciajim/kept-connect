@@ -1,6 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { CategoryKey } from "@/components/ui";
-import type { Job, JobStatus, ProviderProfile, Quote, Review, Thread, Member, Property, ThreadSummary } from "./mock";
+import type { Job, JobStatus, ProviderProfile, Quote, Review, Thread, Member, Property, ThreadSummary, InstantService } from "./mock";
 
 /**
  * Requester data layer — PURE query functions (take a Supabase client; no Clerk/
@@ -97,6 +97,22 @@ export async function qGetReviewsAboutMe(c: SupabaseClient): Promise<Review[]> {
     when: relativeWhen(r.created_at),
     stars: r.stars,
     text: r.body ?? "",
+  }));
+}
+
+// ---- instant (fixed-price) services — the round-robin dispatch catalog ------
+export async function qGetInstantServices(c: SupabaseClient): Promise<InstantService[]> {
+  const { data } = await c
+    .from("services")
+    .select("id, category, name, base_price")
+    .eq("active", true)
+    .order("category", { ascending: true })
+    .order("base_price", { ascending: true });
+  return (data ?? []).map((s) => ({
+    id: s.id,
+    category: (s.category ?? "fixtures") as CategoryKey,
+    name: s.name,
+    price: money(s.base_price) ?? "0.00",
   }));
 }
 
