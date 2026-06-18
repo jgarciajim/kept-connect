@@ -1,6 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { CategoryKey } from "@/components/ui";
-import type { Offer, ScheduledJob, ActiveJob, Payout, EarningsSummary, ProviderSelf, ProviderRate, OpenRequest, ProviderReview, JobHistoryItem } from "./mock";
+import type { Offer, ScheduledJob, ActiveJob, Payout, EarningsSummary, ProviderSelf, ProviderRate, OpenRequest, ProviderReview, JobHistoryItem, MyVerification } from "./mock";
 
 /**
  * Provider data layer — PURE query functions (take a Supabase client; no Clerk/
@@ -191,6 +191,24 @@ export async function qGetOpenRequest(c: SupabaseClient, id: string): Promise<Op
     .maybeSingle();
   if (!data) return null;
   return mapOpenRequest(data);
+}
+
+export async function qGetMyVerification(c: SupabaseClient): Promise<MyVerification> {
+  const { data } = await c
+    .from("provider_verifications")
+    .select("status, license_type, license_number, insurance_carrier, coi_expiry, years_in_trade, reason")
+    .limit(1)
+    .maybeSingle();
+  if (!data) return { status: "unsubmitted", licenseType: null, licenseNumber: null, insuranceCarrier: null, coiExpiry: null, yearsInTrade: null, reason: null };
+  return {
+    status: data.status,
+    licenseType: data.license_type ?? null,
+    licenseNumber: data.license_number ?? null,
+    insuranceCarrier: data.insurance_carrier ?? null,
+    coiExpiry: data.coi_expiry ?? null,
+    yearsInTrade: data.years_in_trade ?? null,
+    reason: data.reason ?? null,
+  };
 }
 
 export async function qGetMyReviews(c: SupabaseClient): Promise<ProviderReview[]> {

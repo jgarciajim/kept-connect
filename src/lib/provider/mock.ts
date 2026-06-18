@@ -100,6 +100,18 @@ export interface JobHistoryItem {
   status: string;
 }
 
+/** The provider's verification application status (vetting). */
+export type VerificationStatus = "unsubmitted" | "pending" | "verified" | "rejected";
+export interface MyVerification {
+  status: VerificationStatus;
+  licenseType: string | null;
+  licenseNumber: string | null;
+  insuranceCarrier: string | null;
+  coiExpiry: string | null;
+  yearsInTrade: number | null;
+  reason: string | null; // rejection note, when rejected
+}
+
 /** An open (finding) request in the provider's trade — the supply feed. */
 export interface OpenRequest {
   id: string;
@@ -157,4 +169,8 @@ export async function getMyReviews(): Promise<ProviderReview[]> {
 
 export async function getJobHistory(): Promise<JobHistoryItem[]> {
   return q.qGetJobHistory(await createServerSupabaseClient());
+}
+
+export async function getMyVerification(): Promise<MyVerification> {
+  return q.qGetMyVerification(await createServerSupabaseClient());
 }

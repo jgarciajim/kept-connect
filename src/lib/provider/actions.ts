@@ -91,6 +91,38 @@ export async function optInBenchmark(serviceSlug: string): Promise<void> {
   revalidatePath("/work/rates");
 }
 
+/**
+ * Submit (or resubmit) a verification application → status 'pending'. Document
+ * bytes are uploaded client-side to Storage first; this records the paths + fields
+ * via the safe RPC (a provider can never self-set 'verified').
+ */
+export async function submitVerification(input: {
+  licenseType: string;
+  licenseNumber: string;
+  insuranceCarrier: string;
+  coiExpiry: string | null;
+  yearsInTrade: number | null;
+  w9Path: string | null;
+  coiPath: string | null;
+  licensePhotoPath: string | null;
+  attested: boolean;
+}): Promise<void> {
+  const sb = await createServerSupabaseClient();
+  await sb.rpc("submit_verification", {
+    p_license_type: input.licenseType.trim() || null,
+    p_license_number: input.licenseNumber.trim() || null,
+    p_insurance_carrier: input.insuranceCarrier.trim() || null,
+    p_coi_expiry: input.coiExpiry || null,
+    p_years_in_trade: input.yearsInTrade,
+    p_w9_path: input.w9Path,
+    p_coi_path: input.coiPath,
+    p_license_photo_path: input.licensePhotoPath,
+    p_attested: input.attested,
+  });
+  revalidatePath("/work/you");
+  redirect("/work/you");
+}
+
 /** Send an offer at the provider's own/opted rate → a quote the requester accepts. */
 export async function sendOffer(requestId: string): Promise<void> {
   const sb = await createServerSupabaseClient();

@@ -1,20 +1,23 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { Avatar, CategoryIcon } from "@/components/ui";
-import { getProviderSelf, getMyReviews, getJobHistory } from "@/lib/provider/mock";
+import { getProviderSelf, getMyReviews, getJobHistory, getMyVerification, type MyVerification } from "@/lib/provider/mock";
 import { getNotificationPrefs } from "@/lib/notifications";
+import { isCurrentMemberAdmin } from "@/lib/admin";
 import { NotificationPrefs } from "@/components/NotificationPrefs";
 import { VBottomNav } from "../../_components/VBottomNav";
 import { ProviderEmptyState } from "../../_components/ProviderEmptyState";
-import { PIconStar, PIconWallet } from "../../_components/icons";
+import { PIconStar, PIconWallet, PIconCheck } from "../../_components/icons";
 import { ProfileControls } from "./ProfileControls";
 
 export default async function ProfileScreen() {
-  const [self, reviews, history, prefs] = await Promise.all([
+  const [self, reviews, history, prefs, verification, admin] = await Promise.all([
     getProviderSelf(),
     getMyReviews(),
     getJobHistory(),
     getNotificationPrefs(),
+    getMyVerification(),
+    isCurrentMemberAdmin(),
   ]);
   if (!self) return <ProviderEmptyState tab="you" />;
 
@@ -28,8 +31,22 @@ export default async function ProfileScreen() {
         {/* editable identity + availability + trades + credentials */}
         <ProfileControls self={self} />
 
+        {/* verification status / get-verified */}
+        <div style={{ marginTop: 14 }}>
+          <VerificationRow verification={verification} />
+        </div>
+
         {/* fast pay + rates */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 14 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 10 }}>
+          {admin && (
+            <Link href="/work/admin" style={rowLink}>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 14, fontWeight: 500, color: "var(--chrome-cream)", fontFamily: "var(--font-ui)" }}>Admin · review queue</div>
+                <div style={{ fontSize: 11.5, color: "var(--chrome-dim)", fontFamily: "var(--font-ui)" }}>Approve provider verifications</div>
+              </div>
+              <span style={{ color: "var(--terracotta-bright)", fontSize: 13, fontWeight: 500, fontFamily: "var(--font-ui)" }}>Open →</span>
+            </Link>
+          )}
           <Link href="/work/earnings" style={rowLink}>
             <span style={iconBubble}><PIconWallet size={18} /></span>
             <div style={{ flex: 1, minWidth: 0 }}>
@@ -96,6 +113,39 @@ export default async function ProfileScreen() {
 
       <VBottomNav active="you" />
     </>
+  );
+}
+
+function VerificationRow({ verification }: { verification: MyVerification }) {
+  const base: React.CSSProperties = { background: "var(--chrome-card)", border: "1px solid var(--chrome-line)", borderRadius: 14, padding: "12px 14px" };
+  if (verification.status === "verified") {
+    return (
+      <div style={{ ...base, display: "flex", alignItems: "center", gap: 10 }}>
+        <span style={{ color: "var(--verified-bright)", display: "flex" }}><PIconCheck size={18} /></span>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontSize: 14, fontWeight: 500, color: "var(--chrome-cream)", fontFamily: "var(--font-ui)" }}>Verified</div>
+          <div style={{ fontSize: 11.5, color: "var(--chrome-dim)", fontFamily: "var(--font-ui)" }}>Your profile shows the verified badge.</div>
+        </div>
+      </div>
+    );
+  }
+  if (verification.status === "pending") {
+    return (
+      <div style={base}>
+        <div style={{ fontSize: 14, fontWeight: 500, color: "var(--chrome-cream)", fontFamily: "var(--font-ui)" }}>Verification in review</div>
+        <div style={{ fontSize: 11.5, color: "var(--chrome-dim)", fontFamily: "var(--font-ui)", marginTop: 2 }}>We&rsquo;re reviewing your documents — you&rsquo;ll be notified.</div>
+      </div>
+    );
+  }
+  const rejected = verification.status === "rejected";
+  return (
+    <Link href="/work/verify" style={{ ...base, display: "flex", alignItems: "center", gap: 10, textDecoration: "none" }}>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ fontSize: 14, fontWeight: 500, color: "var(--chrome-cream)", fontFamily: "var(--font-ui)" }}>{rejected ? "Verification needs changes" : "Get verified"}</div>
+        <div style={{ fontSize: 11.5, color: "var(--chrome-dim)", fontFamily: "var(--font-ui)", marginTop: 2 }}>{rejected ? (verification.reason ?? "Resubmit your application.") : "Add your license & documents to earn the badge."}</div>
+      </div>
+      <span style={{ color: "var(--terracotta-bright)", fontSize: 13, fontWeight: 500, fontFamily: "var(--font-ui)", flex: "0 0 auto" }}>{rejected ? "Resubmit →" : "Start →"}</span>
+    </Link>
   );
 }
 
