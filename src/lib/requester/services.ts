@@ -146,11 +146,14 @@ export function getAvailableServices(opts: { now: Date }): Service[] {
  * (snow in July) is correctly absent — and rejoins automatically in November.
  */
 export function getFeaturedServices(opts: { now: Date }): Service[] {
-  // Cap at 8 so the home "Popular this season" row stays two clean rows of four
-  // (in array order), regardless of how many are featured or seasonally available.
-  return getAvailableServices(opts)
-    .filter((s) => s.featured)
-    .slice(0, 8);
+  // Cap at 8 so the home "Popular this season" row stays two clean rows of four.
+  // In-season seasonal pushes (e.g. snow in winter) LEAD the row — that's the whole
+  // point of "this season" — so they're never cut by the cap; year-round services
+  // follow in catalog order.
+  const featured = getAvailableServices(opts).filter((s) => s.featured);
+  const seasonal = featured.filter((s) => s.season);
+  const yearRound = featured.filter((s) => !s.season);
+  return [...seasonal, ...yearRound].slice(0, 8);
 }
 
 /**
