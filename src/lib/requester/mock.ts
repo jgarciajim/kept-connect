@@ -87,6 +87,10 @@ export interface Job {
   request: Request;
   title: string;
   status: JobStatus;
+  /** Raw DB request status (finding/quoted/awarded/enroute/complete/paid/rated) —
+   *  `status` collapses awarded+enroute, so screens that must tell "matched" from
+   *  "on the way" read this. */
+  dbStatus: string;
   locationLabel: string;
   provider?: ProviderProfile;
   price?: string;

@@ -7,8 +7,11 @@ import { BottomNav } from "../../_components/BottomNav";
 const STATUS_LABEL: Record<string, string> = {
   finding: "Finding a pro",
   quoted: "Quotes in",
+  awarded: "Matched",
   enroute: "On the way",
   complete: "Complete",
+  paid: "Paid",
+  rated: "Rated",
 };
 
 // The requester's activity list (/app/jobs) — every request, any status.
@@ -49,7 +52,7 @@ function JobRow({ job }: { job: Job }) {
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ fontSize: 14, fontWeight: 500, color: "var(--ink)", fontFamily: "var(--font-ui)" }}>{job.title || "Request"}</div>
         <div style={{ fontSize: 12, color: "var(--ink-2)", marginTop: 1, fontFamily: "var(--font-ui)" }}>
-          {STATUS_LABEL[job.status] ?? job.status}
+          {STATUS_LABEL[job.dbStatus] ?? job.dbStatus}
           {job.provider ? ` · ${job.provider.name}` : ""}
         </div>
       </div>

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import type { CSSProperties } from "react";
-import { Avatar, StatusRing, VerifiedCheck, CategoryIcon } from "@/components/ui";
+import { Avatar, StatusRing, VerifiedCheck, CategoryIcon, CATEGORIES } from "@/components/ui";
 import { getActiveJobs, getCurrentMember, type Job } from "@/lib/requester/mock";
 import {
   getActiveCampaigns,
@@ -280,7 +280,14 @@ function Stat({ value, label }: { value: string; label: string }) {
 // In-progress job row — reuses requester mock job data. Cool/data side: no
 // seasonal tint, terracotta only for the live ring/indicator.
 function JobCard({ job }: { job: Job }) {
-  const href = job.status === "enroute" ? `/app/jobs/${job.id}/track` : `/app/jobs/${job.id}`;
+  const href = job.provider ? `/app/jobs/${job.id}/track` : `/app/jobs/${job.id}`;
+  const trade = CATEGORIES[job.request.trade].label;
+  const enroute = job.dbStatus === "enroute";
+  const subtitle =
+    enroute ? `${trade} · On the way`
+    : job.dbStatus === "awarded" ? `${trade} · Matched`
+    : job.dbStatus === "quoted" ? `${trade} · Quotes in`
+    : `${trade} · Finding a pro`;
   return (
     <Link
       href={href}
@@ -299,19 +306,16 @@ function JobCard({ job }: { job: Job }) {
           {job.provider?.verified && <VerifiedCheck size={14} />}
         </div>
         <div style={{ fontSize: 12, color: "var(--ink-2)", display: "flex", alignItems: "center", gap: 6, marginTop: 1, fontFamily: "var(--font-ui)" }}>
-          {job.status === "enroute" ? (
-            <>
-              <span style={{ width: 6, height: 6, borderRadius: "var(--r-pill)", background: "var(--terracotta)" }} /> Plumbing · On the way
-            </>
-          ) : (
-            "3 quotes in"
-          )}
+          {enroute && <span style={{ width: 6, height: 6, borderRadius: "var(--r-pill)", background: "var(--terracotta)" }} />}
+          {subtitle}
         </div>
       </div>
-      {job.status === "enroute" && (
+      {job.provider && job.price && (
         <div style={{ textAlign: "right" }}>
           <div style={{ fontSize: 14, fontWeight: 500, fontVariantNumeric: "tabular-nums", color: "var(--ink)", fontFamily: "var(--font-ui)" }}>${job.price}</div>
-          <div style={{ fontSize: 11, color: "var(--ink-3)", fontFamily: "var(--font-ui)" }}>{job.etaMinutes} min</div>
+          {enroute && job.etaMinutes != null && (
+            <div style={{ fontSize: 11, color: "var(--ink-3)", fontFamily: "var(--font-ui)" }}>{job.etaMinutes} min</div>
+          )}
         </div>
       )}
     </Link>

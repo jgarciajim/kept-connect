@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { Button, Card, Avatar, StatusRing, VerifiedCheck, type RingState } from "@/components/ui";
 import { getJob, getQuotes, type Quote } from "@/lib/requester/mock";
 import { payAndAward } from "@/lib/payments/actions";
@@ -12,6 +12,9 @@ export default async function MatchScreen({ params }: { params: Promise<{ id: st
   const { id } = await params;
   const [job, quotes] = await Promise.all([getJob(id), getQuotes(id)]);
   if (!job) notFound();
+  // Once a provider is assigned (instant accept or awarded quote), this is a live
+  // job — the requester belongs on the tracker, not the match/compare screen.
+  if (job.provider) redirect(`/app/jobs/${id}/track`);
 
   const finding = job.status === "finding";
   const ringStates: RingState[] = finding ? ["responding", "responding", "none"] : ["quoted", "quoted", "quoted"];

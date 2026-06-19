@@ -177,6 +177,7 @@ async function mapJob(c: SupabaseClient, row: RequestRow): Promise<Job> {
     },
     title: row.title ?? "",
     status: jobStatus(row.status),
+    dbStatus: row.status,
     locationLabel: row.location_label ?? "",
     provider,
     price: money(row.agreed_price),

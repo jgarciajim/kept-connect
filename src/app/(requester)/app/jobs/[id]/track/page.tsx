@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Avatar, StatusRing, VerifiedCheck } from "@/components/ui";
+import { Avatar, StatusRing, VerifiedCheck, CATEGORIES } from "@/components/ui";
 import { getJob } from "@/lib/requester/mock";
 import { getPayment } from "@/lib/payments";
 import { RealtimeRefresh } from "@/components/RealtimeRefresh";
@@ -9,19 +9,36 @@ import { BottomNav } from "../../../../_components/BottomNav";
 import { LinkButton } from "../../../../_components/LinkButton";
 import { IconPhone, IconChat } from "../../../../_components/icons";
 
-const STEPS: [string, boolean][] = [
-  ["Requested", true],
-  ["Matched with Marco", true],
-  ["On the way", true],
-  ["Job complete", false],
-];
-
 export default async function TrackScreen({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const job = await getJob(id);
   if (!job || !job.provider) notFound();
   const provider = job.provider;
   const payment = await getPayment(id);
+
+  // Drive the screen off the real status. `status` collapses awarded+enroute, so
+  // read dbStatus to tell "matched, waiting" from "on the way".
+  const isEnroute = job.dbStatus === "enroute";
+  const isComplete = ["complete", "paid", "rated"].includes(job.dbStatus);
+  const firstName = provider.name.split(" ")[0] || "your pro";
+  const tradeLabel = provider.trades[0] ?? CATEGORIES[job.request.trade].label;
+  const credLine = [tradeLabel, ...provider.credentials].filter(Boolean).join(" · ");
+
+  const headline = isComplete ? "Job complete" : isEnroute ? "On the way" : "You’re matched";
+  const subline = isComplete
+    ? "Hope it went well — leave a rating below."
+    : isEnroute
+      ? job.etaMinutes
+        ? `Arriving in about ${job.etaMinutes} minutes`
+        : `${firstName} is on the way`
+      : `${firstName} is booked and will head over soon`;
+
+  const steps: [string, boolean][] = [
+    ["Requested", true],
+    [`Matched with ${firstName}`, true],
+    ["On the way", isEnroute || isComplete],
+    ["Job complete", isComplete],
+  ];
   const escrowLabel =
     payment?.status === "held"
       ? "Payment held · releases when the job's done"
@@ -31,7 +48,7 @@ export default async function TrackScreen({ params }: { params: Promise<{ id: st
 
   return (
     <>
-      <AppHeader title="Your plumber" backHref="/app" />
+      <AppHeader title={job.title || "Tracking"} backHref="/app" />
       {/* live: reflect awarded → enroute → complete as the provider works it */}
       <RealtimeRefresh
         topic={`track:${id}`}
@@ -57,10 +74,10 @@ export default async function TrackScreen({ params }: { params: Promise<{ id: st
         </div>
 
         <p style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 24, margin: "10px 2px 2px", letterSpacing: "-0.01em", color: "var(--ink)" }}>
-          On the way<span style={{ color: "var(--terracotta)" }}>.</span>
+          {headline}<span style={{ color: "var(--terracotta)" }}>.</span>
         </p>
         <p style={{ fontSize: 13, color: "var(--ink-2)", margin: "0 2px 10px", fontFamily: "var(--font-ui)" }}>
-          Arriving in about {job.etaMinutes} minutes
+          {subline}
         </p>
         {escrowLabel && (
           <div style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 12, color: "var(--ink-2)", fontFamily: "var(--font-ui)", background: "var(--moment)", borderRadius: "var(--r-pill)", padding: "5px 12px", margin: "0 2px 14px" }}>
@@ -78,7 +95,7 @@ export default async function TrackScreen({ params }: { params: Promise<{ id: st
             <div style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 14, fontWeight: 500, color: "var(--ink)", fontFamily: "var(--font-ui)" }}>
               {provider.name} {provider.verified && <VerifiedCheck size={14} />}
             </div>
-            <div style={{ fontSize: 12, color: "var(--ink-2)", marginTop: 1, fontFamily: "var(--font-ui)" }}>Plumbing · Licensed · Insured</div>
+            <div style={{ fontSize: 12, color: "var(--ink-2)", marginTop: 1, fontFamily: "var(--font-ui)" }}>{credLine}</div>
           </div>
           <div style={{ display: "flex", gap: 8 }}>
             <Link href={`/app/messages/${job.id}`} aria-label="Call" style={iconBtn}><IconPhone size={18} /></Link>
@@ -88,7 +105,7 @@ export default async function TrackScreen({ params }: { params: Promise<{ id: st
 
         {/* step tracker */}
         <div style={{ display: "flex", flexDirection: "column", margin: "16px 4px 0" }}>
-          {STEPS.map(([label, done]) => (
+          {steps.map(([label, done]) => (
             <div key={label} style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 13, padding: "5px 0", color: done ? "var(--ink)" : "var(--ink-3)", fontFamily: "var(--font-ui)" }}>
               <span style={{ width: 11, height: 11, borderRadius: "var(--r-pill)", flex: "0 0 auto", background: done ? "var(--terracotta)" : "transparent", border: `2px solid ${done ? "var(--terracotta)" : "var(--ink-3)"}` }} />
               {label}
@@ -98,7 +115,7 @@ export default async function TrackScreen({ params }: { params: Promise<{ id: st
 
         <div style={{ marginTop: 18 }}>
           <LinkButton href={`/app/jobs/${job.id}/rate`} variant="outline" size="md" fullWidth>
-            Job done? Rate Marco
+            {isComplete ? `Rate ${firstName}` : `Job done? Rate ${firstName}`}
           </LinkButton>
         </div>
       </main>
