@@ -12,7 +12,7 @@ export default async function ThreadScreen({ params }: { params: Promise<{ id: s
   return (
     <>
       <AppHeader
-        title={thread.providerName}
+        title={thread.providerName || "Messages"}
         backHref={`/app/jobs/${thread.jobId}/track`}
         right={<span style={{ color: "var(--ink)", display: "flex" }}><IconPhone /></span>}
       />
@@ -25,6 +25,14 @@ export default async function ThreadScreen({ params }: { params: Promise<{ id: s
       </div>
 
       <main style={{ flex: 1, overflowY: "auto", padding: "6px 18px 12px", display: "flex", flexDirection: "column", gap: 12 }}>
+        {thread.messages.length === 0 && (
+          <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6, textAlign: "center", color: "var(--ink-3)", padding: "32px 16px" }}>
+            <span style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 17, color: "var(--ink)" }}>No messages yet</span>
+            <span style={{ fontFamily: "var(--font-ui)", fontSize: 13, maxWidth: 240 }}>
+              Send the first message{thread.providerName ? ` to ${thread.providerName}` : ""} — questions, gate codes, where to park.
+            </span>
+          </div>
+        )}
         {thread.messages.map((m) => {
           const me = m.from === "me";
           return (
