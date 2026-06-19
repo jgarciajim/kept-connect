@@ -8,6 +8,17 @@ import { VBottomNav } from "../_components/VBottomNav";
 import { OfferCard } from "../_components/OfferCard";
 import { ProviderEmptyState } from "../_components/ProviderEmptyState";
 
+// Time-of-day greeting, computed in the market's timezone (Summit County, MT) so
+// it's correct regardless of the server's UTC clock — and stable (server-rendered).
+function greeting(): string {
+  const h = Number(
+    new Intl.DateTimeFormat("en-US", { timeZone: "America/Denver", hour: "numeric", hour12: false }).format(new Date()),
+  ) % 24;
+  if (h < 12) return "Morning";
+  if (h < 17) return "Afternoon";
+  return "Evening";
+}
+
 export default async function FeedScreen() {
   const [self, offer, scheduled, openRequests, unread] = await Promise.all([
     getProviderSelf(),
@@ -31,7 +42,7 @@ export default async function FeedScreen() {
         <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "4px 2px 2px" }}>
           <KeptConnectLogo variant="mark" treatment="app-icon" size={30} />
           <span style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 16, color: "var(--chrome-cream)" }}>
-            Morning, {self.name.split(" ")[0]}
+            {greeting()}, {self.name.split(" ")[0]}
           </span>
           <span style={{ marginLeft: "auto", display: "inline-flex", alignItems: "center", gap: 14, color: "var(--chrome-cream)" }}>
             {self.online && (

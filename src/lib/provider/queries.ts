@@ -93,7 +93,7 @@ export async function qGetScheduledJobs(c: SupabaseClient): Promise<ScheduledJob
     trade: (r.category ?? "fixtures") as CategoryKey,
     title: r.title ?? "",
     place: r.location_label ?? "",
-    time: "Today",
+    time: "Scheduled",
     pay: money(r.agreed_price),
   }));
 }
