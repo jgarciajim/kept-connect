@@ -2,7 +2,7 @@ import Link from "next/link";
 import { KeptConnectLogo, CategoryIcon } from "@/components/ui";
 import { getProviderSelf, getCurrentOffer, getScheduledJobs, getOpenRequests } from "@/lib/provider/mock";
 import { getUnreadCount } from "@/lib/notifications";
-import { LiveRefresh } from "@/components/LiveRefresh";
+import { RealtimeRefresh } from "@/components/RealtimeRefresh";
 import { NotificationBell } from "@/components/NotificationBell";
 import { VBottomNav } from "../_components/VBottomNav";
 import { OfferCard } from "../_components/OfferCard";
@@ -21,8 +21,11 @@ export default async function FeedScreen() {
 
   return (
     <>
-      {/* new open requests + accepted-offer changes appear without a manual refresh */}
-      <LiveRefresh intervalMs={8000} />
+      {/* live: a dispatched offer or any RLS-visible request change refreshes the feed */}
+      <RealtimeRefresh
+        topic={`feed:${self.id}`}
+        watch={[{ table: "offers", filter: `provider_id=eq.${self.id}` }, { table: "requests" }]}
+      />
       <main style={{ flex: 1, overflowY: "auto", padding: "12px 16px 92px" }}>
         {/* header */}
         <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "4px 2px 2px" }}>

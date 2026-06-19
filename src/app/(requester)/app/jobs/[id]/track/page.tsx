@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { Avatar, StatusRing, VerifiedCheck } from "@/components/ui";
 import { getJob } from "@/lib/requester/mock";
 import { getPayment } from "@/lib/payments";
-import { LiveRefresh } from "@/components/LiveRefresh";
+import { RealtimeRefresh } from "@/components/RealtimeRefresh";
 import { AppHeader } from "../../../../_components/AppHeader";
 import { BottomNav } from "../../../../_components/BottomNav";
 import { LinkButton } from "../../../../_components/LinkButton";
@@ -32,8 +32,12 @@ export default async function TrackScreen({ params }: { params: Promise<{ id: st
   return (
     <>
       <AppHeader title="Your plumber" backHref="/app" />
-      {/* reflect awarded → enroute → complete as the provider works it */}
-      <LiveRefresh enabled={job.status !== "complete"} />
+      {/* live: reflect awarded → enroute → complete as the provider works it */}
+      <RealtimeRefresh
+        topic={`track:${id}`}
+        enabled={job.status !== "complete"}
+        watch={[{ table: "requests", filter: `id=eq.${id}` }]}
+      />
 
       <main style={{ flex: 1, overflowY: "auto", padding: "0 18px 18px" }}>
         {/* stylized map — colors tokenized (no hardcoded hex) */}

@@ -3,7 +3,7 @@ import { Button, Card, Avatar, StatusRing, VerifiedCheck, type RingState } from 
 import { getJob, getQuotes, type Quote } from "@/lib/requester/mock";
 import { payAndAward } from "@/lib/payments/actions";
 import { rateCard, activeFeeConfig, dollarsToCents, formatUsd } from "@/lib/pricing";
-import { LiveRefresh } from "@/components/LiveRefresh";
+import { RealtimeRefresh } from "@/components/RealtimeRefresh";
 import { AppHeader } from "../../../_components/AppHeader";
 import { LinkButton } from "../../../_components/LinkButton";
 import { IconStar } from "../../../_components/icons";
@@ -19,8 +19,16 @@ export default async function MatchScreen({ params }: { params: Promise<{ id: st
   return (
     <>
       <AppHeader title="Live match" backHref="/app" />
-      {/* poll while waiting on a provider; stop once a quote is awarded */}
-      <LiveRefresh enabled={finding || job.status === "quoted"} />
+      {/* live while waiting on a provider; detaches once awarded */}
+      <RealtimeRefresh
+        topic={`job:${id}`}
+        enabled={finding || job.status === "quoted"}
+        watch={[
+          { table: "requests", filter: `id=eq.${id}` },
+          { table: "offers", filter: `request_id=eq.${id}` },
+          { table: "quotes", filter: `request_id=eq.${id}` },
+        ]}
+      />
 
       <main style={{ flex: 1, overflowY: "auto", padding: "8px 18px 20px" }}>
         {/* warm moment — the signature live-match status */}

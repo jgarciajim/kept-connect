@@ -59,7 +59,7 @@ export async function postRequest(formData: FormData): Promise<void> {
  * Book an instant, fixed-price job. Inserts an 'instant' request at status
  * 'finding'; the DB trigger (dispatch_on_insert) immediately offers it to the
  * first eligible provider — the round-robin engine takes it from there. The
- * requester lands on the job page and watches the match arrive (LiveRefresh).
+ * requester lands on the job page and watches the match arrive (Realtime).
  */
 export async function postInstantJob(formData: FormData): Promise<void> {
   const serviceId = String(formData.get("serviceId") || "").trim();
