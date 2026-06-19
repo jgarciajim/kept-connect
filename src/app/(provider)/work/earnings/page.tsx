@@ -3,10 +3,11 @@ import { VBottomNav } from "../../_components/VBottomNav";
 
 export default async function EarningsScreen() {
   const earnings = await getEarnings();
+  const canCashOut = earnings.availableToCashOut !== "0.00";
   const stats: [string, string][] = [
     ["This week", `$${earnings.thisWeek}`],
     ["Jobs", String(earnings.jobsThisWeek)],
-    ["Rating", earnings.rating.toFixed(1)],
+    ["Rating", earnings.rating > 0 ? earnings.rating.toFixed(1) : "—"],
   ];
 
   return (
@@ -22,9 +23,10 @@ export default async function EarningsScreen() {
           <div style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 32, color: "var(--chrome-cream)", fontVariantNumeric: "tabular-nums", marginTop: 2 }}>${earnings.availableToCashOut}</div>
           <button
             type="button"
-            style={{ marginTop: 13, width: "100%", height: 44, borderRadius: "var(--r-pill)", border: "none", background: "var(--terracotta-bright)", color: "var(--cream)", fontFamily: "var(--font-ui)", fontWeight: 500, fontSize: 15, cursor: "pointer" }}
+            disabled={!canCashOut}
+            style={{ marginTop: 13, width: "100%", height: 44, borderRadius: "var(--r-pill)", border: "none", background: "var(--terracotta-bright)", color: "var(--cream)", fontFamily: "var(--font-ui)", fontWeight: 500, fontSize: 15, cursor: canCashOut ? "pointer" : "not-allowed", opacity: canCashOut ? 1 : 0.45 }}
           >
-            Cash out instantly
+            {canCashOut ? "Cash out instantly" : "Nothing to cash out yet"}
           </button>
         </div>
 
@@ -40,6 +42,11 @@ export default async function EarningsScreen() {
 
         {/* payout history — tabular */}
         <div style={{ fontSize: 11.5, color: "var(--chrome-dim)", margin: "0 4px 9px", fontFamily: "var(--font-ui)" }}>Recent payouts</div>
+        {earnings.payouts.length === 0 ? (
+          <div style={{ background: "var(--chrome-card)", border: "1px solid var(--chrome-line)", borderRadius: 16, padding: "20px 16px", textAlign: "center", color: "var(--chrome-dim)", fontSize: 13, fontFamily: "var(--font-ui)" }}>
+            No payouts yet — finish a job and your earnings land here.
+          </div>
+        ) : (
         <div style={{ background: "var(--chrome-card)", borderRadius: 16, overflow: "hidden", border: "1px solid var(--chrome-line)" }}>
           {earnings.payouts.map((r, i) => (
             <div key={r.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "13px 16px", borderTop: i ? "1px solid var(--chrome-line)" : "none" }}>
@@ -54,6 +61,7 @@ export default async function EarningsScreen() {
             </div>
           ))}
         </div>
+        )}
       </main>
 
       <VBottomNav active="earnings" />
