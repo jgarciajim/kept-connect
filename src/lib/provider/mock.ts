@@ -68,6 +68,7 @@ export interface ProviderSelf {
   yearsOnKept: number;
   verified: boolean;
   online: boolean;
+  preciseMatching: boolean; // opt-in: only receive requests for sub-jobs they priced
   availableToCashOut: string;
   credentials: string[];
   trades: string[]; // display labels

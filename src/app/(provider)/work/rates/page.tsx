@@ -36,7 +36,7 @@ export default async function RatesScreen() {
           Pick the jobs you take and set your price for each. You only receive requests for what you list —
           your offers always go out at your rate.
         </p>
-        <RatesManager initial={initial} />
+        <RatesManager initial={initial} initialPrecise={self.preciseMatching} />
       </main>
       <VBottomNav active="you" />
     </>

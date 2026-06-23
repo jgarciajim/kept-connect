@@ -357,6 +357,14 @@ export async function becomeProvider(displayName: string, trades: string[]): Pro
 // like rating/verified are NOT writable).
 // ---------------------------------------------------------------------------
 
+/** Opt into / out of option-level matching (only see requests for sub-jobs you priced). */
+export async function setMatchPrecision(precise: boolean): Promise<void> {
+  const sb = await createServerSupabaseClient();
+  await sb.rpc("set_match_precision", { p_precise: precise });
+  revalidatePath("/work/rates");
+  revalidatePath("/work");
+}
+
 /** Toggle availability. Drives the feed's Online state + open-request eligibility. */
 export async function setOnline(online: boolean): Promise<void> {
   const sb = await createServerSupabaseClient();

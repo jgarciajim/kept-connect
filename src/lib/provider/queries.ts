@@ -42,6 +42,7 @@ export async function qGetProviderSelf(c: SupabaseClient): Promise<ProviderSelf 
     yearsOnKept: p.years_on_kept,
     verified: p.verified,
     online: p.online,
+    preciseMatching: p.precise_matching ?? false,
     availableToCashOut: money(w?.available_to_cashout),
     credentials: p.credentials ?? [],
     trades: p.trade_labels ?? [],
