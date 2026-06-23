@@ -116,12 +116,17 @@ export interface MyVerification {
 
 /** The provider's price for one sub-job (the per-sub-job classification spine). */
 export type PriceModel = "flat" | "per_unit" | "tiered" | "quote";
+export interface SubjobTier {
+  label: string;
+  amount: string; // dollars
+}
 export interface ProviderSubjobRate {
   serviceSlug: string;
   optionSlug: string;
   model: PriceModel;
   amount: string | null; // dollars (flat fee or per-unit rate); null for quote/tiered
   unit: string | null; // sqft/hour/linear_ft/room/item for per_unit
+  tiers: SubjobTier[]; // bands, for the tiered model
 }
 
 /** An open (finding) request in the provider's trade — the supply feed. */

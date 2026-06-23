@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { saveSubjobRates } from "@/lib/provider/actions";
-import { SubjobPricingEditor, OTHER_SLUG, type RateMap } from "../onboarding/_components/SubjobPricingEditor";
+import { SubjobPricingEditor, rateDraftOk, type RateMap } from "../onboarding/_components/SubjobPricingEditor";
 
 /**
  * RatesManager — edit-later wrapper around the sub-job pricing editor. Loads the
@@ -14,9 +14,7 @@ export function RatesManager({ initial }: { initial: RateMap }) {
   const [saved, setSaved] = useState(false);
   const [pending, start] = useTransition();
 
-  const valid = Object.values(rates).every(
-    (r) => r.optionSlug === OTHER_SLUG || r.model === "quote" || Number(r.amount) > 0,
-  );
+  const valid = Object.values(rates).every(rateDraftOk);
 
   const save = () =>
     start(async () => {
@@ -25,8 +23,9 @@ export function RatesManager({ initial }: { initial: RateMap }) {
           serviceSlug: r.serviceSlug,
           optionSlug: r.optionSlug,
           model: r.model,
-          amount: r.model === "quote" ? null : Number(r.amount),
+          amount: r.model === "flat" || r.model === "per_unit" ? Number(r.amount) : null,
           unit: r.model === "per_unit" ? r.unit : null,
+          tiers: r.model === "tiered" ? r.tiers.map((t) => ({ label: t.label, amount: Number(t.amount) })) : undefined,
         })),
       );
       setSaved(true);

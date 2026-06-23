@@ -218,12 +218,29 @@ export async function qGetSubjobRates(c: SupabaseClient): Promise<ProviderSubjob
     .from("provider_subjob_rates")
     .select("service_slug, option_slug, price_model, amount, unit")
     .eq("active", true);
-  return (data ?? []).map((r) => ({
+  const rates = data ?? [];
+  // Tiers for any tiered rows (RLS already scopes both tables to the owner).
+  const hasTiered = rates.some((r) => r.price_model === "tiered");
+  const tiersByKey = new Map<string, { label: string; amount: string }[]>();
+  if (hasTiered) {
+    const { data: tierRows } = await c
+      .from("provider_subjob_tiers")
+      .select("service_slug, option_slug, label, amount, sort")
+      .order("sort", { ascending: true });
+    for (const t of tierRows ?? []) {
+      const key = `${t.service_slug}:${t.option_slug}`;
+      const list = tiersByKey.get(key) ?? [];
+      list.push({ label: t.label, amount: Number(t.amount).toFixed(2) });
+      tiersByKey.set(key, list);
+    }
+  }
+  return rates.map((r) => ({
     serviceSlug: r.service_slug,
     optionSlug: r.option_slug,
     model: r.price_model,
     amount: r.amount != null ? Number(r.amount).toFixed(2) : null,
     unit: r.unit ?? null,
+    tiers: tiersByKey.get(`${r.service_slug}:${r.option_slug}`) ?? [],
   }));
 }
 

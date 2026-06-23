@@ -19,9 +19,10 @@ export default async function RatesScreen() {
     initial[rateKey(r.serviceSlug, r.optionSlug)] = {
       serviceSlug: r.serviceSlug,
       optionSlug: r.optionSlug,
-      model: r.model === "per_unit" ? "per_unit" : r.model === "quote" ? "quote" : "flat",
+      model: r.model === "per_unit" ? "per_unit" : r.model === "tiered" ? "tiered" : r.model === "quote" ? "quote" : "flat",
       amount: r.amount ?? "",
       unit: r.unit ?? "sqft",
+      tiers: r.tiers.map((t) => ({ label: t.label, amount: t.amount })),
     };
   }
 

@@ -3,7 +3,7 @@
 -- flat/per_unit/quote; the provider_services view; the '__other' catch-all = quote.
 -- =============================================================================
 begin;
-select plan(10);
+select plan(14);
 
 insert into public.members (id, clerk_user_id, is_requester, is_provider) values
   ('cccccccc-cccc-cccc-cccc-cccccccccccc','user_P',false,true),
@@ -28,6 +28,18 @@ select lives_ok(
      values ('cccccccc-cccc-cccc-cccc-cccccccccccc','handyman','__other','quote') $$,
   'the __other quote catch-all inserts');
 
+-- tiered model: parent has no amount; bands live in provider_subjob_tiers
+select lives_ok(
+  $$ insert into public.provider_subjob_rates(member_id,service_slug,option_slug,price_model)
+     values ('cccccccc-cccc-cccc-cccc-cccccccccccc','painting','interior-room','tiered') $$,
+  'a tiered sub-job rate inserts (amount null)');
+select lives_ok(
+  $$ insert into public.provider_subjob_tiers(member_id,service_slug,option_slug,label,amount,sort) values
+       ('cccccccc-cccc-cccc-cccc-cccccccccccc','painting','interior-room','Small room',180,0),
+       ('cccccccc-cccc-cccc-cccc-cccccccccccc','painting','interior-room','Large room',320,1) $$,
+  'tier bands insert under the tiered sub-job');
+select is((select count(*) from public.provider_subjob_tiers)::int, 2, 'both tier bands are stored');
+
 -- model CHECK violations (23514 = check_violation)
 select throws_ok(
   $$ insert into public.provider_subjob_rates(member_id,service_slug,option_slug,price_model)
@@ -42,9 +54,9 @@ select throws_ok(
      values ('cccccccc-cccc-cccc-cccc-cccccccccccc','handyman','caulking','quote',50) $$,
   '23514', NULL, 'a quote rate WITH an amount is rejected');
 
--- provider_services view = the distinct services they priced (handyman, flooring)
-select is((select count(distinct service_slug) from public.provider_services)::int, 2,
-  'provider_services lists the 2 services they priced a sub-job in');
+-- provider_services view = the distinct services they priced (handyman, flooring, painting)
+select is((select count(distinct service_slug) from public.provider_services)::int, 3,
+  'provider_services lists the 3 services they priced a sub-job in');
 select is((select price_model::text from public.provider_subjob_rates where option_slug = '__other'),
   'quote', 'the __other catch-all is stored as a quote');
 
@@ -52,6 +64,7 @@ select is((select price_model::text from public.provider_subjob_rates where opti
 set local request.jwt.claims = '{"sub":"user_B"}';
 select is((select count(*) from public.provider_subjob_rates)::int, 0, 'a bystander sees no sub-job rates');
 select is((select count(*) from public.provider_services)::int, 0, 'a bystander sees no provider_services');
+select is((select count(*) from public.provider_subjob_tiers)::int, 0, 'a bystander sees no tier bands');
 
 select * from finish();
 rollback;

@@ -7,7 +7,38 @@ import { benchmarkMidpoint, BENCHMARK_VERSION } from "@/lib/pricing";
 import { vettingAdapter } from "@/lib/vetting";
 import { SERVICES } from "@/lib/requester/services";
 
-export type PriceModelInput = "flat" | "per_unit" | "quote";
+export type PriceModelInput = "flat" | "per_unit" | "tiered" | "quote";
+type RateInput = { serviceSlug: string; optionSlug: string; model: PriceModelInput; amount: number | null; unit: string | null; tiers?: Array<{ label: string; amount: number }> };
+
+/** Build validated provider_subjob_rates rows from the wizard/editor input. */
+function buildRateRows(meId: string, rates: RateInput[]): object[] {
+  return rates
+    .map((r) => {
+      const base = { member_id: meId, service_slug: r.serviceSlug, option_slug: r.optionSlug, price_model: r.model, amount: null as number | null, unit: null as string | null, active: true };
+      if (r.model === "flat") {
+        if (!(typeof r.amount === "number" && r.amount > 0)) return null;
+        base.amount = r.amount;
+      } else if (r.model === "per_unit") {
+        if (!(typeof r.amount === "number" && r.amount > 0) || !r.unit) return null;
+        base.amount = r.amount;
+        base.unit = r.unit;
+      } // tiered / quote: amount + unit stay null
+      return base;
+    })
+    .filter(Boolean) as object[];
+}
+
+/** Build provider_subjob_tiers rows for any tiered rates (parent rows must exist first). */
+function buildTierRows(meId: string, rates: RateInput[]): object[] {
+  const rows: object[] = [];
+  for (const r of rates) {
+    if (r.model !== "tiered" || !r.tiers) continue;
+    r.tiers.forEach((t, i) => {
+      if (t.label.trim() && t.amount > 0) rows.push({ member_id: meId, service_slug: r.serviceSlug, option_slug: r.optionSlug, label: t.label.trim(), amount: t.amount, sort: i });
+    });
+  }
+  return rows;
+}
 
 /**
  * Provider write actions. State transitions go through the SECURITY DEFINER RPCs
@@ -149,28 +180,15 @@ export async function setSubjobRate(input: {
  * the existing rows and inserts the given set — RLS scopes both to the owner. Each
  * row is validated for its model (invalid rows are dropped).
  */
-export async function saveSubjobRates(
-  rates: Array<{ serviceSlug: string; optionSlug: string; model: PriceModelInput; amount: number | null; unit: string | null }>,
-): Promise<void> {
+export async function saveSubjobRates(rates: RateInput[]): Promise<void> {
   const sb = await createServerSupabaseClient();
   const meId = await myMemberId(sb);
   if (!meId) return;
-  const rows = rates
-    .map((r) => {
-      const base = { member_id: meId, service_slug: r.serviceSlug, option_slug: r.optionSlug, price_model: r.model, amount: null as number | null, unit: null as string | null, active: true };
-      if (r.model === "flat") {
-        if (!(typeof r.amount === "number" && r.amount > 0)) return null;
-        base.amount = r.amount;
-      } else if (r.model === "per_unit") {
-        if (!(typeof r.amount === "number" && r.amount > 0) || !r.unit) return null;
-        base.amount = r.amount;
-        base.unit = r.unit;
-      }
-      return base;
-    })
-    .filter(Boolean);
-  await sb.from("provider_subjob_rates").delete().eq("member_id", meId);
-  if (rows.length) await sb.from("provider_subjob_rates").insert(rows as object[]);
+  const rows = buildRateRows(meId, rates);
+  const tierRows = buildTierRows(meId, rates);
+  await sb.from("provider_subjob_rates").delete().eq("member_id", meId); // FK cascades the old tiers
+  if (rows.length) await sb.from("provider_subjob_rates").insert(rows);
+  if (tierRows.length) await sb.from("provider_subjob_tiers").insert(tierRows);
   revalidatePath("/work/rates");
 }
 
@@ -199,7 +217,7 @@ export async function removeSubjobRate(serviceSlug: string, optionSlug: string):
  */
 export async function submitOnboarding(input: {
   displayName: string;
-  rates: Array<{ serviceSlug: string; optionSlug: string; model: PriceModelInput; amount: number | null; unit: string | null }>;
+  rates: RateInput[];
   legalFirstName: string;
   legalLastName: string;
   dob: string | null;
@@ -235,21 +253,11 @@ export async function submitOnboarding(input: {
 
   // Persist the sub-job pricing (validated rows; RLS scopes to the owner).
   if (meId && input.rates.length) {
-    const rows = input.rates
-      .map((r) => {
-        const base = { member_id: meId, service_slug: r.serviceSlug, option_slug: r.optionSlug, price_model: r.model, amount: null as number | null, unit: null as string | null, active: true };
-        if (r.model === "flat") {
-          if (!(typeof r.amount === "number" && r.amount > 0)) return null;
-          base.amount = r.amount;
-        } else if (r.model === "per_unit") {
-          if (!(typeof r.amount === "number" && r.amount > 0) || !r.unit) return null;
-          base.amount = r.amount;
-          base.unit = r.unit;
-        }
-        return base;
-      })
-      .filter(Boolean);
-    if (rows.length) await sb.from("provider_subjob_rates").upsert(rows as object[], { onConflict: "member_id,service_slug,option_slug" });
+    const rows = buildRateRows(meId, input.rates);
+    const tierRows = buildTierRows(meId, input.rates);
+    if (rows.length) await sb.from("provider_subjob_rates").upsert(rows, { onConflict: "member_id,service_slug,option_slug" });
+    await sb.from("provider_subjob_tiers").delete().eq("member_id", meId); // clear any prior bands on resubmit
+    if (tierRows.length) await sb.from("provider_subjob_tiers").insert(tierRows);
   }
 
   await sb.rpc("submit_verification", {

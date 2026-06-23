@@ -4,7 +4,7 @@ import { useMemo, useState, useTransition, type CSSProperties, type ReactNode } 
 import { useAuth } from "@clerk/nextjs";
 import { useSupabaseBrowserClient } from "@/lib/supabase/client";
 import { submitOnboarding } from "@/lib/provider/actions";
-import { SubjobPricingEditor, OTHER_SLUG, type RateMap } from "./_components/SubjobPricingEditor";
+import { SubjobPricingEditor, rateDraftOk, type RateMap } from "./_components/SubjobPricingEditor";
 
 /**
  * OnboardingWizard — the self-serve provider funnel (web + app). One guided flow:
@@ -41,11 +41,7 @@ export function OnboardingWizard({ initialName }: { initialName: string }) {
 
   const pricedCount = Object.keys(rates).length;
   const ratesValid = useMemo(
-    () =>
-      pricedCount > 0 &&
-      Object.values(rates).every(
-        (r) => r.optionSlug === OTHER_SLUG || r.model === "quote" || Number(r.amount) > 0,
-      ),
+    () => pricedCount > 0 && Object.values(rates).every(rateDraftOk),
     [rates, pricedCount],
   );
 
@@ -91,8 +87,9 @@ export function OnboardingWizard({ initialName }: { initialName: string }) {
           serviceSlug: r.serviceSlug,
           optionSlug: r.optionSlug,
           model: r.model,
-          amount: r.model === "quote" ? null : Number(r.amount),
+          amount: r.model === "flat" || r.model === "per_unit" ? Number(r.amount) : null,
           unit: r.model === "per_unit" ? r.unit : null,
+          tiers: r.model === "tiered" ? r.tiers.map((t) => ({ label: t.label, amount: Number(t.amount) })) : undefined,
         })),
         legalFirstName: legalFirst,
         legalLastName: legalLast,
