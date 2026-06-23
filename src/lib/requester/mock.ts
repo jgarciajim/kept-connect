@@ -195,3 +195,8 @@ export async function getReviewsAboutMe(): Promise<Review[]> {
 export async function getInstantServices(): Promise<InstantService[]> {
   return q.qGetInstantServices(await createServerSupabaseClient());
 }
+
+/** Real "near you" estimates per sub-job (median of verified pros' flat rates), in dollars. */
+export async function getSubjobEstimates(): Promise<Record<string, number>> {
+  return q.qGetSubjobEstimates(await createServerSupabaseClient());
+}

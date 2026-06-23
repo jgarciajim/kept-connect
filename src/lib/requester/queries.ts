@@ -116,6 +116,17 @@ export async function qGetInstantServices(c: SupabaseClient): Promise<InstantSer
   }));
 }
 
+// ---- sub-job price estimates (real provider pricing, aggregated) ------------
+// Keyed "serviceSlug:optionSlug" → median dollars across verified pros' flat rates.
+export async function qGetSubjobEstimates(c: SupabaseClient): Promise<Record<string, number>> {
+  const { data } = await c.rpc("subjob_price_estimates");
+  const map: Record<string, number> = {};
+  for (const row of (data ?? []) as { service_slug: string; option_slug: string; mid: number }[]) {
+    map[`${row.service_slug}:${row.option_slug}`] = Number(row.mid);
+  }
+  return map;
+}
+
 // ---- provider profile (public) ---------------------------------------------
 export async function qGetProvider(
   c: SupabaseClient,

@@ -21,7 +21,7 @@ type Timing = "asap" | "scheduled";
 // (distinct from null = nothing picked yet). Never persisted — maps to no option.
 const SOMETHING_ELSE = "__else__";
 
-export function Composer() {
+export function Composer({ estimates = {} }: { estimates?: Record<string, number> }) {
   const params = useSearchParams();
 
   // Availability is month-stable, so computing once is safe (no hydration drift).
@@ -53,7 +53,11 @@ export function Composer() {
   // Estimate shows only when a specific common job we have a price for is picked
   // (a mountain-adjusted seed typical). Otherwise nothing. Display-only; not posted.
   const optionPicked = picked && picked !== SOMETHING_ELSE ? picked : null;
-  const estimate = optionPicked ? optionBenchmark(slug, optionPicked) : null;
+  // Prefer the real "near you" estimate (median of local verified pros' flat prices)
+  // when we have one; otherwise fall back to the static seed benchmark. Both in cents.
+  const realDollars = optionPicked ? estimates[`${slug}:${optionPicked}`] : undefined;
+  const estimate = realDollars != null ? Math.round(realDollars * 100) : optionPicked ? optionBenchmark(slug, optionPicked) : null;
+  const estimateFromPros = realDollars != null;
   const valid = Boolean(service && description.trim() && address.trim() && (timing === "asap" || scheduledFor));
 
   async function submit() {
@@ -109,7 +113,7 @@ export function Composer() {
               <div style={{ fontFamily: "var(--font-ui)", fontSize: 15, fontWeight: 500, fontVariantNumeric: "tabular-nums", color: "var(--ink)" }}>
                 ~{formatUsd(estimate)} near you
               </div>
-              <div style={{ fontFamily: "var(--font-ui)", fontSize: 12, color: "var(--ink-3)", marginTop: 2 }}>estimate · not a quote</div>
+              <div style={{ fontFamily: "var(--font-ui)", fontSize: 12, color: "var(--ink-3)", marginTop: 2 }}>{estimateFromPros ? "from local pros · not a quote" : "estimate · not a quote"}</div>
             </div>
           )}
         </Section>
