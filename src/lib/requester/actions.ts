@@ -29,6 +29,7 @@ export async function postRequest(formData: FormData): Promise<void> {
   const description = String(formData.get("description") || "").trim();
   const locationLabel = String(formData.get("locationLabel") || "").trim() || "14 Birch Lane";
   const titleInput = String(formData.get("title") || "").trim();
+  const optionSlug = String(formData.get("option") || "").trim();
 
   const sb = await createServerSupabaseClient();
   const me = await myMember(sb);
@@ -47,6 +48,7 @@ export async function postRequest(formData: FormData): Promise<void> {
       title,
       status: "finding",
       location_label: locationLabel,
+      option_slug: optionSlug || null,
     })
     .select("id")
     .single();

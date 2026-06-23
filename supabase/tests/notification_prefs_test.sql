@@ -9,8 +9,8 @@ insert into public.members (id, clerk_user_id, is_requester, is_provider) values
   ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa','user_A',true, false),
   ('cccccccc-cccc-cccc-cccc-cccccccccccc','user_V',false,true);
 
-insert into public.provider_profiles (member_id, online, trades) values
-  ('cccccccc-cccc-cccc-cccc-cccccccccccc', true, '{water}');
+insert into public.provider_profiles (member_id, verified, online, trades) values
+  ('cccccccc-cccc-cccc-cccc-cccccccccccc', true, true, '{water}');
 insert into public.provider_rates (member_id, service_slug, amount, rate_source) values
   ('cccccccc-cccc-cccc-cccc-cccccccccccc','plumbing',175.00,'own');
 

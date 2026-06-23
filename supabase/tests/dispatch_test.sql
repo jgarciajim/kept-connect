@@ -23,11 +23,11 @@ insert into public.members (id, clerk_user_id, is_requester, is_provider) values
 -- pre-existing profiles offline so only this test's providers are eligible.
 update public.provider_profiles set online = false;
 
-insert into public.provider_profiles (member_id, rating, online, trades) values
-  ('c1111111-1111-1111-1111-111111111111',5.0,true,  array['water']::public.category_key[]),
-  ('c2222222-2222-2222-2222-222222222222',4.5,true,  array['water']::public.category_key[]),
-  ('d1111111-1111-1111-1111-111111111111',5.0,true,  array['structure']::public.category_key[]),  -- wrong trade
-  ('d2222222-2222-2222-2222-222222222222',5.0,false, array['water']::public.category_key[]);       -- offline
+insert into public.provider_profiles (member_id, rating, verified, online, trades) values
+  ('c1111111-1111-1111-1111-111111111111',5.0,true,true,  array['water']::public.category_key[]),
+  ('c2222222-2222-2222-2222-222222222222',4.5,true,true,  array['water']::public.category_key[]),
+  ('d1111111-1111-1111-1111-111111111111',5.0,true,true,  array['structure']::public.category_key[]),  -- wrong trade
+  ('d2222222-2222-2222-2222-222222222222',5.0,true,false, array['water']::public.category_key[]);       -- offline
 
 insert into public.services (id, category, name, base_price) values
   ('51111111-1111-1111-1111-111111111111','water','Test fixed job',100.00);

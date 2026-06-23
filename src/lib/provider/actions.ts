@@ -4,6 +4,10 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { benchmarkMidpoint, BENCHMARK_VERSION } from "@/lib/pricing";
+import { vettingAdapter } from "@/lib/vetting";
+import { SERVICES } from "@/lib/requester/services";
+
+export type PriceModelInput = "flat" | "per_unit" | "quote";
 
 /**
  * Provider write actions. State transitions go through the SECURITY DEFINER RPCs
@@ -99,11 +103,108 @@ export async function optInBenchmark(serviceSlug: string): Promise<void> {
 }
 
 /**
- * Submit (or resubmit) a verification application → status 'pending'. Document
- * bytes are uploaded client-side to Storage first; this records the paths + fields
- * via the safe RPC (a provider can never self-set 'verified').
+ * Set (or update) the provider's price for ONE sub-job. Owner-scoped via RLS.
+ * The price model decides which fields are required (flat → amount; per_unit →
+ * amount + unit; quote → neither). Written immediately so onboarding progress
+ * survives. '__other' is the per-trade custom catch-all (always a quote).
  */
-export async function submitVerification(input: {
+export async function setSubjobRate(input: {
+  serviceSlug: string;
+  optionSlug: string;
+  model: PriceModelInput;
+  amount?: number | null;
+  unit?: string | null;
+}): Promise<void> {
+  if (!input.serviceSlug || !input.optionSlug) return;
+  const sb = await createServerSupabaseClient();
+  const meId = await myMemberId(sb);
+  if (!meId) return;
+
+  const row: Record<string, unknown> = {
+    member_id: meId,
+    service_slug: input.serviceSlug,
+    option_slug: input.optionSlug,
+    price_model: input.model,
+    amount: null,
+    unit: null,
+    active: true,
+    effective_from: new Date().toISOString(),
+  };
+  if (input.model === "flat") {
+    if (!(typeof input.amount === "number" && input.amount > 0)) return;
+    row.amount = input.amount;
+  } else if (input.model === "per_unit") {
+    if (!(typeof input.amount === "number" && input.amount > 0) || !input.unit) return;
+    row.amount = input.amount;
+    row.unit = input.unit;
+  } // quote: amount + unit stay null
+
+  await sb.from("provider_subjob_rates").upsert(row, { onConflict: "member_id,service_slug,option_slug" });
+  revalidatePath("/work/rates");
+  revalidatePath("/work/onboarding");
+}
+
+/**
+ * Replace the provider's full sub-job pricing set (the /work/rates editor). Deletes
+ * the existing rows and inserts the given set — RLS scopes both to the owner. Each
+ * row is validated for its model (invalid rows are dropped).
+ */
+export async function saveSubjobRates(
+  rates: Array<{ serviceSlug: string; optionSlug: string; model: PriceModelInput; amount: number | null; unit: string | null }>,
+): Promise<void> {
+  const sb = await createServerSupabaseClient();
+  const meId = await myMemberId(sb);
+  if (!meId) return;
+  const rows = rates
+    .map((r) => {
+      const base = { member_id: meId, service_slug: r.serviceSlug, option_slug: r.optionSlug, price_model: r.model, amount: null as number | null, unit: null as string | null, active: true };
+      if (r.model === "flat") {
+        if (!(typeof r.amount === "number" && r.amount > 0)) return null;
+        base.amount = r.amount;
+      } else if (r.model === "per_unit") {
+        if (!(typeof r.amount === "number" && r.amount > 0) || !r.unit) return null;
+        base.amount = r.amount;
+        base.unit = r.unit;
+      }
+      return base;
+    })
+    .filter(Boolean);
+  await sb.from("provider_subjob_rates").delete().eq("member_id", meId);
+  if (rows.length) await sb.from("provider_subjob_rates").insert(rows as object[]);
+  revalidatePath("/work/rates");
+}
+
+/** Remove a sub-job from the provider's offering (RLS scopes the delete to them). */
+export async function removeSubjobRate(serviceSlug: string, optionSlug: string): Promise<void> {
+  const sb = await createServerSupabaseClient();
+  const meId = await myMemberId(sb);
+  if (!meId) return;
+  await sb
+    .from("provider_subjob_rates")
+    .delete()
+    .eq("member_id", meId)
+    .eq("service_slug", serviceSlug)
+    .eq("option_slug", optionSlug);
+  revalidatePath("/work/rates");
+  revalidatePath("/work/onboarding");
+}
+
+/**
+ * Submit the onboarding application. Creates the provider profile (OFFLINE — goes
+ * live only on admin approval), kicks the background-check + ID verification via
+ * the vetting adapter (mock until keys are set; nothing fake asserted), and records
+ * the full application via the safe RPC (status → 'pending'). Document bytes were
+ * uploaded client-side to Storage first; this records the paths. Sub-job pricing is
+ * written separately (setSubjobRate) as the contractor configures it.
+ */
+export async function submitOnboarding(input: {
+  displayName: string;
+  rates: Array<{ serviceSlug: string; optionSlug: string; model: PriceModelInput; amount: number | null; unit: string | null }>;
+  legalFirstName: string;
+  legalLastName: string;
+  dob: string | null;
+  bgConsent: boolean;
+  idDocPath: string | null;
   licenseType: string;
   licenseNumber: string;
   insuranceCarrier: string;
@@ -115,7 +216,50 @@ export async function submitVerification(input: {
   attested: boolean;
 }): Promise<void> {
   const sb = await createServerSupabaseClient();
+  const meId = (await myMemberId(sb)) ?? "";
+  const subject = {
+    memberId: meId,
+    legalFirstName: input.legalFirstName.trim(),
+    legalLastName: input.legalLastName.trim(),
+    dob: input.dob || null,
+  };
+  const bg = await vettingAdapter.startBackgroundCheck(subject);
+  const id = await vettingAdapter.startIdVerification(subject);
+
+  // Trade families are derived from the services the provider priced sub-jobs in.
+  const families = Array.from(
+    new Set(input.rates.map((r) => SERVICES.find((s) => s.slug === r.serviceSlug)?.family).filter(Boolean)),
+  ) as string[];
+
+  await sb.rpc("become_provider", { p_display_name: input.displayName.trim(), p_trades: families });
+
+  // Persist the sub-job pricing (validated rows; RLS scopes to the owner).
+  if (meId && input.rates.length) {
+    const rows = input.rates
+      .map((r) => {
+        const base = { member_id: meId, service_slug: r.serviceSlug, option_slug: r.optionSlug, price_model: r.model, amount: null as number | null, unit: null as string | null, active: true };
+        if (r.model === "flat") {
+          if (!(typeof r.amount === "number" && r.amount > 0)) return null;
+          base.amount = r.amount;
+        } else if (r.model === "per_unit") {
+          if (!(typeof r.amount === "number" && r.amount > 0) || !r.unit) return null;
+          base.amount = r.amount;
+          base.unit = r.unit;
+        }
+        return base;
+      })
+      .filter(Boolean);
+    if (rows.length) await sb.from("provider_subjob_rates").upsert(rows as object[], { onConflict: "member_id,service_slug,option_slug" });
+  }
+
   await sb.rpc("submit_verification", {
+    p_legal_first: input.legalFirstName.trim() || null,
+    p_legal_last: input.legalLastName.trim() || null,
+    p_dob: input.dob || null,
+    p_bg_consent: input.bgConsent,
+    p_bg_ref: bg.ref,
+    p_id_ref: id.ref,
+    p_id_doc_path: input.idDocPath,
     p_license_type: input.licenseType.trim() || null,
     p_license_number: input.licenseNumber.trim() || null,
     p_insurance_carrier: input.insuranceCarrier.trim() || null,
@@ -127,7 +271,7 @@ export async function submitVerification(input: {
     p_attested: input.attested,
   });
   revalidatePath("/work/you");
-  redirect("/work/you");
+  redirect("/work/onboarding/done");
 }
 
 /** Send an offer at the provider's own/opted rate → a quote the requester accepts. */

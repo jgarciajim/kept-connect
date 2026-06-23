@@ -9,6 +9,11 @@ export interface PendingVerification {
   memberId: string;
   name: string;
   trades: string[];
+  legalName: string | null;
+  dob: string | null;
+  bgConsent: boolean;
+  bgStatus: string;
+  idStatus: string;
   licenseType: string | null;
   licenseNumber: string | null;
   insuranceCarrier: string | null;
@@ -17,6 +22,7 @@ export interface PendingVerification {
   w9Path: string | null;
   coiPath: string | null;
   licensePhotoPath: string | null;
+  idDocPath: string | null;
   submittedAt: string;
 }
 
@@ -34,10 +40,16 @@ export async function qGetPendingVerifications(c: SupabaseClient): Promise<Pendi
         .select("display_name, trade_labels")
         .eq("member_id", r.member_id)
         .maybeSingle();
+      const legal = [r.legal_first_name, r.legal_last_name].filter(Boolean).join(" ");
       return {
         memberId: r.member_id,
         name: p?.display_name ?? "Provider",
         trades: p?.trade_labels ?? [],
+        legalName: legal || null,
+        dob: r.dob ?? null,
+        bgConsent: r.bg_check_consent ?? false,
+        bgStatus: r.bg_status ?? "unsubmitted",
+        idStatus: r.id_status ?? "unsubmitted",
         licenseType: r.license_type ?? null,
         licenseNumber: r.license_number ?? null,
         insuranceCarrier: r.insurance_carrier ?? null,
@@ -46,6 +58,7 @@ export async function qGetPendingVerifications(c: SupabaseClient): Promise<Pendi
         w9Path: r.w9_path ?? null,
         coiPath: r.coi_path ?? null,
         licensePhotoPath: r.license_photo_path ?? null,
+        idDocPath: r.id_doc_path ?? null,
         submittedAt: r.submitted_at,
       };
     }),

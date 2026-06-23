@@ -20,8 +20,10 @@ set local role authenticated;
 -- provider submits an application
 set local request.jwt.claims = '{"sub":"user_P"}';
 select lives_ok(
-  $$ select public.submit_verification('Plumbing','PL-123','Acme Ins','2027-01-01',5,
-       'user_P/w9.pdf','user_P/coi.pdf','user_P/dl.jpg', true) $$,
+  $$ select public.submit_verification(
+       'Pat','Plumber','1990-01-01', true, 'mock_bg','mock_id','user_P/id.jpg',
+       'Plumbing','PL-123','Acme Ins','2027-01-01',5,
+       'user_P/w9.pdf','user_P/coi.pdf','user_P/license.jpg', true) $$,
   'provider submits a verification application');
 select is((select count(*) from public.provider_verifications)::int, 1, 'provider sees their own application');
 
@@ -30,8 +32,10 @@ select is((select count(*) from public.provider_verifications)::int, 0, 'a bysta
 
 -- second provider submits (for the reject path)
 set local request.jwt.claims = '{"sub":"user_P2"}';
-select public.submit_verification('Electrical','EL-9','Beta Ins','2027-03-01',3,
-  'user_P2/w9.pdf','user_P2/coi.pdf','user_P2/dl.jpg', true);
+select public.submit_verification(
+  'Erin','Electric','1988-05-05', true, 'mock_bg2','mock_id2','user_P2/id.jpg',
+  'Electrical','EL-9','Beta Ins','2027-03-01',3,
+  'user_P2/w9.pdf','user_P2/coi.pdf','user_P2/license.jpg', true);
 
 -- a non-admin cannot approve, and verified stays false
 set local request.jwt.claims = '{"sub":"user_P"}';

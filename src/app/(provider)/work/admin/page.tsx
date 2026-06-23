@@ -33,9 +33,10 @@ async function AdminQueue() {
   const items = await Promise.all(
     pending.map(async (p) => ({
       ...p,
+      idUrl: await getDocUrl(p.idDocPath),
       w9Url: await getDocUrl(p.w9Path),
       coiUrl: await getDocUrl(p.coiPath),
-      dlUrl: await getDocUrl(p.licensePhotoPath),
+      licenseUrl: await getDocUrl(p.licensePhotoPath),
     })),
   );
 
@@ -51,6 +52,10 @@ async function AdminQueue() {
           <div style={{ fontSize: 12, color: "var(--chrome-dim)", fontFamily: "var(--font-ui)", marginTop: 1 }}>{p.trades.join(" · ") || "No trades"}</div>
 
           <dl style={{ margin: "10px 0 0", display: "grid", gridTemplateColumns: "auto 1fr", gap: "4px 10px", fontSize: 12.5, fontFamily: "var(--font-ui)" }}>
+            <Row k="Legal name" v={p.legalName || "—"} />
+            <Row k="DOB" v={p.dob || "—"} />
+            <Row k="Bg check" v={`${p.bgStatus}${p.bgConsent ? " · consented" : " · NO consent"}`} />
+            <Row k="ID check" v={p.idStatus} />
             <Row k="License" v={[p.licenseType, p.licenseNumber].filter(Boolean).join(" · ") || "—"} />
             <Row k="Insurance" v={p.insuranceCarrier || "—"} />
             <Row k="COI expiry" v={p.coiExpiry || "—"} />
@@ -58,9 +63,10 @@ async function AdminQueue() {
           </dl>
 
           <div style={{ display: "flex", flexWrap: "wrap", gap: 12, marginTop: 10 }}>
+            <DocLink label="ID" url={p.idUrl} />
             <DocLink label="W-9" url={p.w9Url} />
             <DocLink label="COI" url={p.coiUrl} />
-            <DocLink label="Driver's license" url={p.dlUrl} />
+            <DocLink label="License" url={p.licenseUrl} />
           </div>
 
           <AdminActions memberId={p.memberId} />

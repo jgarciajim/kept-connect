@@ -104,12 +104,24 @@ export interface JobHistoryItem {
 export type VerificationStatus = "unsubmitted" | "pending" | "verified" | "rejected";
 export interface MyVerification {
   status: VerificationStatus;
+  idStatus: VerificationStatus;
+  bgStatus: VerificationStatus;
   licenseType: string | null;
   licenseNumber: string | null;
   insuranceCarrier: string | null;
   coiExpiry: string | null;
   yearsInTrade: number | null;
   reason: string | null; // rejection note, when rejected
+}
+
+/** The provider's price for one sub-job (the per-sub-job classification spine). */
+export type PriceModel = "flat" | "per_unit" | "tiered" | "quote";
+export interface ProviderSubjobRate {
+  serviceSlug: string;
+  optionSlug: string;
+  model: PriceModel;
+  amount: string | null; // dollars (flat fee or per-unit rate); null for quote/tiered
+  unit: string | null; // sqft/hour/linear_ft/room/item for per_unit
 }
 
 /** An open (finding) request in the provider's trade — the supply feed. */
@@ -173,4 +185,8 @@ export async function getJobHistory(): Promise<JobHistoryItem[]> {
 
 export async function getMyVerification(): Promise<MyVerification> {
   return q.qGetMyVerification(await createServerSupabaseClient());
+}
+
+export async function getSubjobRates(): Promise<ProviderSubjobRate[]> {
+  return q.qGetSubjobRates(await createServerSupabaseClient());
 }

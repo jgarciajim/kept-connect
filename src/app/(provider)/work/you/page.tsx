@@ -132,17 +132,17 @@ function VerificationRow({ verification }: { verification: MyVerification }) {
   if (verification.status === "pending") {
     return (
       <div style={base}>
-        <div style={{ fontSize: 14, fontWeight: 500, color: "var(--chrome-cream)", fontFamily: "var(--font-ui)" }}>Verification in review</div>
-        <div style={{ fontSize: 11.5, color: "var(--chrome-dim)", fontFamily: "var(--font-ui)", marginTop: 2 }}>We&rsquo;re reviewing your documents — you&rsquo;ll be notified.</div>
+        <div style={{ fontSize: 14, fontWeight: 500, color: "var(--chrome-cream)", fontFamily: "var(--font-ui)" }}>In review</div>
+        <div style={{ fontSize: 11.5, color: "var(--chrome-dim)", fontFamily: "var(--font-ui)", marginTop: 2 }}>We&rsquo;re reviewing your background check, ID, license &amp; insurance — you&rsquo;ll go live once approved.</div>
       </div>
     );
   }
   const rejected = verification.status === "rejected";
   return (
-    <Link href="/work/verify" style={{ ...base, display: "flex", alignItems: "center", gap: 10, textDecoration: "none" }}>
+    <Link href="/work/onboarding" style={{ ...base, display: "flex", alignItems: "center", gap: 10, textDecoration: "none" }}>
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontSize: 14, fontWeight: 500, color: "var(--chrome-cream)", fontFamily: "var(--font-ui)" }}>{rejected ? "Verification needs changes" : "Get verified"}</div>
-        <div style={{ fontSize: 11.5, color: "var(--chrome-dim)", fontFamily: "var(--font-ui)", marginTop: 2 }}>{rejected ? (verification.reason ?? "Resubmit your application.") : "Add your license & documents to earn the badge."}</div>
+        <div style={{ fontSize: 14, fontWeight: 500, color: "var(--chrome-cream)", fontFamily: "var(--font-ui)" }}>{rejected ? "Application needs changes" : "Finish signing up"}</div>
+        <div style={{ fontSize: 11.5, color: "var(--chrome-dim)", fontFamily: "var(--font-ui)", marginTop: 2 }}>{rejected ? (verification.reason ?? "Resubmit your application.") : "Add your documents, services & pricing to go live."}</div>
       </div>
       <span style={{ color: "var(--terracotta-bright)", fontSize: 13, fontWeight: 500, fontFamily: "var(--font-ui)", flex: "0 0 auto" }}>{rejected ? "Resubmit →" : "Start →"}</span>
     </Link>

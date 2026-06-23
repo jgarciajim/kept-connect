@@ -25,7 +25,7 @@ select is(
   true, 'provider_profiles has the chosen trade');
 select is(
   (select online from public.provider_profiles where member_id='aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'),
-  true, 'the new provider is online');
+  false, 'the new provider starts OFFLINE — goes live only on approval');
 select is(
   (select count(*) from public.provider_wallets where member_id='aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa')::int,
   1, 'a wallet row was created');
