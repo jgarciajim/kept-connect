@@ -65,6 +65,14 @@ export async function qGetCurrentMember(c: SupabaseClient): Promise<Member | nul
   };
 }
 
+// Customer onboarding is complete once they have a name AND a saved property.
+export async function qRequesterOnboarded(c: SupabaseClient): Promise<boolean> {
+  const { data: m } = await c.from("members").select("display_name").limit(1).maybeSingle();
+  if (!m || !m.display_name) return false;
+  const { count } = await c.from("properties").select("id", { count: "exact", head: true });
+  return (count ?? 0) > 0;
+}
+
 // A requester's saved addresses (RLS scopes to the owner). Default first.
 export async function qGetMyProperties(c: SupabaseClient): Promise<Property[]> {
   const { data } = await c

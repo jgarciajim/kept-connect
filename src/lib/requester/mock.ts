@@ -188,6 +188,11 @@ export async function getMyProperties(): Promise<Property[]> {
   return q.qGetMyProperties(await createServerSupabaseClient());
 }
 
+/** True once the customer has completed onboarding (name + a saved property). */
+export async function getRequesterOnboarded(): Promise<boolean> {
+  return q.qRequesterOnboarded(await createServerSupabaseClient());
+}
+
 export async function getReviewsAboutMe(): Promise<Review[]> {
   return q.qGetReviewsAboutMe(await createServerSupabaseClient());
 }

@@ -101,6 +101,40 @@ export async function postInstantJob(formData: FormData): Promise<void> {
   redirect(`/app/jobs/${data.id}`);
 }
 
+/**
+ * Complete customer onboarding — sync their name and save a primary (default)
+ * property with details. Required basics are name + address; type/notes optional.
+ * Redirects into the app.
+ */
+export async function completeCustomerOnboarding(input: {
+  name: string;
+  label: string;
+  address: string;
+  propertyType: string;
+  accessNotes: string;
+}): Promise<void> {
+  const sb = await createServerSupabaseClient();
+  const me = await myMember(sb);
+  if (!me) redirect("/app");
+
+  const name = input.name.trim();
+  if (name) await sb.from("members").update({ display_name: name }).eq("id", me!.id);
+
+  const addr = input.address.trim();
+  if (addr) {
+    const { count } = await sb.from("properties").select("id", { count: "exact", head: true });
+    await sb.from("properties").insert({
+      member_id: me!.id,
+      label: input.label.trim() || "Home",
+      address_line: addr,
+      property_type: input.propertyType.trim() || null,
+      access_notes: input.accessNotes.trim() || null,
+      is_default: (count ?? 0) === 0,
+    });
+  }
+  redirect("/app");
+}
+
 /** Award a sealed quote (SECURITY DEFINER RPC) → opens the live job. */
 export async function awardQuote(formData: FormData): Promise<void> {
   const quoteId = String(formData.get("quoteId") || "");
