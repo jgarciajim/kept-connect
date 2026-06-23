@@ -1,17 +1,31 @@
 import { redirect } from "next/navigation";
 import { getCurrentMember } from "@/lib/requester/mock";
-import { getMyVerification } from "@/lib/provider/mock";
+import { getMyVerification, getOnboardingDraft, getSubjobRates } from "@/lib/provider/mock";
+import { rateKey, type RateMap } from "./_components/SubjobPricingEditor";
 import { OnboardingWizard } from "./OnboardingWizard";
 
 /**
  * Provider onboarding (/work/onboarding) — the single self-serve funnel. Already
  * submitted → show status (pending → the in-review screen; verified → the work
- * feed). 'unsubmitted'/'rejected' → (re)start the wizard.
+ * feed). 'unsubmitted'/'rejected' → (re)start the wizard, RESUMING from any draft.
  */
 export default async function OnboardingScreen() {
   const [member, v] = await Promise.all([getCurrentMember(), getMyVerification()]);
   if (v.status === "pending") redirect("/work/onboarding/done");
   if (v.status === "verified") redirect("/work");
+
+  const [draft, rates] = await Promise.all([getOnboardingDraft(), getSubjobRates()]);
+  const initialRates: RateMap = {};
+  for (const r of rates) {
+    initialRates[rateKey(r.serviceSlug, r.optionSlug)] = {
+      serviceSlug: r.serviceSlug,
+      optionSlug: r.optionSlug,
+      model: r.model === "per_unit" ? "per_unit" : r.model === "tiered" ? "tiered" : r.model === "quote" ? "quote" : "flat",
+      amount: r.amount ?? "",
+      unit: r.unit ?? "sqft",
+      tiers: r.tiers.map((t) => ({ label: t.label, amount: t.amount })),
+    };
+  }
 
   return (
     <main style={{ flex: 1, overflowY: "auto", padding: "16px 16px 28px" }}>
@@ -29,7 +43,7 @@ export default async function OnboardingScreen() {
         </div>
       )}
 
-      <OnboardingWizard initialName={member?.displayName ?? ""} />
+      <OnboardingWizard initialName={member?.displayName ?? ""} initialDraft={draft} initialRates={initialRates} />
     </main>
   );
 }

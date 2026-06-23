@@ -3,117 +3,120 @@
 import { useMemo, useState, useTransition, type CSSProperties, type ReactNode } from "react";
 import { useAuth } from "@clerk/nextjs";
 import { useSupabaseBrowserClient } from "@/lib/supabase/client";
-import { submitOnboarding } from "@/lib/provider/actions";
+import { submitOnboarding, saveOnboardingDraft, saveProviderName, saveSubjobRates } from "@/lib/provider/actions";
+import type { OnboardingDraft } from "@/lib/provider/mock";
 import { SubjobPricingEditor, rateDraftOk, type RateMap } from "./_components/SubjobPricingEditor";
 
 /**
- * OnboardingWizard — the self-serve provider funnel (web + app). One guided flow:
- * name → identity + background-check consent → tax (W-9) → insurance (COI) →
- * license → trade & sub-job selection + pricing → review → submit. Documents
- * upload to the private Storage bucket (browser client, Clerk-authed); everything
- * commits via submitOnboarding (profile created OFFLINE; live only on approval).
+ * OnboardingWizard — the self-serve provider funnel (web + app). RESUMABLE: each
+ * step persists server-side (a draft + sub-job rates), and documents upload to the
+ * private Storage bucket the moment they're picked — so a contractor who drops off
+ * mid-signup resumes exactly where they left off. The final submit flips the draft
+ * to 'pending' (profile created OFFLINE; live only on admin approval).
  */
 const STEPS = ["You", "Identity", "Tax", "Insurance", "License", "Services", "Review"] as const;
 
-export function OnboardingWizard({ initialName }: { initialName: string }) {
+export function OnboardingWizard({
+  initialName,
+  initialDraft,
+  initialRates,
+}: {
+  initialName: string;
+  initialDraft: OnboardingDraft | null;
+  initialRates: RateMap;
+}) {
   const { userId } = useAuth();
   const sb = useSupabaseBrowserClient();
   const [step, setStep] = useState(0);
 
+  const d = initialDraft;
   const [name, setName] = useState(initialName);
-  const [legalFirst, setLegalFirst] = useState("");
-  const [legalLast, setLegalLast] = useState("");
-  const [dob, setDob] = useState("");
-  const [bgConsent, setBgConsent] = useState(false);
-  const [idDoc, setIdDoc] = useState<File | null>(null);
-  const [w9, setW9] = useState<File | null>(null);
-  const [coi, setCoi] = useState<File | null>(null);
-  const [coiExpiry, setCoiExpiry] = useState("");
-  const [insuranceCarrier, setInsuranceCarrier] = useState("");
-  const [licenseType, setLicenseType] = useState("");
-  const [licenseNumber, setLicenseNumber] = useState("");
-  const [yearsInTrade, setYearsInTrade] = useState("");
-  const [licensePhoto, setLicensePhoto] = useState<File | null>(null);
-  const [rates, setRates] = useState<RateMap>({});
+  const [legalFirst, setLegalFirst] = useState(d?.legalFirstName ?? "");
+  const [legalLast, setLegalLast] = useState(d?.legalLastName ?? "");
+  const [dob, setDob] = useState(d?.dob ?? "");
+  const [bgConsent, setBgConsent] = useState(d?.bgConsent ?? false);
+  const [insuranceCarrier, setInsuranceCarrier] = useState(d?.insuranceCarrier ?? "");
+  const [coiExpiry, setCoiExpiry] = useState(d?.coiExpiry ?? "");
+  const [licenseType, setLicenseType] = useState(d?.licenseType ?? "");
+  const [licenseNumber, setLicenseNumber] = useState(d?.licenseNumber ?? "");
+  const [yearsInTrade, setYearsInTrade] = useState(d?.yearsInTrade != null ? String(d.yearsInTrade) : "");
+  // Documents are PATHS (uploaded on pick), so they survive a resume.
+  const [idDocPath, setIdDocPath] = useState<string | null>(d?.idDocPath ?? null);
+  const [w9Path, setW9Path] = useState<string | null>(d?.w9Path ?? null);
+  const [coiPath, setCoiPath] = useState<string | null>(d?.coiPath ?? null);
+  const [licensePhotoPath, setLicensePhotoPath] = useState<string | null>(d?.licensePhotoPath ?? null);
+  const [rates, setRates] = useState<RateMap>(initialRates);
   const [attested, setAttested] = useState(false);
+  const [uploading, setUploading] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const [pending, start] = useTransition();
 
   const pricedCount = Object.keys(rates).length;
-  const ratesValid = useMemo(
-    () => pricedCount > 0 && Object.values(rates).every(rateDraftOk),
-    [rates, pricedCount],
-  );
+  const ratesValid = useMemo(() => pricedCount > 0 && Object.values(rates).every(rateDraftOk), [rates, pricedCount]);
 
   const canContinue = [
     name.trim().length > 0, // You
-    legalFirst.trim() && legalLast.trim() && bgConsent && idDoc, // Identity
-    Boolean(w9), // Tax
-    Boolean(coi), // Insurance
-    licenseNumber.trim() && licensePhoto, // License
+    Boolean(legalFirst.trim() && legalLast.trim() && bgConsent && idDocPath && !uploading), // Identity
+    Boolean(w9Path && !uploading), // Tax
+    Boolean(coiPath && !uploading), // Insurance
+    Boolean(licenseNumber.trim() && licensePhotoPath && !uploading), // License
     ratesValid, // Services
     attested, // Review
   ][step];
 
-  async function uploadOne(file: File | null, doc: string): Promise<string | null> {
-    if (!file || !userId) return null;
-    const ext = file.name.split(".").pop()?.toLowerCase() || "bin";
-    const path = `${userId}/${doc}-${Date.now()}.${ext}`;
-    const { error } = await sb.storage.from("verification-docs").upload(path, file, { upsert: true });
-    if (error) throw new Error(`Couldn't upload ${doc.toUpperCase()}: ${error.message}`);
-    return path;
+  function draftPayload() {
+    return {
+      legalFirstName: legalFirst, legalLastName: legalLast, dob: dob || null, bgConsent,
+      idDocPath, licenseType, licenseNumber, insuranceCarrier, coiExpiry: coiExpiry || null,
+      yearsInTrade: yearsInTrade ? Number(yearsInTrade) : null, w9Path, coiPath, licensePhotoPath,
+    };
+  }
+  function ratesPayload() {
+    return Object.values(rates).map((r) => ({
+      serviceSlug: r.serviceSlug, optionSlug: r.optionSlug, model: r.model,
+      amount: r.model === "flat" || r.model === "per_unit" ? Number(r.amount) : null,
+      unit: r.model === "per_unit" ? r.unit : null,
+      tiers: r.model === "tiered" ? r.tiers.map((t) => ({ label: t.label, amount: Number(t.amount) })) : undefined,
+    }));
   }
 
-  function submit() {
-    if (!canContinue || pending) return;
+  // Upload a picked document immediately; store its path so resume keeps it.
+  async function pickDoc(file: File | null, doc: string, setPath: (p: string | null) => void) {
+    if (!file || !userId) return;
     setErr(null);
+    setUploading(doc);
+    try {
+      const ext = file.name.split(".").pop()?.toLowerCase() || "bin";
+      const path = `${userId}/${doc}-${Date.now()}.${ext}`;
+      const { error } = await sb.storage.from("verification-docs").upload(path, file, { upsert: true });
+      if (error) throw new Error(error.message);
+      setPath(path);
+    } catch (e) {
+      setErr(`Couldn't upload ${doc.toUpperCase()}: ${e instanceof Error ? e.message : "failed"}`);
+    } finally {
+      setUploading(null);
+    }
+  }
+
+  function next() {
+    if (!canContinue || pending) return;
+    if (step === STEPS.length - 1) {
+      // final submit — flips the draft to 'pending'; redirects on success.
+      start(() =>
+        submitOnboarding({ displayName: name, rates: ratesPayload(), ...draftPayload(), attested }),
+      );
+      return;
+    }
     start(async () => {
-      let paths: [string | null, string | null, string | null, string | null];
-      try {
-        paths = await Promise.all([
-          uploadOne(idDoc, "id"),
-          uploadOne(w9, "w9"),
-          uploadOne(coi, "coi"),
-          uploadOne(licensePhoto, "license"),
-        ]);
-      } catch (e) {
-        setErr(e instanceof Error ? e.message : "Upload failed");
-        return;
-      }
-      // submitOnboarding redirects on success — let NEXT_REDIRECT propagate.
-      await submitOnboarding({
-        displayName: name,
-        rates: Object.values(rates).map((r) => ({
-          serviceSlug: r.serviceSlug,
-          optionSlug: r.optionSlug,
-          model: r.model,
-          amount: r.model === "flat" || r.model === "per_unit" ? Number(r.amount) : null,
-          unit: r.model === "per_unit" ? r.unit : null,
-          tiers: r.model === "tiered" ? r.tiers.map((t) => ({ label: t.label, amount: Number(t.amount) })) : undefined,
-        })),
-        legalFirstName: legalFirst,
-        legalLastName: legalLast,
-        dob: dob || null,
-        bgConsent,
-        idDocPath: paths[0],
-        licenseType,
-        licenseNumber,
-        insuranceCarrier,
-        coiExpiry: coiExpiry || null,
-        yearsInTrade: yearsInTrade ? Number(yearsInTrade) : null,
-        w9Path: paths[1],
-        coiPath: paths[2],
-        licensePhotoPath: paths[3],
-        attested,
-      });
+      if (step === 0) await saveProviderName(name);
+      await saveOnboardingDraft(draftPayload());
+      if (step === 5) await saveSubjobRates(ratesPayload()); // leaving Services
+      setStep((s) => s + 1);
     });
   }
 
-  const next = () => (step === STEPS.length - 1 ? submit() : setStep((s) => s + 1));
-
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-      {/* stepper */}
       <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
         {STEPS.map((label, i) => (
           <div key={label} title={label} style={{ flex: 1, height: 4, borderRadius: 2, background: i <= step ? "var(--terracotta-bright)" : "var(--chrome-line)" }} />
@@ -124,7 +127,7 @@ export function OnboardingWizard({ initialName }: { initialName: string }) {
       </div>
 
       {step === 0 && (
-        <Step title="Let's get you set up" sub="This is how you'll appear to customers.">
+        <Step title="Let's get you set up" sub="This is how you'll appear to customers. You can stop and pick up where you left off any time.">
           <Field label="Your name or business name"><input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Casey Rivera" style={input} /></Field>
         </Step>
       )}
@@ -136,7 +139,7 @@ export function OnboardingWizard({ initialName }: { initialName: string }) {
             <Field label="Legal last name"><input value={legalLast} onChange={(e) => setLegalLast(e.target.value)} style={input} /></Field>
           </div>
           <Field label="Date of birth"><input type="date" value={dob} onChange={(e) => setDob(e.target.value)} style={input} /></Field>
-          <FileField label="Government ID / driver's license" hint="Photo or PDF" file={idDoc} onPick={setIdDoc} />
+          <DocField label="Government ID / driver's license" hint="Photo or PDF" path={idDocPath} busy={uploading === "id"} onPick={(f) => pickDoc(f, "id", setIdDocPath)} />
           <label style={consentRow}>
             <input type="checkbox" checked={bgConsent} onChange={(e) => setBgConsent(e.target.checked)} style={{ marginTop: 2, accentColor: "var(--terracotta-bright)" }} />
             <span style={consentText}>I consent to a background check and ID verification as part of joining Kept Connect.</span>
@@ -146,7 +149,7 @@ export function OnboardingWizard({ initialName }: { initialName: string }) {
 
       {step === 2 && (
         <Step title="Tax form" sub="We need a W-9 on file to pay you. Upload a completed W-9.">
-          <FileField label="W-9" hint="PDF or photo" file={w9} onPick={setW9} />
+          <DocField label="W-9" hint="PDF or photo" path={w9Path} busy={uploading === "w9"} onPick={(f) => pickDoc(f, "w9", setW9Path)} />
         </Step>
       )}
 
@@ -154,7 +157,7 @@ export function OnboardingWizard({ initialName }: { initialName: string }) {
         <Step title="Proof of insurance" sub="Upload your current certificate of insurance (COI).">
           <Field label="Insurance carrier"><input value={insuranceCarrier} onChange={(e) => setInsuranceCarrier(e.target.value)} placeholder="e.g. State Farm" style={input} /></Field>
           <Field label="COI expiry"><input type="date" value={coiExpiry} onChange={(e) => setCoiExpiry(e.target.value)} style={input} /></Field>
-          <FileField label="Certificate of insurance" hint="PDF or photo" file={coi} onPick={setCoi} />
+          <DocField label="Certificate of insurance" hint="PDF or photo" path={coiPath} busy={uploading === "coi"} onPick={(f) => pickDoc(f, "coi", setCoiPath)} />
         </Step>
       )}
 
@@ -165,7 +168,7 @@ export function OnboardingWizard({ initialName }: { initialName: string }) {
             <Field label="License number"><input value={licenseNumber} onChange={(e) => setLicenseNumber(e.target.value)} placeholder="Required" style={input} /></Field>
             <Field label="Years in trade"><input inputMode="numeric" value={yearsInTrade} onChange={(e) => setYearsInTrade(e.target.value)} placeholder="0" style={input} /></Field>
           </div>
-          <FileField label="License photo" hint="Photo or PDF" file={licensePhoto} onPick={setLicensePhoto} />
+          <DocField label="License photo" hint="Photo or PDF" path={licensePhotoPath} busy={uploading === "license"} onPick={(f) => pickDoc(f, "license", setLicensePhotoPath)} />
         </Step>
       )}
 
@@ -179,7 +182,7 @@ export function OnboardingWizard({ initialName }: { initialName: string }) {
         <Step title="Review & submit" sub="We'll review your application and let you know when you're approved to go live.">
           <ReviewRow label="Name" value={name} />
           <ReviewRow label="Legal name" value={`${legalFirst} ${legalLast}`.trim()} />
-          <ReviewRow label="Documents" value={[idDoc && "ID", w9 && "W-9", coi && "COI", licensePhoto && "License"].filter(Boolean).join(" · ") || "—"} />
+          <ReviewRow label="Documents" value={[idDocPath && "ID", w9Path && "W-9", coiPath && "COI", licensePhotoPath && "License"].filter(Boolean).join(" · ") || "—"} />
           <ReviewRow label="Priced jobs" value={`${pricedCount} across ${new Set(Object.values(rates).map((r) => r.serviceSlug)).size} trades`} />
           <label style={consentRow}>
             <input type="checkbox" checked={attested} onChange={(e) => setAttested(e.target.checked)} style={{ marginTop: 2, accentColor: "var(--terracotta-bright)" }} />
@@ -199,7 +202,7 @@ export function OnboardingWizard({ initialName }: { initialName: string }) {
         )}
         <button type="button" onClick={next} disabled={!canContinue || pending}
           style={{ flex: 1, borderRadius: 14, padding: 15, fontSize: 15, fontWeight: 500, background: "var(--terracotta-bright)", color: "var(--cream)", border: "none", cursor: !canContinue || pending ? "not-allowed" : "pointer", opacity: !canContinue || pending ? 0.5 : 1, fontFamily: "var(--font-ui)" }}>
-          {step === STEPS.length - 1 ? (pending ? "Submitting…" : "Submit for review") : "Continue"}
+          {step === STEPS.length - 1 ? (pending ? "Submitting…" : "Submit for review") : pending ? "Saving…" : "Continue"}
         </button>
       </div>
     </div>
@@ -227,12 +230,15 @@ function Field({ label, children }: { label: string; children: ReactNode }) {
   );
 }
 
-function FileField({ label, hint, file, onPick }: { label: string; hint: string; file: File | null; onPick: (f: File | null) => void }) {
+// Upload-on-pick doc field. Shows uploaded ✓ (with replace) once a path exists, so
+// a resumed wizard reflects what's already in Storage.
+function DocField({ label, hint, path, busy, onPick }: { label: string; hint: string; path: string | null; busy: boolean; onPick: (f: File | null) => void }) {
+  const status = busy ? "Uploading…" : path ? "Uploaded ✓ — choose to replace" : hint;
   return (
     <Field label={label}>
-      <label style={{ display: "flex", alignItems: "center", gap: 10, background: "var(--chrome-card)", border: "1px dashed var(--chrome-line)", borderRadius: "var(--r-chip)", padding: "11px 12px", cursor: "pointer" }}>
+      <label style={{ display: "flex", alignItems: "center", gap: 10, background: "var(--chrome-card)", border: `1px dashed ${path ? "var(--verified-bright)" : "var(--chrome-line)"}`, borderRadius: "var(--r-chip)", padding: "11px 12px", cursor: "pointer" }}>
         <span style={{ fontSize: 12.5, fontWeight: 500, color: "var(--terracotta-bright)", fontFamily: "var(--font-ui)", flex: "0 0 auto" }}>Choose file</span>
-        <span style={{ fontSize: 12, color: "var(--chrome-dim)", fontFamily: "var(--font-ui)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{file ? file.name : hint}</span>
+        <span style={{ fontSize: 12, color: path ? "var(--verified-bright)" : "var(--chrome-dim)", fontFamily: "var(--font-ui)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{status}</span>
         <input type="file" accept="image/*,application/pdf" onChange={(e) => onPick(e.target.files?.[0] ?? null)} style={{ display: "none" }} />
       </label>
     </Field>

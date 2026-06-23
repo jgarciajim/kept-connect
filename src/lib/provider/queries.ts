@@ -1,6 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { CategoryKey } from "@/components/ui";
-import type { Offer, ScheduledJob, ActiveJob, Payout, EarningsSummary, ProviderSelf, ProviderRate, OpenRequest, ProviderReview, JobHistoryItem, MyVerification, ProviderSubjobRate } from "./mock";
+import type { Offer, ScheduledJob, ActiveJob, Payout, EarningsSummary, ProviderSelf, ProviderRate, OpenRequest, ProviderReview, JobHistoryItem, MyVerification, ProviderSubjobRate, OnboardingDraft } from "./mock";
 
 /**
  * Provider data layer — PURE query functions (take a Supabase client; no Clerk/
@@ -210,6 +210,30 @@ export async function qGetMyVerification(c: SupabaseClient): Promise<MyVerificat
     coiExpiry: data.coi_expiry ?? null,
     yearsInTrade: data.years_in_trade ?? null,
     reason: data.reason ?? null,
+  };
+}
+
+export async function qGetOnboardingDraft(c: SupabaseClient): Promise<OnboardingDraft | null> {
+  const { data } = await c
+    .from("provider_verifications")
+    .select("legal_first_name, legal_last_name, dob, bg_check_consent, id_doc_path, license_type, license_number, insurance_carrier, coi_expiry, years_in_trade, w9_path, coi_path, license_photo_path")
+    .limit(1)
+    .maybeSingle();
+  if (!data) return null;
+  return {
+    legalFirstName: data.legal_first_name ?? "",
+    legalLastName: data.legal_last_name ?? "",
+    dob: data.dob ?? null,
+    bgConsent: data.bg_check_consent ?? false,
+    idDocPath: data.id_doc_path ?? null,
+    licenseType: data.license_type ?? "",
+    licenseNumber: data.license_number ?? "",
+    insuranceCarrier: data.insurance_carrier ?? "",
+    coiExpiry: data.coi_expiry ?? null,
+    yearsInTrade: data.years_in_trade ?? null,
+    w9Path: data.w9_path ?? null,
+    coiPath: data.coi_path ?? null,
+    licensePhotoPath: data.license_photo_path ?? null,
   };
 }
 

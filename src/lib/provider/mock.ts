@@ -114,6 +114,23 @@ export interface MyVerification {
   reason: string | null; // rejection note, when rejected
 }
 
+/** A resumable onboarding draft (the wizard rehydrates from this). */
+export interface OnboardingDraft {
+  legalFirstName: string;
+  legalLastName: string;
+  dob: string | null;
+  bgConsent: boolean;
+  idDocPath: string | null;
+  licenseType: string;
+  licenseNumber: string;
+  insuranceCarrier: string;
+  coiExpiry: string | null;
+  yearsInTrade: number | null;
+  w9Path: string | null;
+  coiPath: string | null;
+  licensePhotoPath: string | null;
+}
+
 /** The provider's price for one sub-job (the per-sub-job classification spine). */
 export type PriceModel = "flat" | "per_unit" | "tiered" | "quote";
 export interface SubjobTier {
@@ -194,4 +211,8 @@ export async function getMyVerification(): Promise<MyVerification> {
 
 export async function getSubjobRates(): Promise<ProviderSubjobRate[]> {
   return q.qGetSubjobRates(await createServerSupabaseClient());
+}
+
+export async function getOnboardingDraft(): Promise<OnboardingDraft | null> {
+  return q.qGetOnboardingDraft(await createServerSupabaseClient());
 }

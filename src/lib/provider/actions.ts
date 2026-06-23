@@ -192,6 +192,50 @@ export async function saveSubjobRates(rates: RateInput[]): Promise<void> {
   revalidatePath("/work/rates");
 }
 
+/** Persist the provider's name early (creates the offline profile) so resume keeps it. */
+export async function saveProviderName(name: string): Promise<void> {
+  if (!name.trim()) return;
+  const sb = await createServerSupabaseClient();
+  await sb.rpc("become_provider", { p_display_name: name.trim(), p_trades: [] });
+}
+
+/**
+ * Persist an onboarding DRAFT (status stays 'unsubmitted') so the wizard resumes.
+ * Called per step; documents are already uploaded to Storage (paths only here).
+ */
+export async function saveOnboardingDraft(input: {
+  legalFirstName: string;
+  legalLastName: string;
+  dob: string | null;
+  bgConsent: boolean;
+  idDocPath: string | null;
+  licenseType: string;
+  licenseNumber: string;
+  insuranceCarrier: string;
+  coiExpiry: string | null;
+  yearsInTrade: number | null;
+  w9Path: string | null;
+  coiPath: string | null;
+  licensePhotoPath: string | null;
+}): Promise<void> {
+  const sb = await createServerSupabaseClient();
+  await sb.rpc("save_verification_draft", {
+    p_legal_first: input.legalFirstName.trim() || null,
+    p_legal_last: input.legalLastName.trim() || null,
+    p_dob: input.dob || null,
+    p_bg_consent: input.bgConsent,
+    p_id_doc_path: input.idDocPath,
+    p_license_type: input.licenseType.trim() || null,
+    p_license_number: input.licenseNumber.trim() || null,
+    p_insurance_carrier: input.insuranceCarrier.trim() || null,
+    p_coi_expiry: input.coiExpiry || null,
+    p_years_in_trade: input.yearsInTrade,
+    p_w9_path: input.w9Path,
+    p_coi_path: input.coiPath,
+    p_license_photo_path: input.licensePhotoPath,
+  });
+}
+
 /** Remove a sub-job from the provider's offering (RLS scopes the delete to them). */
 export async function removeSubjobRate(serviceSlug: string, optionSlug: string): Promise<void> {
   const sb = await createServerSupabaseClient();
