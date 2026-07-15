@@ -6,7 +6,9 @@
 --   * accept_offer awards the request AND supersedes the round's siblings
 --   * a quote-mode request gets NO auto-offer
 -- Seeding runs as the table owner (RLS bypassed). Round-robin order is made
--- deterministic via rating (V1 5.0 > V2 4.5) so each step is assertable.
+-- deterministic via the ranker: V1 (5.0, 40 jobs) Bayesian-outranks V2 (4.5, 40
+-- jobs); jobs_done supplies the confidence the Bayesian smoothing needs so the
+-- seeded ratings actually separate the two.
 -- =============================================================================
 begin;
 select plan(10);
@@ -22,12 +24,14 @@ insert into public.members (id, clerk_user_id, is_requester, is_provider) values
 -- isolate from the seeded public catalog (Marco is water+online): take all
 -- pre-existing profiles offline so only this test's providers are eligible.
 update public.provider_profiles set online = false;
+-- deterministic ranking: disable the epsilon-greedy exploration diversion
+update public.ranker_config set exploration_epsilon = 0 where id = 1;
 
-insert into public.provider_profiles (member_id, rating, verified, online, trades) values
-  ('c1111111-1111-1111-1111-111111111111',5.0,true,true,  array['water']::public.category_key[]),
-  ('c2222222-2222-2222-2222-222222222222',4.5,true,true,  array['water']::public.category_key[]),
-  ('d1111111-1111-1111-1111-111111111111',5.0,true,true,  array['structure']::public.category_key[]),  -- wrong trade
-  ('d2222222-2222-2222-2222-222222222222',5.0,true,false, array['water']::public.category_key[]);       -- offline
+insert into public.provider_profiles (member_id, rating, jobs_done, verified, online, trades) values
+  ('c1111111-1111-1111-1111-111111111111',5.0,40,true,true,  array['water']::public.category_key[]),
+  ('c2222222-2222-2222-2222-222222222222',4.5,40,true,true,  array['water']::public.category_key[]),
+  ('d1111111-1111-1111-1111-111111111111',5.0,40,true,true,  array['structure']::public.category_key[]),  -- wrong trade
+  ('d2222222-2222-2222-2222-222222222222',5.0,40,true,false, array['water']::public.category_key[]);       -- offline
 
 insert into public.services (id, category, name, base_price) values
   ('51111111-1111-1111-1111-111111111111','water','Test fixed job',100.00);
