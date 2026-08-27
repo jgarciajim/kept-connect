@@ -41,6 +41,7 @@ export interface ActiveJob {
   customerName: string;
   addressLine: string;
   payout: string;
+  status: string; // raw DB request status (awarded | enroute) — drives the flow's starting stage
 }
 
 export interface Payout {

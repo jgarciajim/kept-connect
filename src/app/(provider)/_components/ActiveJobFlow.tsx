@@ -3,37 +3,54 @@
 import Link from "next/link";
 import { useState } from "react";
 import { Avatar } from "@/components/ui";
-import { startJob, completeJob } from "@/lib/provider/actions";
+import { markOnMyWay, completeJob } from "@/lib/provider/actions";
 import { releaseAndPay } from "@/lib/payments/actions";
 import type { ActiveJob } from "@/lib/provider/mock";
 import { PIconPhone, PIconChat, PIconCam, PIconCheck } from "./icons";
 
 /**
  * ActiveJobFlow — the live job. One terracotta action per state:
- * Start job → Mark complete → Mark paid → "Paid — nice work." Each tap runs the
- * matching SECURITY DEFINER RPC (column-safe transition), then advances. "Mark
- * paid" releases the held escrow (payout to the provider's wallet).
+ * On my way → Mark complete → Mark paid → "Paid — nice work." Each tap runs the
+ * matching SECURITY DEFINER RPC (column-safe transition), then advances. "On my
+ * way" opens a quick pick — the provider self-reports how far out they are ("10 min
+ * away"), which the customer sees. No location tracking. "Mark paid" releases the
+ * held escrow (payout to the provider's wallet).
  */
-const STAGES = ["Start job", "Mark complete", "Mark paid"] as const;
-const STAGE_ACTIONS = [startJob, completeJob, releaseAndPay];
+const STAGES = ["On my way", "Mark complete", "Mark paid"] as const;
+/** Jobber-style self-reported ETA presets (minutes). */
+const ETA_OPTIONS = [5, 10, 15, 20, 30, 45] as const;
 
 export function ActiveJobFlow({ job }: { job: ActiveJob }) {
-  const [stage, setStage] = useState(0);
+  // Start past "On my way" if the job is already enroute (so a reload can't re-fire it).
+  const [stage, setStage] = useState(job.status === "enroute" ? 1 : 0);
   const [busy, setBusy] = useState(false);
+  const [picking, setPicking] = useState(false); // showing the ETA quick-pick
   const done = stage >= STAGES.length;
 
-  async function advance() {
+  // Stage 0: provider taps an ETA (or "Not sure" → null). Transitions awarded→enroute.
+  async function declareEta(mins: number | null) {
     if (busy) return;
-    const action = STAGE_ACTIONS[stage];
-    if (action) {
-      setBusy(true);
-      try {
-        await action(job.id);
-      } finally {
-        setBusy(false);
-      }
+    setBusy(true);
+    try {
+      await markOnMyWay(job.id, mins);
+      setPicking(false);
+      setStage(1);
+    } finally {
+      setBusy(false);
     }
-    setStage((s) => s + 1);
+  }
+
+  // Stages 1–2: complete → pay. Advances only when the transition succeeded.
+  async function advance() {
+    if (busy || done || stage === 0) return;
+    setBusy(true);
+    try {
+      if (stage === 1) await completeJob(job.id);
+      else await releaseAndPay(job.id);
+      setStage((s) => s + 1);
+    } finally {
+      setBusy(false);
+    }
   }
 
   return (
@@ -83,19 +100,46 @@ export function ActiveJobFlow({ job }: { job: ActiveJob }) {
 
       {/* one action per state */}
       <div style={{ marginTop: "auto", paddingTop: 16 }}>
-        {!done ? (
+        {done ? (
+          <div style={{ textAlign: "center", color: "var(--verified-bright)", fontWeight: 500, fontSize: 15, padding: 15, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontFamily: "var(--font-ui)" }}>
+            <PIconCheck size={20} /> Paid — nice work.
+          </div>
+        ) : stage === 0 && picking ? (
+          <div>
+            <div style={{ fontSize: 12.5, color: "var(--chrome-dim)", fontFamily: "var(--font-ui)", marginBottom: 9, textAlign: "center" }}>
+              How far out are you?
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8 }}>
+              {ETA_OPTIONS.map((m) => (
+                <button
+                  key={m}
+                  type="button"
+                  onClick={() => declareEta(m)}
+                  disabled={busy}
+                  style={{ background: "var(--chrome-card)", color: "var(--chrome-cream)", border: "1px solid var(--chrome-line)", borderRadius: 13, padding: "13px 0", fontSize: 14.5, fontWeight: 500, cursor: busy ? "not-allowed" : "pointer", opacity: busy ? 0.5 : 1, fontFamily: "var(--font-ui)", fontVariantNumeric: "tabular-nums" }}
+                >
+                  {m} min
+                </button>
+              ))}
+            </div>
+            <button
+              type="button"
+              onClick={() => declareEta(null)}
+              disabled={busy}
+              style={{ width: "100%", background: "transparent", color: "var(--chrome-dim)", border: "none", padding: "12px 0 2px", fontSize: 12.5, cursor: busy ? "not-allowed" : "pointer", fontFamily: "var(--font-ui)" }}
+            >
+              Not sure — just let them know I’m coming
+            </button>
+          </div>
+        ) : (
           <button
             type="button"
-            onClick={advance}
+            onClick={stage === 0 ? () => setPicking(true) : advance}
             disabled={busy}
             style={{ width: "100%", background: "var(--terracotta-bright)", color: "var(--cream)", textAlign: "center", borderRadius: 16, padding: 15, fontSize: 15, fontWeight: 500, border: "none", cursor: busy ? "not-allowed" : "pointer", opacity: busy ? 0.6 : 1, fontFamily: "var(--font-ui)" }}
           >
             {busy ? "…" : STAGES[stage]}
           </button>
-        ) : (
-          <div style={{ textAlign: "center", color: "var(--verified-bright)", fontWeight: 500, fontSize: 15, padding: 15, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontFamily: "var(--font-ui)" }}>
-            <PIconCheck size={20} /> Paid — nice work.
-          </div>
         )}
       </div>
     </main>

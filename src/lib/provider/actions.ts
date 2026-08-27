@@ -72,6 +72,22 @@ export async function startJob(requestId: string): Promise<void> {
   revalidatePath("/work/jobs/active");
 }
 
+/**
+ * "On my way" — the awarded→enroute transition (supersedes start_job for located
+ * jobs). etaMinutes is the provider's self-reported "X min away" (the Jobber-style
+ * quick pick): no location, no permission prompt. The RPC stores it verbatim and
+ * notifies the requester. Null etaMinutes still transitions + notifies, just
+ * without an ETA — so a provider who isn't sure can still head out.
+ */
+export async function markOnMyWay(requestId: string, etaMinutes?: number | null): Promise<void> {
+  const sb = await createServerSupabaseClient();
+  await sb.rpc("mark_on_my_way", {
+    p_request_id: requestId,
+    p_eta_minutes: typeof etaMinutes === "number" && etaMinutes > 0 ? etaMinutes : null,
+  });
+  revalidatePath("/work/jobs/active");
+}
+
 export async function completeJob(requestId: string): Promise<void> {
   const sb = await createServerSupabaseClient();
   await sb.rpc("complete_job", { p_request_id: requestId });

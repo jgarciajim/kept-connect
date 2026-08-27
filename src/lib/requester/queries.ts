@@ -178,7 +178,7 @@ export async function qGetProvider(
 type RequestRow = {
   id: string; requester_id: string; category: CategoryKey | null; description: string | null;
   title: string | null; status: string; location_label: string | null;
-  awarded_provider_id: string | null; agreed_price: unknown; eta_minutes: number | null; created_at: string;
+  awarded_provider_id: string | null; agreed_price: unknown; eta_minutes: number | null; eta_min_low: number | null; created_at: string;
 };
 
 async function mapJob(c: SupabaseClient, row: RequestRow): Promise<Job> {
@@ -201,6 +201,7 @@ async function mapJob(c: SupabaseClient, row: RequestRow): Promise<Job> {
     provider,
     price: money(row.agreed_price),
     etaMinutes: row.eta_minutes ?? undefined,
+    etaLowMinutes: row.eta_min_low ?? undefined,
   };
 }
 

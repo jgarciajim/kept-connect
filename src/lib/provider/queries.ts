@@ -124,7 +124,7 @@ export async function qGetActiveJob(c: SupabaseClient, id: string): Promise<Acti
   if (!meId) return null;
   let query = c
     .from("requests")
-    .select("id, category, title, requester_name, location_label, agreed_price")
+    .select("id, category, title, requester_name, location_label, agreed_price, status")
     .eq("awarded_provider_id", meId)
     .in("status", ["awarded", "enroute"]);
   if (UUID.test(id)) query = query.eq("id", id);
@@ -137,6 +137,7 @@ export async function qGetActiveJob(c: SupabaseClient, id: string): Promise<Acti
     customerName: r.requester_name ?? "",
     addressLine: r.location_label ?? "",
     payout: money(r.agreed_price),
+    status: r.status,
   };
 }
 

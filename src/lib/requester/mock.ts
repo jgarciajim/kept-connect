@@ -94,7 +94,11 @@ export interface Job {
   locationLabel: string;
   provider?: ProviderProfile;
   price?: string;
+  /** Conservative ETA window (minutes) snapshotted when the pro taps "On my way".
+   *  etaMinutes is the HIGH end; etaLowMinutes the LOW end. Either may be absent
+   *  (no origin location → status only, no ETA). */
   etaMinutes?: number;
+  etaLowMinutes?: number;
 }
 
 export interface Message {

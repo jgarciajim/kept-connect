@@ -314,7 +314,9 @@ function JobCard({ job }: { job: Job }) {
         <div style={{ textAlign: "right" }}>
           <div style={{ fontSize: 14, fontWeight: 500, fontVariantNumeric: "tabular-nums", color: "var(--ink)", fontFamily: "var(--font-ui)" }}>${job.price}</div>
           {enroute && job.etaMinutes != null && (
-            <div style={{ fontSize: 11, color: "var(--ink-3)", fontFamily: "var(--font-ui)" }}>{job.etaMinutes} min</div>
+            <div style={{ fontSize: 11, color: "var(--ink-3)", fontFamily: "var(--font-ui)" }}>
+              {job.etaLowMinutes != null ? `${job.etaLowMinutes}–${job.etaMinutes}` : job.etaMinutes} min
+            </div>
           )}
         </div>
       )}

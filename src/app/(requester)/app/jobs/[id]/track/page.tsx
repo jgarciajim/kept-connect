@@ -25,11 +25,19 @@ export default async function TrackScreen({ params }: { params: Promise<{ id: st
   const credLine = [tradeLabel, ...provider.credentials].filter(Boolean).join(" · ");
 
   const headline = isComplete ? "Job complete" : isEnroute ? "On the way" : "You’re matched";
+  // Conservative ETA window: show "20–30 min" when both ends are present, fall back
+  // to "about 30 minutes" (high only), else just the on-the-way status (no origin).
+  const etaWindow =
+    job.etaLowMinutes != null && job.etaMinutes != null
+      ? `${job.etaLowMinutes}–${job.etaMinutes} min`
+      : job.etaMinutes != null
+        ? `about ${job.etaMinutes} min`
+        : null;
   const subline = isComplete
     ? "Hope it went well — leave a rating below."
     : isEnroute
-      ? job.etaMinutes
-        ? `Arriving in about ${job.etaMinutes} minutes`
+      ? etaWindow
+        ? `Arriving in ${etaWindow}`
         : `${firstName} is on the way`
       : `${firstName} is booked and will head over soon`;
 
