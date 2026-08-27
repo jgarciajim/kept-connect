@@ -3,7 +3,7 @@
 -- plus the ranker proximity/coverage wiring the same location data unlocks.
 -- =============================================================================
 begin;
-select plan(17);
+select plan(22);
 
 delete from public.provider_profiles;
 delete from public.eta_geo_calibration;   -- clean slate for calibration assertions
@@ -55,6 +55,31 @@ select ok((select eta_minutes is not null and eta_computed_at is not null
           'a conservative ETA is computed and stamped from the tap-time position');
 select ok((select eta_origin_km > 0 from public.requests where id='22222222-2222-2222-2222-222222222222'),
           'ETA falls back to the provider base location when no geolocation is given');
+
+-- ---- provider-declared ETA (Jobber-style "X min away", no location) ----
+insert into public.requests (id, requester_id, category, title, status, awarded_provider_id, location_lat, location_lng) values
+  ('55555555-5555-5555-5555-555555555555','aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa','water','R3','awarded','cccccccc-cccc-cccc-cccc-cccccccccccc',39.70,-106.20);
+
+set local role authenticated;
+set local request.jwt.claims = '{"sub":"rt_V"}';
+-- provider taps "On my way" and picks "10 min away" — no lat/lng passed
+select public.mark_on_my_way('55555555-5555-5555-5555-555555555555', null, null, 10);
+reset role;
+
+select is((select status::text from public.requests where id='55555555-5555-5555-5555-555555555555'),
+          'enroute', 'a declared ETA still moves the job to enroute');
+select is((select eta_minutes from public.requests where id='55555555-5555-5555-5555-555555555555'),
+          10, 'the provider-declared ETA is stored verbatim');
+select ok((select eta_min_low is null and eta_origin_km is null
+             from public.requests where id='55555555-5555-5555-5555-555555555555'),
+          'a declared ETA is a single number — no computed window or distance');
+select is((select eta_source from public.requests where id='55555555-5555-5555-5555-555555555555'),
+          'declared', 'the ETA source is tagged declared');
+-- a declared ETA with an arrival check-in must NOT enter the distance flywheel
+insert into public.arrival_checkins (request_id, provider_id, geo_lat, geo_lng, assessment_photos, checked_in_at) values
+  ('55555555-5555-5555-5555-555555555555','cccccccc-cccc-cccc-cccc-cccccccccccc',39.70,-106.20,'{a.jpg}', now());
+select ok((select count(*) = 0 from public.eta_accuracy where request_id='55555555-5555-5555-5555-555555555555'),
+          'declared ETAs are excluded from the distance-calibration flywheel');
 
 -- ---- v2 flywheel: predicted vs actual → per-geo calibration ----
 -- five jobs in one geo where the true trip took ~50 min but we predicted 20
