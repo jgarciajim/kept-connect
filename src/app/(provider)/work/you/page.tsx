@@ -42,7 +42,7 @@ export default async function ProfileScreen() {
             <Link href="/work/admin" style={rowLink}>
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: 14, fontWeight: 500, color: "var(--chrome-cream)", fontFamily: "var(--font-ui)" }}>Admin · review queue</div>
-                <div style={{ fontSize: 11.5, color: "var(--chrome-dim)", fontFamily: "var(--font-ui)" }}>Approve provider verifications</div>
+                <div style={{ fontSize: 11.5, color: "var(--chrome-dim)", fontFamily: "var(--font-ui)" }}>Approve Pro verifications</div>
               </div>
               <span style={{ color: "var(--terracotta-bright)", fontSize: 13, fontWeight: 500, fontFamily: "var(--font-ui)" }}>Open →</span>
             </Link>

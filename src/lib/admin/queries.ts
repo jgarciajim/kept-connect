@@ -43,7 +43,7 @@ export async function qGetPendingVerifications(c: SupabaseClient): Promise<Pendi
       const legal = [r.legal_first_name, r.legal_last_name].filter(Boolean).join(" ");
       return {
         memberId: r.member_id,
-        name: p?.display_name ?? "Provider",
+        name: p?.display_name ?? "Pro",
         trades: p?.trade_labels ?? [],
         legalName: legal || null,
         dob: r.dob ?? null,

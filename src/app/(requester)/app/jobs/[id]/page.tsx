@@ -37,7 +37,7 @@ export default async function MatchScreen({ params }: { params: Promise<{ id: st
         {/* warm moment — the signature live-match status */}
         <div style={{ background: "var(--moment)", borderRadius: "var(--r-lg)", padding: "28px 24px 30px", textAlign: "center", marginBottom: 18 }}>
           <p style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 28, lineHeight: 1.12, letterSpacing: "-0.015em", margin: 0, color: "var(--ink)" }}>
-            {finding ? <>Finding your<br />provider…</> : <>{quotes.length} quotes in</>}
+            {finding ? <>Finding your<br />Pro…</> : <>{quotes.length} quotes in</>}
           </p>
           <p style={{ fontSize: 13.5, color: "var(--ink-2)", margin: "10px 0 22px", fontFamily: "var(--font-ui)" }}>
             {finding ? `Dispatched to vetted pros near ${job.locationLabel}.` : "Sealed quotes — compare and award."}

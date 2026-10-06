@@ -21,7 +21,7 @@ export function ProviderEmptyState({ tab }: { tab: "jobs" | "active" | "earnings
           href="/work/start"
           style={{ borderRadius: 16, padding: "14px 22px", fontSize: 15, fontWeight: 500, background: "var(--terracotta-bright)", color: "var(--cream)", textDecoration: "none", fontFamily: "var(--font-ui)" }}
         >
-          Become a provider
+          Become a Pro
         </Link>
       </main>
       <VBottomNav active={tab} />

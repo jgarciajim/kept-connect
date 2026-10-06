@@ -24,7 +24,7 @@ export default async function ProfileScreen({
   return (
     <>
       <AppHeader
-        title="Provider"
+        title="Pro"
         backHref={job ? `/app/jobs/${job}` : "/app"}
         right={<span style={{ color: "var(--ink-3)", display: "flex" }}><IconChat /></span>}
       />

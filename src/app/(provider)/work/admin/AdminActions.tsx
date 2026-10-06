@@ -24,7 +24,7 @@ export function AdminActions({ memberId }: { memberId: string }) {
         <input
           value={reason}
           onChange={(e) => setReason(e.target.value)}
-          placeholder="Reason (shown to the provider)"
+          placeholder="Reason (shown to the Pro)"
           style={{ background: "var(--chrome-card-2)", border: "1px solid var(--chrome-line)", borderRadius: "var(--r-chip)", padding: "10px 12px", color: "var(--chrome-cream)", fontFamily: "var(--font-ui)", fontSize: 13.5, outline: "none" }}
         />
         <div style={{ display: "flex", gap: 8 }}>

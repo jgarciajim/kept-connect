@@ -39,7 +39,7 @@ export default function ComposerScreen() {
               What needs doing<span style={{ color: "var(--terracotta)" }}>?</span>
             </p>
             <p style={{ fontSize: 14, color: "var(--ink-2)", margin: "8px 0 0", fontFamily: "var(--font-ui)" }}>
-              Describe it once. We&rsquo;ll match you with vetted providers nearby.
+              Describe it once. We&rsquo;ll match you with vetted Pros nearby.
             </p>
           </div>
 

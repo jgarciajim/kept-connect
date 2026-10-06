@@ -33,21 +33,31 @@ public abuse-hardening, and the full kept-connect→Guildry code rename.
 - [ ] **Schedule `recompute_eta_calibration()`** (same pg_cron handoff; low priority, daily).
 
 ## Phase 1 — Website & signup (tonight onward)
-- [ ] **Pros landing page** (`/providers`, "for Pros") — pitch + "Start earning" → sign-up → the
+- [x] **Pros landing page** (`/providers`, "for Pros") — pitch + "Start earning" → sign-up → the
       7-step web onboarding funnel (already complete end-to-end on web).
-- [ ] **Customers landing** — reframe `/` home copy around Customers; clear dual CTA (Get help / Join
-      as a Pro). Terminology: Pros & Customers throughout Hero/HowItWorks/Footer.
-- [ ] **Marketing nav/footer** — real links (How it works, For Pros, Sign in, Get started).
-- [ ] **Terminology pass** in the app shells (labels that say "provider"/"homeowner" in UI copy).
+- [x] **Customers landing** — the `/` home IS the Customers landing: dual CTA (Post a job / I'm a Pro),
+      inclusive voice, `ForProviders` supply pitch. Hero/HowItWorks/Footer already use Pros & Customers.
+- [x] **Marketing nav/footer** — real links (How it works, For Pros, Sign in, Get started).
+- [x] **Terminology pass** in the app shells — audited all `src/**/*.{ts,tsx}` for visible copy;
+      fixed 7 stale "provider"→"Pro" strings (empty-state CTA, post hint, live-match headline, Pro
+      profile title, admin labels/placeholder, admin-queue name fallback). "homeowners" in the root
+      meta is intentional (it enumerates kinds of Customers). Dev-only `/styleguide` left as-is.
 
 ## Phase 2 — Backend correctness for a faithful test
 - [ ] **Admin approval flow** usable (`/work/admin`) — Pros submit → we approve → live. Confirm it
       works against hosted for the starter Pros.
-- [ ] **Env-gate the demo seed data** (`seed_catalog`, dispatch `services`) so test data is
-      intentional, not auto-injected.
-- [ ] **`.env.example`** — add `MAPBOX_TOKEN`, `GEO_PROVIDER`, and note the scheduler + service-role
-      key needs.
-- [ ] **mock.ts audit** — confirm which `mock.ts` exports still return fixtures vs. hit the DB.
+- [ ] **Env-gate the demo seed data** (`seed_catalog`, `seed_starter_rates`, dispatch `services`) so
+      test data is intentional, not auto-injected. DESIGN CALL pending (George): these are migrations,
+      so they run on every environment incl. a future prod. Options: (a) GUC guard
+      `current_setting('app.seed_demo', true)`, (b) move to `supabase/seed.sql` (runs on local
+      `db reset`, not `db push`), (c) explicit drop-before-prod. Recommend (a) — smallest diff, keeps
+      local+pgTAP working. Not done unattended on purpose.
+- [x] **`.env.example`** — now tracked (`!.env.example` opt-in); has `MAPBOX_TOKEN`, `GEO_PROVIDER`,
+      and the scheduler + service-role-key notes. (commit `f7e8f6b`)
+- [x] **mock.ts audit** — both `src/lib/{provider,requester}/mock.ts` are real data layers now
+      (every accessor delegates to `./queries.ts` → RLS-scoped Supabase). ONE fixture remains:
+      `requester/mock.ts` `getCategoryShortcuts` returns static `CATEGORY_SHORTCUTS` (UI tile config,
+      not business data — harmless for the test). Nothing else returns fake data.
 
 ## Phase 3 — Fast-follows (after the test proves the loop)
 - [ ] Real **Stripe Connect** (authorize/capture + Express payouts + webhook reconciliation).
