@@ -7,6 +7,10 @@
 begin;
 select plan(5);
 
+-- Isolate from seeded rates (20260701130000 seeds the starter Pros) so the
+-- aggregate reflects only this test's fixtures.
+delete from public.provider_subjob_rates;
+
 insert into public.members (id, clerk_user_id, is_requester, is_provider) values
   ('a1111111-1111-1111-1111-111111111111','user_A', true, false),
   ('c1111111-1111-1111-1111-111111111111','user_V1',false,true),
