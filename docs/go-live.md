@@ -17,11 +17,19 @@ public abuse-hardening, and the full kept-connect→Guildry code rename.
 ## Phase 0 — Make the core loop actually run (tonight / this week)
 - [ ] **Schedule `dispatch_tick()`** on hosted (pg_cron). Today nothing sweeps the 45s offer timer,
       so offers never expire and stalled rounds never advance. THE functional blocker. (~1-min sweep.)
-- [ ] **Starter-Pro rates.** The 4 seeded Pros (Marco, Summit Drywall, A. Vega, Peak Interiors) have
-      NO priced sub-jobs → they can't be matched by real price. Load their trip/hourly/per-service
-      rates. Source = the Drive rates sheet (CONFIRM WHICH: "HANDYMAN SERVICES" vs "BRECK HK ADD-ON
-      SERVICES"). → seed migration or admin entry.
-- [ ] **Verify starter Pros are live** (verified + online). Seed already sets this; confirm on hosted.
+- [x] **Pricing source material is in the repo already** — `docs/kept-pricing-seed.json` (94 services,
+      12 categories, mountain config, Connect fee config); the engine `src/lib/pricing/` consumes it
+      (`calc.ts` mountainPrice/rateCard, 15 tests green). Nothing was missing — it's JSON, not .xlsx.
+- [ ] **Starter-Pro rates.** The 4 seeded Pros (Marco=water, Summit/Vega/Peak=structure/surfaces) have
+      NO priced sub-jobs. This does NOT block instant dispatch (instant price = `services.base_price`),
+      but IS needed for realistic sealed-quote offers + requester "near you" estimates
+      (`provider_subjob_rates` median). Seed via mountain-benchmark opt-in (rate_source='benchmark',
+      logged), mapping seed→app slugs with `reconcile.ts`.
+- [x] **Starter Pros are live** — seed sets verified + online; they're dispatchable for instant jobs
+      in their trades once the tick runs.
+- [ ] **Classification flag (counsel, not tonight):** instant dispatch currently offers at the
+      platform's `services.base_price`, not the Pro's own rate — the dispatch spec §0–2 says the
+      platform must never set the price. Fast-follow: route instant pricing through `provider_rates`.
 - [ ] **Schedule `recompute_eta_calibration()`** (same pg_cron handoff; low priority, daily).
 
 ## Phase 1 — Website & signup (tonight onward)
