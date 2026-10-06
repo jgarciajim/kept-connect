@@ -2,6 +2,7 @@
 
 import { useState, type CSSProperties } from "react";
 import { SERVICES, optionSlug } from "@/lib/requester/services";
+import { optionBenchmark, rateCard, activeFeeConfig, dollarsToCents, formatUsd } from "@/lib/pricing";
 
 /**
  * SubjobPricingEditor — the heart of onboarding. The contractor expands a trade
@@ -105,6 +106,9 @@ export function SubjobPricingEditor({ rates, onChange }: { rates: RateMap; onCha
                               </span>
                             )}
                           </div>
+                          {draft.model === "flat" && (
+                            <FlatEconomics serviceSlug={s.slug} optionSlug={opt.slug} amount={draft.amount} />
+                          )}
                           {draft.model === "tiered" && (
                             <TierEditor tiers={draft.tiers} onChange={(t) => update(k, { tiers: t })} />
                           )}
@@ -144,6 +148,31 @@ function TierEditor({ tiers, onChange }: { tiers: TierDraft[]; onChange: (t: Tie
     </div>
   );
 }
+
+/**
+ * FlatEconomics — the quiet money readout under a flat price. Shows the
+ * mountain-adjusted SUGGESTED benchmark (informational, not prefilled — the Pro
+ * sets their own number, classification-safe) and, once they've entered a price,
+ * what they keep and what the Customer pays via the Connect rate card. The Pro's
+ * entered amount is used verbatim — it's already a mountain rate, never re-adjusted.
+ */
+function FlatEconomics({ serviceSlug, optionSlug: slug, amount }: { serviceSlug: string; optionSlug: string; amount: string }) {
+  const suggested = optionBenchmark(serviceSlug, slug); // cents | null (mountain-adjusted)
+  const n = Number(amount);
+  const rc = Number.isFinite(n) && n > 0 ? rateCard(dollarsToCents(n), activeFeeConfig) : null;
+  if (suggested == null && !rc) return null;
+  return (
+    <div style={{ display: "flex", flexWrap: "wrap", gap: "2px 14px", fontSize: 11.5, color: "var(--chrome-dim)", fontFamily: "var(--font-ui)" }}>
+      {suggested != null && (
+        <span>Suggested <span style={{ opacity: 0.8 }}>(mountain)</span>: <b style={money}>{formatUsd(suggested)}</b> · planning baseline, not a quote</span>
+      )}
+      {rc && (
+        <span>You keep <b style={money}>{formatUsd(rc.providerPayout)}</b> · Customer pays <b style={money}>{formatUsd(rc.requesterAllIn)}</b></span>
+      )}
+    </div>
+  );
+}
+const money: CSSProperties = { color: "var(--chrome-cream)", fontWeight: 500, fontVariantNumeric: "tabular-nums" };
 
 function chip(active: boolean): CSSProperties {
   return {
