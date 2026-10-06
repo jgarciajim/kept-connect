@@ -20,11 +20,11 @@ public abuse-hardening, and the full kept-connect→Guildry code rename.
 - [x] **Pricing source material is in the repo already** — `docs/kept-pricing-seed.json` (94 services,
       12 categories, mountain config, Connect fee config); the engine `src/lib/pricing/` consumes it
       (`calc.ts` mountainPrice/rateCard, 15 tests green). Nothing was missing — it's JSON, not .xlsx.
-- [ ] **Starter-Pro rates.** The 4 seeded Pros (Marco=water, Summit/Vega/Peak=structure/surfaces) have
-      NO priced sub-jobs. This does NOT block instant dispatch (instant price = `services.base_price`),
-      but IS needed for realistic sealed-quote offers + requester "near you" estimates
-      (`provider_subjob_rates` median). Seed via mountain-benchmark opt-in (rate_source='benchmark',
-      logged), mapping seed→app slugs with `reconcile.ts`.
+- [x] **Starter-Pro rates seeded** (migration `20260701130000`, on hosted 2026-10-06) — 24 flat
+      sub-job rates across the 4 Pros at the mountain benchmark, so "near you" estimates + quote
+      pricing are realistic. Needed for quotes/estimates, not for instant dispatch.
+- [x] **Rate-editor economics** — `/work/rates` + onboarding now show suggested benchmark + "you
+      keep / Customer pays" per flat price (commit `db9505f`).
 - [x] **Starter Pros are live** — seed sets verified + online; they're dispatchable for instant jobs
       in their trades once the tick runs.
 - [ ] **Classification flag (counsel, not tonight):** instant dispatch currently offers at the
