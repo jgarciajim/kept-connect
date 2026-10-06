@@ -66,8 +66,8 @@ export function Hero() {
           <ButtonLink href="/sign-up" size="lg">
             Post a job
           </ButtonLink>
-          <ButtonLink href="#providers" variant="outline" size="lg">
-            I&rsquo;m a provider
+          <ButtonLink href="/providers" variant="outline" size="lg">
+            I&rsquo;m a Pro
           </ButtonLink>
         </div>
       </div>

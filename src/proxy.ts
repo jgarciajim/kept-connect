@@ -8,6 +8,7 @@ import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 // requires authentication.
 const isPublicRoute = createRouteMatcher([
   "/",
+  "/providers(.*)", // public marketing: the Pros landing page
   "/sign-in(.*)",
   "/sign-up(.*)",
   "/api/stripe/webhook(.*)", // Stripe can't carry a Clerk session — verified by signature instead

@@ -6,8 +6,8 @@ import { ButtonLink } from "./ButtonLink";
  * MarketingFooter — a final warm CTA band, then quiet footer links + fine print.
  */
 const LINKS: { label: string; href: string }[] = [
-  { label: "How it works", href: "#how-it-works" },
-  { label: "For providers", href: "#providers" },
+  { label: "How it works", href: "/#how-it-works" },
+  { label: "For Pros", href: "/providers" },
   { label: "Sign in", href: "/sign-in" },
 ];
 

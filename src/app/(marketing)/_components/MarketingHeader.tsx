@@ -29,6 +29,18 @@ export function MarketingHeader() {
 
       <nav style={{ display: "flex", alignItems: "center", gap: 18 }}>
         <Link
+          href="/providers"
+          style={{
+            fontFamily: "var(--font-ui)",
+            fontWeight: 500,
+            fontSize: 14,
+            color: "var(--ink-2)",
+            textDecoration: "none",
+          }}
+        >
+          For Pros
+        </Link>
+        <Link
           href="/sign-in"
           style={{
             fontFamily: "var(--font-ui)",
