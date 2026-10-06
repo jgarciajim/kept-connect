@@ -1,0 +1,20 @@
+import type { NextRequest } from "next/server";
+import { getGeocoder } from "@/lib/geo";
+
+/** Resolve a chosen suggestion to coordinates. GET /api/geo/retrieve?ref=&session= */
+export async function GET(req: NextRequest) {
+  const geo = getGeocoder();
+  if (!geo) return Response.json({ disabled: true, result: null }, { status: 200 });
+
+  const sp = req.nextUrl.searchParams;
+  const ref = sp.get("ref") ?? "";
+  const session = sp.get("session") ?? "";
+  if (!ref) return Response.json({ result: null }, { status: 400 });
+
+  try {
+    const result = await geo.retrieve(ref, { session });
+    return Response.json({ result });
+  } catch {
+    return Response.json({ result: null }, { status: 200 });
+  }
+}

@@ -7,7 +7,7 @@
 -- Seeding runs as the table owner (RLS bypassed); assertions run as authenticated.
 -- =============================================================================
 begin;
-select plan(7);
+select plan(9);
 
 insert into public.members (id, clerk_user_id, is_requester, is_provider, display_name) values
   ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa','user_A',true, false,'Ann Req'),
@@ -19,6 +19,10 @@ insert into public.provider_profiles (member_id, online, trades) values
 
 insert into public.properties (member_id, label, address_line, is_default) values
   ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa','Home','14 Birch Lane',true);
+
+-- ===== geocoding columns (address verification) =============================
+select has_column('properties', 'lat', 'properties carries a geocoded latitude');
+select col_default_is('properties', 'address_verified', 'false', 'addresses are unverified until confirmed');
 
 set local role authenticated;
 
