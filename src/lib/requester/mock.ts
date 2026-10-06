@@ -32,6 +32,8 @@ export interface Property {
   label: string;
   addressLine: string;
   isDefault: boolean;
+  lat?: number | null;
+  lng?: number | null;
 }
 
 export interface Request {

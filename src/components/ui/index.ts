@@ -29,6 +29,9 @@ export type { VerifiedCheckProps } from "./VerifiedCheck";
 export { Field } from "./Field";
 export type { FieldProps } from "./Field";
 
+export { AddressField, emptyGeoValue, geoValueFromStored } from "./AddressField";
+export type { AddressFieldProps } from "./AddressField";
+
 // The brand mark is exported from the library too (per task requirement),
 // superseding the placeholder at src/components/KeptConnectLogo.tsx.
 export { KeptConnectLogo } from "./KeptConnectLogo";

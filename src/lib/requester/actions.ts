@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { getGeocoder } from "@/lib/geo";
 
 /**
  * Requester write actions. Each runs as the authenticated member through the
@@ -14,6 +15,50 @@ import { createServerSupabaseClient } from "@/lib/supabase/server";
 async function myMember(sb: Awaited<ReturnType<typeof createServerSupabaseClient>>) {
   const { data } = await sb.from("members").select("id, display_name, is_provider").limit(1).maybeSingle();
   return data as { id: string; display_name: string | null; is_provider: boolean } | null;
+}
+
+/** The structured address a geocoded AddressField emits. */
+export type PropertyGeo = {
+  address: string;
+  lat?: number | null;
+  lng?: number | null;
+  formatted?: string | null;
+  verified?: boolean;
+  placeRef?: string | null;
+};
+
+/**
+ * Coordinates to stamp on a new request so dispatch/ETA/proximity have real
+ * geography: prefer explicit coords from the form (a geocoded AddressField or a
+ * chosen property), else fall back to the member's default property's coords.
+ */
+async function resolveJobCoords(
+  sb: Awaited<ReturnType<typeof createServerSupabaseClient>>,
+  formData: FormData,
+): Promise<{ lat: number | null; lng: number | null }> {
+  const lat = Number(formData.get("locationLat"));
+  const lng = Number(formData.get("locationLng"));
+  if (Number.isFinite(lat) && Number.isFinite(lng) && (lat !== 0 || lng !== 0)) return { lat, lng };
+  const { data } = await sb
+    .from("properties")
+    .select("lat, lng")
+    .order("is_default", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  return { lat: data?.lat ?? null, lng: data?.lng ?? null };
+}
+
+/** Map a PropertyGeo onto the properties geo columns (null coords → unverified text). */
+function geoColumns(geo: PropertyGeo) {
+  const hasCoords = typeof geo.lat === "number" && typeof geo.lng === "number";
+  return {
+    lat: hasCoords ? geo.lat : null,
+    lng: hasCoords ? geo.lng : null,
+    formatted_address: geo.formatted ?? null,
+    geo_provider: hasCoords ? (getGeocoder()?.provider ?? "device") : null,
+    geo_place_ref: geo.placeRef ?? null,
+    address_verified: Boolean(geo.verified),
+  };
 }
 
 /**
@@ -36,6 +81,7 @@ export async function postRequest(formData: FormData): Promise<void> {
   if (!me) redirect("/app");
 
   const title = titleInput || (description ? description.split(/[.\n]/)[0].slice(0, 48) : "New job");
+  const coords = await resolveJobCoords(sb, formData);
   const { data, error } = await sb
     .from("requests")
     .insert({
@@ -48,6 +94,8 @@ export async function postRequest(formData: FormData): Promise<void> {
       title,
       status: "finding",
       location_label: locationLabel,
+      location_lat: coords.lat,
+      location_lng: coords.lng,
       option_slug: optionSlug || null,
     })
     .select("id")
@@ -81,6 +129,7 @@ export async function postInstantJob(formData: FormData): Promise<void> {
     .maybeSingle();
   if (!svc) redirect("/app/book");
 
+  const coords = await resolveJobCoords(sb, formData);
   const { data, error } = await sb
     .from("requests")
     .insert({
@@ -93,6 +142,8 @@ export async function postInstantJob(formData: FormData): Promise<void> {
       dispatch_mode: "instant",
       service_id: serviceId,
       location_label: locationLabel,
+      location_lat: coords.lat,
+      location_lng: coords.lng,
     })
     .select("id")
     .single();
@@ -112,6 +163,11 @@ export async function completeCustomerOnboarding(input: {
   address: string;
   propertyType: string;
   accessNotes: string;
+  lat?: number | null;
+  lng?: number | null;
+  formatted?: string | null;
+  verified?: boolean;
+  placeRef?: string | null;
 }): Promise<void> {
   const sb = await createServerSupabaseClient();
   const me = await myMember(sb);
@@ -130,6 +186,7 @@ export async function completeCustomerOnboarding(input: {
       property_type: input.propertyType.trim() || null,
       access_notes: input.accessNotes.trim() || null,
       is_default: (count ?? 0) === 0,
+      ...geoColumns(input),
     });
   }
   redirect("/app");
@@ -179,8 +236,8 @@ export async function updateMyName(name: string): Promise<void> {
 }
 
 /** Add a saved property. The first one becomes the default. */
-export async function addProperty(label: string, address: string): Promise<void> {
-  const addr = address.trim();
+export async function addProperty(label: string, geo: PropertyGeo): Promise<void> {
+  const addr = geo.address.trim();
   if (!addr) return;
   const sb = await createServerSupabaseClient();
   const me = await myMember(sb);
@@ -191,15 +248,16 @@ export async function addProperty(label: string, address: string): Promise<void>
     label: label.trim() || "Property",
     address_line: addr,
     is_default: (count ?? 0) === 0,
+    ...geoColumns(geo),
   });
   revalidatePath("/app/you");
 }
 
-export async function updateProperty(id: string, label: string, address: string): Promise<void> {
-  const addr = address.trim();
+export async function updateProperty(id: string, label: string, geo: PropertyGeo): Promise<void> {
+  const addr = geo.address.trim();
   if (!addr) return;
   const sb = await createServerSupabaseClient();
-  await sb.from("properties").update({ label: label.trim() || "Property", address_line: addr }).eq("id", id);
+  await sb.from("properties").update({ label: label.trim() || "Property", address_line: addr, ...geoColumns(geo) }).eq("id", id);
   revalidatePath("/app/you");
 }
 

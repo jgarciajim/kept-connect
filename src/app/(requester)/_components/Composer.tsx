@@ -6,7 +6,9 @@ import { getAvailableServices, optionSlug, getServiceOptionLabel } from "@/lib/r
 import { postRequest } from "@/lib/requester/actions";
 import { optionBenchmark, formatUsd } from "@/lib/pricing";
 import { ServiceTile } from "./ServiceTile";
-import { Button, TextField, TextArea, Segmented, PhotoPicker } from "./controls";
+import { Button, TextArea, Segmented, PhotoPicker } from "./controls";
+import { AddressField, emptyGeoValue, geoValueFromStored } from "@/components/ui";
+import type { GeoValue } from "@/lib/geo/types";
 
 /**
  * Composer — the calm single-scroll request form (/app/new). Reads ?service=<slug>
@@ -21,7 +23,13 @@ type Timing = "asap" | "scheduled";
 // (distinct from null = nothing picked yet). Never persisted — maps to no option.
 const SOMETHING_ELSE = "__else__";
 
-export function Composer({ estimates = {} }: { estimates?: Record<string, number> }) {
+export function Composer({
+  estimates = {},
+  defaultProperty,
+}: {
+  estimates?: Record<string, number>;
+  defaultProperty?: { addressLine: string; lat?: number | null; lng?: number | null };
+}) {
   const params = useSearchParams();
 
   // Availability is month-stable, so computing once is safe (no hydration drift).
@@ -44,7 +52,9 @@ export function Composer({ estimates = {} }: { estimates?: Record<string, number
   const [picked, setPicked] = useState<string | null>(null);
   const [description, setDescription] = useState("");
   const [photos, setPhotos] = useState<string[]>([]);
-  const [address, setAddress] = useState("");
+  const [addr, setAddr] = useState<GeoValue>(
+    defaultProperty ? geoValueFromStored(defaultProperty.addressLine, defaultProperty.lat, defaultProperty.lng) : emptyGeoValue(),
+  );
   const [timing, setTiming] = useState<Timing>("asap");
   const [scheduledFor, setScheduledFor] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -58,7 +68,7 @@ export function Composer({ estimates = {} }: { estimates?: Record<string, number
   const realDollars = optionPicked ? estimates[`${slug}:${optionPicked}`] : undefined;
   const estimate = realDollars != null ? Math.round(realDollars * 100) : optionPicked ? optionBenchmark(slug, optionPicked) : null;
   const estimateFromPros = realDollars != null;
-  const valid = Boolean(service && description.trim() && address.trim() && (timing === "asap" || scheduledFor));
+  const valid = Boolean(service && description.trim() && addr.address.trim() && (timing === "asap" || scheduledFor));
 
   async function submit() {
     if (!service || !valid || submitting) return;
@@ -76,7 +86,11 @@ export function Composer({ estimates = {} }: { estimates?: Record<string, number
     if (optionPicked) fd.set("option", optionPicked);
     fd.set("description", description.trim());
     fd.set("urgency", urgency);
-    fd.set("locationLabel", address.trim());
+    fd.set("locationLabel", addr.address.trim());
+    if (addr.lat != null && addr.lng != null) {
+      fd.set("locationLat", String(addr.lat));
+      fd.set("locationLng", String(addr.lng));
+    }
     await postRequest(fd);
   }
 
@@ -128,12 +142,14 @@ export function Composer({ estimates = {} }: { estimates?: Record<string, number
       </Section>
 
       <Section label="Address">
-        <TextField value={address} onChange={setAddress} placeholder="Street address" />
-        <div style={{ marginTop: 8 }}>
-          <Button variant="ghost" onClick={() => setAddress("14 Birch Lane, Breckenridge")}>
-            Use my property
-          </Button>
-        </div>
+        <AddressField value={addr} onChange={setAddr} label="" placeholder="Start typing the job address…" />
+        {defaultProperty && (
+          <div style={{ marginTop: 8 }}>
+            <Button variant="ghost" onClick={() => setAddr(geoValueFromStored(defaultProperty.addressLine, defaultProperty.lat, defaultProperty.lng))}>
+              Use my property
+            </Button>
+          </div>
+        )}
       </Section>
 
       <Section label="When">

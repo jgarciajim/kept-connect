@@ -4,6 +4,8 @@ import { useState, useTransition } from "react";
 import { addProperty, updateProperty, deleteProperty, setDefaultProperty } from "@/lib/requester/actions";
 import type { Property } from "@/lib/requester/mock";
 import { Button, TextField } from "../../_components/controls";
+import { AddressField, emptyGeoValue, geoValueFromStored } from "@/components/ui";
+import type { GeoValue } from "@/lib/geo/types";
 
 /**
  * PropertiesEditor — manage the requester's saved addresses: add, rename, set the
@@ -12,13 +14,13 @@ import { Button, TextField } from "../../_components/controls";
 export function PropertiesEditor({ properties }: { properties: Property[] }) {
   const [adding, setAdding] = useState(false);
   const [label, setLabel] = useState("");
-  const [address, setAddress] = useState("");
+  const [addr, setAddr] = useState<GeoValue>(emptyGeoValue());
   const [pending, start] = useTransition();
 
   const submitNew = () =>
     start(async () => {
-      await addProperty(label, address);
-      setLabel(""); setAddress(""); setAdding(false);
+      await addProperty(label, addr);
+      setLabel(""); setAddr(emptyGeoValue()); setAdding(false);
     });
 
   return (
@@ -30,9 +32,9 @@ export function PropertiesEditor({ properties }: { properties: Property[] }) {
       {adding ? (
         <div style={{ background: "var(--paper)", border: "1px solid var(--hairline)", borderRadius: "var(--r-card)", padding: 14, display: "flex", flexDirection: "column", gap: 8 }}>
           <TextField value={label} onChange={setLabel} placeholder="Label (e.g. Home, Cabin)" />
-          <TextField value={address} onChange={setAddress} placeholder="Street address" />
+          <AddressField value={addr} onChange={setAddr} label="" placeholder="Start typing the address…" />
           <div style={{ display: "flex", gap: 8 }}>
-            <Button variant="primary" disabled={pending} onClick={submitNew}>{pending ? "Saving…" : "Save property"}</Button>
+            <Button variant="primary" disabled={pending || !addr.address.trim()} onClick={submitNew}>{pending ? "Saving…" : "Save property"}</Button>
             <Button variant="ghost" onClick={() => setAdding(false)}>Cancel</Button>
           </div>
         </div>
@@ -54,15 +56,15 @@ function PropertyRow({
 }) {
   const [editing, setEditing] = useState(false);
   const [label, setLabel] = useState(property.label);
-  const [address, setAddress] = useState(property.addressLine);
+  const [addr, setAddr] = useState<GeoValue>(geoValueFromStored(property.addressLine, property.lat, property.lng));
 
   if (editing) {
     return (
       <div style={{ background: "var(--paper)", border: "1px solid var(--hairline)", borderRadius: "var(--r-card)", padding: 14, display: "flex", flexDirection: "column", gap: 8 }}>
         <TextField value={label} onChange={setLabel} placeholder="Label" />
-        <TextField value={address} onChange={setAddress} placeholder="Street address" />
+        <AddressField value={addr} onChange={setAddr} label="" placeholder="Start typing the address…" />
         <div style={{ display: "flex", gap: 8 }}>
-          <Button variant="primary" disabled={pending} onClick={() => start(async () => { await updateProperty(property.id, label, address); setEditing(false); })}>Save</Button>
+          <Button variant="primary" disabled={pending || !addr.address.trim()} onClick={() => start(async () => { await updateProperty(property.id, label, addr); setEditing(false); })}>Save</Button>
           <Button variant="ghost" onClick={() => setEditing(false)}>Cancel</Button>
         </div>
       </div>

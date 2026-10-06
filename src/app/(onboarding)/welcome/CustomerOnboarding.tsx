@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useTransition, type CSSProperties, type ReactNode } from "react";
-import { KeptConnectLogo } from "@/components/ui";
+import { KeptConnectLogo, AddressField, emptyGeoValue } from "@/components/ui";
+import type { GeoValue } from "@/lib/geo/types";
 import { completeCustomerOnboarding } from "@/lib/requester/actions";
 
 /**
@@ -17,17 +18,20 @@ export function CustomerOnboarding({ initialName }: { initialName: string }) {
   const [step, setStep] = useState(0);
   const [name, setName] = useState(initialName);
   const [label, setLabel] = useState("Home");
-  const [address, setAddress] = useState("");
+  const [addr, setAddr] = useState<GeoValue>(emptyGeoValue());
   const [propertyType, setPropertyType] = useState("");
   const [accessNotes, setAccessNotes] = useState("");
   const [pending, start] = useTransition();
 
-  const canContinue = [true, name.trim().length > 0, address.trim().length > 0][step];
+  const canContinue = [true, name.trim().length > 0, addr.address.trim().length > 0][step];
 
   function next() {
     if (!canContinue || pending) return;
     if (step === STEPS.length - 1) {
-      start(() => completeCustomerOnboarding({ name, label, address, propertyType, accessNotes }));
+      start(() => completeCustomerOnboarding({
+        name, label, address: addr.address, propertyType, accessNotes,
+        lat: addr.lat, lng: addr.lng, formatted: addr.formatted, verified: addr.verified, placeRef: addr.ref,
+      }));
       return;
     }
     setStep((s) => s + 1);
@@ -64,7 +68,7 @@ export function CustomerOnboarding({ initialName }: { initialName: string }) {
       {step === 2 && (
         <Step title="Your property" sub="We'll use this as your default address when you post a job. You can add more later.">
           <Field label="Label"><input value={label} onChange={(e) => setLabel(e.target.value)} placeholder="Home" style={input} /></Field>
-          <Field label="Address"><input value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Street, city" style={input} /></Field>
+          <Field label="Address"><AddressField value={addr} onChange={setAddr} label="" placeholder="Start typing your address…" /></Field>
           <Field label="Property type" hint="Optional">
             <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
               {TYPES.map((t) => (

@@ -77,7 +77,7 @@ export async function qRequesterOnboarded(c: SupabaseClient): Promise<boolean> {
 export async function qGetMyProperties(c: SupabaseClient): Promise<Property[]> {
   const { data } = await c
     .from("properties")
-    .select("id, label, address_line, is_default")
+    .select("id, label, address_line, is_default, lat, lng")
     .order("is_default", { ascending: false })
     .order("created_at", { ascending: true });
   return (data ?? []).map((p) => ({
@@ -85,6 +85,8 @@ export async function qGetMyProperties(c: SupabaseClient): Promise<Property[]> {
     label: p.label,
     addressLine: p.address_line,
     isDefault: p.is_default,
+    lat: p.lat,
+    lng: p.lng,
   }));
 }
 
