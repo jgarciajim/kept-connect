@@ -28,9 +28,16 @@ public abuse-hardening, and the full kept-connect→Guildry code rename.
       keep / Customer pays" per flat price (commit `db9505f`).
 - [x] **Starter Pros are live** — seed sets verified + online; they're dispatchable for instant jobs
       in their trades once the tick runs.
-- [ ] **Classification flag (counsel, not tonight):** instant dispatch currently offers at the
-      platform's `services.base_price`, not the Pro's own rate — the dispatch spec §0–2 says the
-      platform must never set the price. Fast-follow: route instant pricing through `provider_rates`.
+- [x] **Classification fix — instant offers now price from the Pro's OWN rate** (migration
+      `20260702090000`, 2026-10-07). Dispatch-spec §0/§2: the platform must never set the price. Offers
+      now read `provider_subjob_rates.amount`, stamp `offers.rate_source='own'` (audit trail, §6), and
+      a `no_rate` ranker gate excludes Pros who haven't priced the job (no platform-price fallback).
+      `services` is mapped to the rate taxonomy (`service_slug`/`option_slug`). Full pgTAP suite green
+      (25 files; dispatch_test now asserts offer pay = Pro's rate, not `base_price`).
+      **FOLLOW-UP (George — product call):** `/app/book` still previews `services.base_price`, which is
+      no longer the offered price. Options: (a) show the estimate range from local Pros' rates
+      (`subjob_price_estimates`, spec §2.2) and hide un-priced services, (b) re-seed `base_price` to the
+      benchmark, (c) drop `base_price` from the UI entirely. Recommend (a).
 - [x] **Scheduled `recompute_eta_calibration()`** (same pg_cron run, nightly 03:00 UTC) — DONE 2026-10-07.
 
 ## Phase 1 — Website & signup (tonight onward)

@@ -11,7 +11,7 @@
 -- seeded ratings actually separate the two.
 -- =============================================================================
 begin;
-select plan(10);
+select plan(13);
 
 -- members: A requester; V1/V2 eligible water providers; W wrong-trade; X offline
 insert into public.members (id, clerk_user_id, is_requester, is_provider) values
@@ -33,8 +33,16 @@ insert into public.provider_profiles (member_id, rating, jobs_done, verified, on
   ('d1111111-1111-1111-1111-111111111111',5.0,40,true,true,  array['structure']::public.category_key[]),  -- wrong trade
   ('d2222222-2222-2222-2222-222222222222',5.0,40,true,false, array['water']::public.category_key[]);       -- offline
 
-insert into public.services (id, category, name, base_price) values
-  ('51111111-1111-1111-1111-111111111111','water','Test fixed job',100.00);
+-- the fixed-price service maps to a sub-job in the provider-rate taxonomy; its
+-- base_price (100) is deliberately DIFFERENT from the pros' own rates below, to
+-- prove the offer is priced from the provider's rate, not this platform number.
+insert into public.services (id, category, name, base_price, service_slug, option_slug) values
+  ('51111111-1111-1111-1111-111111111111','water','Test fixed job',100.00,'plumbing','leak-repair');
+
+-- V1/V2 set their OWN flat rate for the sub-job (required now to be dispatch-eligible).
+insert into public.provider_subjob_rates (member_id, service_slug, option_slug, price_model, amount) values
+  ('c1111111-1111-1111-1111-111111111111','plumbing','leak-repair','flat',150.00),
+  ('c2222222-2222-2222-2222-222222222222','plumbing','leak-repair','flat',175.00);
 
 -- ---- instant Post fires the trigger → one offer to the best eligible provider --
 insert into public.requests (id, requester_id, category, title, status, dispatch_mode, service_id) values
@@ -45,6 +53,10 @@ select is((select count(*) from public.offers where request_id='11111111-1111-11
 select is((select provider_id from public.offers where request_id='11111111-1111-1111-1111-111111111111'),
   'c1111111-1111-1111-1111-111111111111'::uuid,
   'offered to V1 first (eligible, highest rating)');
+select is((select pay from public.offers where request_id='11111111-1111-1111-1111-111111111111'),
+  150.00, 'the offer is priced at V1''s OWN rate (150), not services.base_price (100)');
+select is((select rate_source from public.offers where request_id='11111111-1111-1111-1111-111111111111'),
+  'own', 'the offer records rate_source=own (classification audit trail)');
 
 -- ---- quote-mode request gets NO auto-offer -----------------------------------
 insert into public.requests (id, requester_id, category, title, status, dispatch_mode) values
@@ -64,6 +76,8 @@ select is((select count(*) from public.offers where request_id='11111111-1111-11
 select is((select provider_id from public.offers where request_id='11111111-1111-1111-1111-111111111111' and status='pending'),
   'c2222222-2222-2222-2222-222222222222'::uuid,
   'the live offer is now to V2');
+select is((select pay from public.offers where request_id='11111111-1111-1111-1111-111111111111' and status='pending'),
+  175.00, 'the advanced offer uses V2''s own rate (175), not a platform price');
 
 -- ---- ineligible providers are never offered ----------------------------------
 select is((select count(*) from public.offers where provider_id='d1111111-1111-1111-1111-111111111111')::int, 0,
