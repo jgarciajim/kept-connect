@@ -114,16 +114,28 @@ export async function qGetReviewsAboutMe(c: SupabaseClient): Promise<Review[]> {
 export async function qGetInstantServices(c: SupabaseClient): Promise<InstantService[]> {
   const { data } = await c
     .from("services")
-    .select("id, category, name, base_price")
+    .select("id, category, name, service_slug, option_slug")
     .eq("active", true)
     .order("category", { ascending: true })
-    .order("base_price", { ascending: true });
-  return (data ?? []).map((s) => ({
-    id: s.id,
-    category: (s.category ?? "fixtures") as CategoryKey,
-    name: s.name,
-    price: money(s.base_price) ?? "0.00",
-  }));
+    .order("name", { ascending: true });
+  // The "typical" pre-book price is the MEDIAN of local Pros' own flat rates for
+  // the sub-job (never a platform number). Pros without a rate ⇒ no estimate ⇒ the
+  // service is hidden by the caller. Exact price is the matched Pro's rate at accept.
+  const { data: est } = await c.rpc("subjob_price_estimates");
+  const estMap = new Map<string, { mid: number; n: number }>();
+  for (const r of (est ?? []) as { service_slug: string; option_slug: string; mid: number; n: number }[]) {
+    estMap.set(`${r.service_slug}:${r.option_slug}`, { mid: Number(r.mid), n: Number(r.n) });
+  }
+  return (data ?? []).map((s) => {
+    const e = s.service_slug && s.option_slug ? estMap.get(`${s.service_slug}:${s.option_slug}`) : undefined;
+    return {
+      id: s.id,
+      category: (s.category ?? "fixtures") as CategoryKey,
+      name: s.name,
+      estimate: e ? money(e.mid) ?? null : null,
+      providerCount: e?.n ?? 0,
+    };
+  });
 }
 
 // ---- sub-job price estimates (real provider pricing, aggregated) ------------

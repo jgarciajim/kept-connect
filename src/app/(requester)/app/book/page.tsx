@@ -13,12 +13,16 @@ export default async function BookScreen() {
   const [services, properties] = await Promise.all([getInstantServices(), getMyProperties()]);
   const defaultAddress = properties.find((p) => p.isDefault)?.addressLine ?? properties[0]?.addressLine ?? "";
 
+  // Only surface jobs a local Pro has actually priced — an unpriced job can't
+  // dispatch (the ranker gates it), so booking it would just hang on "finding".
+  const bookable = services.filter((s) => s.providerCount > 0);
+
   // Group by category so the --cat-* colors cluster, like the Services screen.
-  const families = Array.from(new Set(services.map((s) => s.category)));
+  const families = Array.from(new Set(bookable.map((s) => s.category)));
   const groups = families.map((family) => ({
     family,
     label: CATEGORIES[family].label,
-    items: services.filter((s) => s.category === family),
+    items: bookable.filter((s) => s.category === family),
   }));
 
   return (
@@ -27,11 +31,11 @@ export default async function BookScreen() {
 
       <main style={{ flex: 1, overflowY: "auto", padding: "4px 16px 92px" }}>
         <p style={{ fontSize: 13, color: "var(--ink-2)", fontFamily: "var(--font-ui)", margin: "2px 2px 18px" }}>
-          Fixed-price jobs, matched in minutes. Tap to book — we offer it to the nearest available pro at the set
-          rate. You pay on completion.
+          Matched in minutes. Tap to book — we offer it to the nearest available Pro at their own rate. You&rsquo;ll
+          see the exact price to accept before anything is booked, and you pay on completion.
         </p>
 
-        {services.length === 0 ? (
+        {bookable.length === 0 ? (
           <p style={{ fontSize: 13, color: "var(--ink-3)", fontFamily: "var(--font-ui)", margin: "0 2px" }}>
             No instant jobs available in your area yet.
           </p>
@@ -71,7 +75,13 @@ function ServiceRow({ service, address }: { service: InstantService; address: st
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ fontSize: 14.5, fontWeight: 500, color: "var(--ink)", fontFamily: "var(--font-ui)" }}>{service.name}</div>
         <div style={{ fontSize: 12, color: "var(--ink-3)", fontFamily: "var(--font-ui)", marginTop: 1 }}>
-          <span style={{ fontVariantNumeric: "tabular-nums", color: "var(--ink-2)" }}>${service.price}</span> · set rate
+          {service.estimate ? (
+            <>
+              <span style={{ fontVariantNumeric: "tabular-nums", color: "var(--ink-2)" }}>~${service.estimate}</span> · typical, set by your Pro
+            </>
+          ) : (
+            "Priced by your Pro"
+          )}
         </div>
       </div>
       <button

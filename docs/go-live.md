@@ -34,10 +34,12 @@ public abuse-hardening, and the full kept-connect→Guildry code rename.
       a `no_rate` ranker gate excludes Pros who haven't priced the job (no platform-price fallback).
       `services` is mapped to the rate taxonomy (`service_slug`/`option_slug`). Full pgTAP suite green
       (25 files; dispatch_test now asserts offer pay = Pro's rate, not `base_price`).
-      **FOLLOW-UP (George — product call):** `/app/book` still previews `services.base_price`, which is
-      no longer the offered price. Options: (a) show the estimate range from local Pros' rates
-      (`subjob_price_estimates`, spec §2.2) and hide un-priced services, (b) re-seed `base_price` to the
-      benchmark, (c) drop `base_price` from the UI entirely. Recommend (a).
+      **Booking UI updated** (2026-10-07): `/app/book` now previews the MEDIAN ("typical") of local Pros'
+      own rates via `subjob_price_estimates` — a single number, not a range (a range anchors low, so a
+      higher match reads as a markup; median is fairer and robust to outliers). Services no Pro has
+      priced are hidden (they can't dispatch). Copy reframed: "at their own rate · you'll see the exact
+      price to accept." `base_price` is now unused by the UI (kept on the table as a legacy/benchmark
+      column).
 - [x] **Scheduled `recompute_eta_calibration()`** (same pg_cron run, nightly 03:00 UTC) — DONE 2026-10-07.
 
 ## Phase 1 — Website & signup (tonight onward)

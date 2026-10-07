@@ -129,7 +129,8 @@ export interface InstantService {
   id: string;
   category: CategoryKey;
   name: string;
-  price: string; // dollars, tabular
+  estimate: string | null; // dollars — median ("typical") of local Pros' own rates; null if none priced
+  providerCount: number;   // how many Pros have priced it (0 ⇒ not bookable yet, hidden)
 }
 
 /** A row in the requester's Messages list (one per job thread). */
