@@ -44,8 +44,13 @@ public abuse-hardening, and the full kept-connect→Guildry code rename.
       meta is intentional (it enumerates kinds of Customers). Dev-only `/styleguide` left as-is.
 
 ## Phase 2 — Backend correctness for a faithful test
-- [ ] **Admin approval flow** usable (`/work/admin`) — Pros submit → we approve → live. Confirm it
-      works against hosted for the starter Pros.
+- [x] **Admin approval flow** verified — full path proven by pgTAP against local
+      (`provider_verification_test` 12/12, `verified_gate_test` 8/8): Pro self-submits → only an admin
+      can approve/reject → approval flips `provider_profiles.verified` → the Pro then sees requests,
+      can offer, and is dispatch-eligible. UI is wired (`/work/admin` + `/work/you` gate on
+      `isCurrentMemberAdmin()`; queue shows signed doc links). **One manual step (George):** no member
+      is an admin yet — run `supabase/scripts/grant-admin.sql` once in the hosted SQL Editor to flag
+      your own member row `is_admin = true`, or `/work/admin` shows "Not authorized".
 - [ ] **Env-gate the demo seed data** (`seed_catalog`, `seed_starter_rates`, dispatch `services`) so
       test data is intentional, not auto-injected. DESIGN CALL pending (George): these are migrations,
       so they run on every environment incl. a future prod. Options: (a) GUC guard
