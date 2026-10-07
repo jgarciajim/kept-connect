@@ -15,8 +15,9 @@ public abuse-hardening, and the full kept-connect→Guildry code rename.
 ---
 
 ## Phase 0 — Make the core loop actually run (tonight / this week)
-- [ ] **Schedule `dispatch_tick()`** on hosted (pg_cron). Today nothing sweeps the 45s offer timer,
-      so offers never expire and stalled rounds never advance. THE functional blocker. (~1-min sweep.)
+- [x] **Scheduled `dispatch_tick()`** on hosted (pg_cron) — DONE 2026-10-07, verified firing every
+      minute (`cron.job_run_details` shows successive succeeded runs). The 45s offer timer now sweeps;
+      stalled rounds advance. Core match loop is live on hosted.
 - [x] **Pricing source material is in the repo already** — `docs/kept-pricing-seed.json` (94 services,
       12 categories, mountain config, Connect fee config); the engine `src/lib/pricing/` consumes it
       (`calc.ts` mountainPrice/rateCard, 15 tests green). Nothing was missing — it's JSON, not .xlsx.
@@ -30,7 +31,7 @@ public abuse-hardening, and the full kept-connect→Guildry code rename.
 - [ ] **Classification flag (counsel, not tonight):** instant dispatch currently offers at the
       platform's `services.base_price`, not the Pro's own rate — the dispatch spec §0–2 says the
       platform must never set the price. Fast-follow: route instant pricing through `provider_rates`.
-- [ ] **Schedule `recompute_eta_calibration()`** (same pg_cron handoff; low priority, daily).
+- [x] **Scheduled `recompute_eta_calibration()`** (same pg_cron run, nightly 03:00 UTC) — DONE 2026-10-07.
 
 ## Phase 1 — Website & signup (tonight onward)
 - [x] **Pros landing page** (`/providers`, "for Pros") — pitch + "Start earning" → sign-up → the
