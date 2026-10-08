@@ -49,7 +49,7 @@ export function CustomerOnboarding({ initialName }: { initialName: string }) {
       </div>
 
       {step === 0 && (
-        <Step title="Welcome to Kept" sub="The easiest way to get things done at your property.">
+        <Step title="Welcome to Guildry" sub="The easiest way to get things done at your property.">
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
             <How n="1" title="Post what you need" body="Tell us the job — plumbing, handyman, snow, cleaning, anything." />
             <How n="2" title="Get matched with a vetted pro" body="We send it to verified local pros. No bidding wars." />
@@ -93,7 +93,7 @@ export function CustomerOnboarding({ initialName }: { initialName: string }) {
         )}
         <button type="button" onClick={next} disabled={!canContinue || pending}
           style={{ flex: 1, borderRadius: 14, padding: 15, fontSize: 15, fontWeight: 600, background: "var(--terracotta)", color: "var(--cream)", border: "none", cursor: !canContinue || pending ? "not-allowed" : "pointer", opacity: !canContinue || pending ? 0.5 : 1, fontFamily: "var(--font-ui)" }}>
-          {step === STEPS.length - 1 ? (pending ? "Setting up…" : "Start using Kept") : step === 0 ? "Get started" : "Continue"}
+          {step === STEPS.length - 1 ? (pending ? "Setting up…" : "Start using Guildry") : step === 0 ? "Get started" : "Continue"}
         </button>
       </div>
     </div>

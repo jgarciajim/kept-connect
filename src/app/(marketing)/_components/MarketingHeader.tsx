@@ -23,7 +23,7 @@ export function MarketingHeader() {
         borderBottom: "1px solid var(--hairline)",
       }}
     >
-      <Link href="/" aria-label="Kept Connect home" style={{ display: "inline-flex" }}>
+      <Link href="/" aria-label="Guildry home" style={{ display: "inline-flex" }}>
         <KeptConnectLogo variant="lockup" treatment="on-light" size={28} />
       </Link>
 

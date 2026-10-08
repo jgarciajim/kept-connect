@@ -3,7 +3,7 @@ import { CategoryIcon, CATEGORIES, Card, type CategoryKey } from "@/components/u
 import { ButtonLink } from "../_components/ButtonLink";
 
 export const metadata: Metadata = {
-  title: "Kept Connect for Pros — work that comes to you",
+  title: "Guildry for Pros — work that comes to you",
   description:
     "Set your own rates, accept the jobs you want, and get paid the day the work is done. Sign up on your computer or finish in the app.",
 };

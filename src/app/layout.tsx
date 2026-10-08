@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Kept Connect",
+  title: "Guildry",
   description: "Connecting Customers — homeowners, renters, property managers, and businesses — with trusted local Pros.",
 };
 

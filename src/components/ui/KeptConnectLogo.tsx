@@ -106,8 +106,7 @@ export function KeptConnectLogo({
           whiteSpace: "nowrap",
         }}
       >
-        Kept <span style={{ fontWeight: 400 }}>Connect</span>
-        <span style={{ color: "var(--terracotta)" }}>.</span>
+        Guildry<span style={{ color: "var(--terracotta)" }}>.</span>
       </span>
     </span>
   );

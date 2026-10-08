@@ -142,7 +142,7 @@ export function OnboardingWizard({
           <DocField label="Government ID / driver's license" hint="Photo or PDF" path={idDocPath} busy={uploading === "id"} onPick={(f) => pickDoc(f, "id", setIdDocPath)} />
           <label style={consentRow}>
             <input type="checkbox" checked={bgConsent} onChange={(e) => setBgConsent(e.target.checked)} style={{ marginTop: 2, accentColor: "var(--terracotta-bright)" }} />
-            <span style={consentText}>I consent to a background check and ID verification as part of joining Kept Connect.</span>
+            <span style={consentText}>I consent to a background check and ID verification as part of joining Guildry.</span>
           </label>
         </Step>
       )}

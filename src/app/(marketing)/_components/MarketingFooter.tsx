@@ -58,7 +58,7 @@ export function MarketingFooter() {
             ))}
           </nav>
           <p style={{ fontFamily: "var(--font-ui)", fontSize: 12, color: "var(--ink-3)", margin: 0 }}>
-            © 2026 Kept Connect
+            © 2026 Guildry
           </p>
         </div>
       </div>

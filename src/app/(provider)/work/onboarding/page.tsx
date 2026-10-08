@@ -30,7 +30,7 @@ export default async function OnboardingScreen() {
   return (
     <main style={{ flex: 1, overflowY: "auto", padding: "16px 16px 28px" }}>
       <h1 style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 26, margin: "6px 2px 6px", color: "var(--chrome-cream)", letterSpacing: "-0.015em" }}>
-        Join Kept Connect<span style={{ color: "var(--terracotta-bright)" }}>.</span>
+        Join Guildry<span style={{ color: "var(--terracotta-bright)" }}>.</span>
       </h1>
       <p style={{ fontSize: 13.5, color: "var(--chrome-dim)", margin: "0 2px 20px", fontFamily: "var(--font-ui)", lineHeight: 1.45 }}>
         Get verified and set your services & prices. You go live once we approve you.

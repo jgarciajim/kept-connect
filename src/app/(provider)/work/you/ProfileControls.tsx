@@ -25,7 +25,7 @@ export function ProfileControls({ self }: { self: ProviderSelf }) {
           <div style={{ display: "flex", alignItems: "center", gap: 5, marginTop: 4, fontSize: 13, color: "var(--chrome-dim)", fontFamily: "var(--font-ui)" }}>
             <span style={{ color: "var(--terracotta-bright)", display: "flex" }}><PIconStar size={13} /></span>
             <span style={{ fontWeight: 500, color: "var(--chrome-cream)", fontVariantNumeric: "tabular-nums" }}>{self.rating}</span>
-            <span>· {self.jobsDone} jobs · {self.yearsOnKept} yr on Kept</span>
+            <span>· {self.jobsDone} jobs · {self.yearsOnKept} yr on Guildry</span>
           </div>
         </div>
       </div>

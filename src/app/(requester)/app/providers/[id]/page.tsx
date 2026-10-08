@@ -55,7 +55,7 @@ export default async function ProfileScreen({
             <Divider />
             <Stat value={provider.rating.toFixed(1)} label="Rating" />
             <Divider />
-            <Stat value={`${provider.yearsOnKept} yr`} label="On Kept" />
+            <Stat value={`${provider.yearsOnKept} yr`} label="On Guildry" />
           </Card>
 
           <Section label="Verified credentials">
