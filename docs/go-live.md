@@ -78,7 +78,11 @@ public abuse-hardening, and the full kept-connect→Guildry code rename.
 - [ ] Real **Stripe Connect** (authorize/capture + Express payouts + webhook reconciliation).
 - [ ] Real **vetting** (Checkr background + Stripe Identity) replacing manual admin approval.
 - [ ] **Transactional email/SMS** (offers, awards, approvals) — pick a provider (Resend/Postmark).
-- [ ] **kept-connect → Guildry** rename sweep (titles, logo, footer, onboarding copy).
+- [x] **kept-connect → Guildry** — user-facing copy sweep done (commit `02247a1`): logo wordmark,
+      page/meta titles, marketing footer + header, Pro + Customer onboarding, profile "On Guildry"
+      stats. Remaining (deliberately descoped code rename, not needed for the test): repo/package name,
+      DB columns (`years_on_kept`), the `KeptConnectLogo` component name, code comments, and the
+      unreferenced `public/brand/*.svg` assets.
 - [ ] Public-beta hardening (abuse guards, rate limits, open signup).
 
 ---
