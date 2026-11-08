@@ -6,6 +6,8 @@ import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { benchmarkMidpoint, BENCHMARK_VERSION } from "@/lib/pricing";
 import { vettingAdapter } from "@/lib/vetting";
 import { SERVICES } from "@/lib/requester/services";
+import { notifyMember } from "@/lib/email/notify";
+import { proMatched } from "@/lib/email/templates";
 
 export type PriceModelInput = "flat" | "per_unit" | "tiered" | "quote";
 type RateInput = { serviceSlug: string; optionSlug: string; model: PriceModelInput; amount: number | null; unit: string | null; tiers?: Array<{ label: string; amount: number }> };
@@ -55,7 +57,21 @@ async function myMemberId(sb: Awaited<ReturnType<typeof createServerSupabaseClie
 /** Accept a round-robin offer at the set rate → grants + awards the job. */
 export async function acceptOffer(offerId: string): Promise<void> {
   const sb = await createServerSupabaseClient();
+  const { data: offer } = await sb.from("offers").select("request_id").eq("id", offerId).maybeSingle();
   await sb.rpc("accept_offer", { p_offer_id: offerId });
+
+  // Email the customer that a Pro accepted and is on the way.
+  if (offer?.request_id) {
+    const { data: req } = await sb
+      .from("requests")
+      .select("requester_id, title")
+      .eq("id", offer.request_id)
+      .maybeSingle();
+    if (req?.requester_id) {
+      await notifyMember(sb, req.requester_id, (name) => proMatched(name, req.title ?? "your job"));
+    }
+  }
+
   redirect("/work/jobs/active");
 }
 

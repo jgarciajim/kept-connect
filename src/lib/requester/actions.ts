@@ -4,6 +4,8 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { getGeocoder } from "@/lib/geo";
+import { notifyMember } from "@/lib/email/notify";
+import { jobAwarded } from "@/lib/email/templates";
 
 /**
  * Requester write actions. Each runs as the authenticated member through the
@@ -197,7 +199,17 @@ export async function awardQuote(formData: FormData): Promise<void> {
   const quoteId = String(formData.get("quoteId") || "");
   const requestId = String(formData.get("requestId") || "");
   const sb = await createServerSupabaseClient();
+  const { data: q } = await sb.from("quotes").select("provider_id, price").eq("id", quoteId).maybeSingle();
   await sb.rpc("award_quote", { p_quote_id: quoteId });
+
+  // Email the winning Pro that they got the job.
+  if (q?.provider_id) {
+    const { data: req } = await sb.from("requests").select("title").eq("id", requestId).maybeSingle();
+    await notifyMember(sb, q.provider_id, (name) =>
+      jobAwarded(name, req?.title ?? "your job", q.price ? Number(q.price).toFixed(2) : ""),
+    );
+  }
+
   redirect(`/app/jobs/${requestId}/track`);
 }
 

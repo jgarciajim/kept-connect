@@ -84,7 +84,16 @@ public abuse-hardening, and the full kept-connect→Guildry code rename.
 ## Phase 3 — Fast-follows (after the test proves the loop)
 - [ ] Real **Stripe Connect** (authorize/capture + Express payouts + webhook reconciliation).
 - [ ] Real **vetting** (Checkr background + Stripe Identity) replacing manual admin approval.
-- [ ] **Transactional email/SMS** (offers, awards, approvals) — pick a provider (Resend/Postmark).
+- [~] **Transactional email** — app-layer events SHIPPED 2026-11-07 (Resend adapter `src/lib/email`,
+      no-SDK fetch, no-op without key, failures never break the action). Emails on: verification
+      approved/rejected (→Pro), quote awarded (→winning Pro, both `award_quote` + `payAndAward`),
+      instant offer accepted (→Customer), payment released (→Customer receipt). Recipient email comes
+      from Clerk via the authorization-gated `member_clerk_id` RPC (migration `20261107120000`, on
+      hosted). **BLOCKER to real delivery:** verify a sending domain in the Resend account —
+      `breckhousekeeping.com` is NOT yet verified there (test send 403'd; the `onboarding@resend.dev`
+      test sender works but only to the account owner). Add the DNS records at resend.com/domains, then
+      delivery is live with zero code change. Remaining fast-follows: the DB-origin **offer-to-Pro**
+      email (new offer dispatched by cron/trigger — needs a DB→app bridge) and **SMS** (Twilio).
 - [x] **kept-connect → Guildry** — user-facing copy sweep done (commit `02247a1`): logo wordmark,
       page/meta titles, marketing footer + header, Pro + Customer onboarding, profile "On Guildry"
       stats. Remaining (deliberately descoped code rename, not needed for the test): repo/package name,
