@@ -17,49 +17,12 @@
 alter table public.reviews alter column request_id drop not null;
 
 -- ----------------------------------------------------------------------------
--- Public catalog (fixed UUIDs; placeholder clerk ids that can never be a real sub)
+-- Public catalog data (synthetic Pros + reviewer members + public reviews) MOVED
+-- to supabase/seed.sql so it loads on local `db reset` but is NEVER shipped by
+-- `db push`. See seed.sql for the rows and docs/go-live.md Phase 2 for the why.
+-- The seed_demo_for / seed_demo_provider_for helpers below are opt-in (a dev calls
+-- them by hand), so defining them injects nothing and they stay in the migration.
 -- ----------------------------------------------------------------------------
-insert into public.members (id, clerk_user_id, is_provider, display_name) values
-  ('10000000-0000-0000-0000-000000000001','seed_provider_marco', true,'Marco Reyes'),
-  ('10000000-0000-0000-0000-000000000002','seed_provider_summit',true,'Summit Drywall'),
-  ('10000000-0000-0000-0000-000000000003','seed_provider_vega',  true,'A. Vega Finishes'),
-  ('10000000-0000-0000-0000-000000000004','seed_provider_peak',  true,'Peak Interiors')
-on conflict (id) do nothing;
-
--- reviewer members (the authors shown on profiles)
-insert into public.members (id, clerk_user_id, is_requester, display_name) values
-  ('20000000-0000-0000-0000-000000000001','seed_reviewer_priya', true,'Priya N.'),
-  ('20000000-0000-0000-0000-000000000002','seed_reviewer_theo',  true,'Theo V.'),
-  ('20000000-0000-0000-0000-000000000003','seed_reviewer_dana',  true,'Dana L.'),
-  ('20000000-0000-0000-0000-000000000004','seed_reviewer_marcus',true,'Marcus B.')
-on conflict (id) do nothing;
-
-insert into public.provider_profiles
-  (member_id, display_name, rating, jobs_done, years_on_kept, verified, online, credentials, trades, trade_labels) values
-  ('10000000-0000-0000-0000-000000000001','Marco Reyes',4.9,212,4,true,true,
-   array['Licensed','Insured','Background checked'], array['water']::public.category_key[], array['Plumbing','Drains','Water heater']),
-  ('10000000-0000-0000-0000-000000000002','Summit Drywall',4.9,128,5,true,false,
-   array['Licensed','Insured','Background checked'], array['structure']::public.category_key[], array['Drywall','Plaster','Texture & finish']),
-  ('10000000-0000-0000-0000-000000000003','A. Vega Finishes',4.8,74,3,true,false,
-   array['Licensed','Background checked'], array['structure','surfaces']::public.category_key[], array['Drywall','Painting']),
-  ('10000000-0000-0000-0000-000000000004','Peak Interiors',5.0,41,2,true,false,
-   array['Insured'], array['structure']::public.category_key[], array['Drywall','Carpentry'])
-on conflict (member_id) do nothing;
-
-insert into public.provider_wallets (member_id, available_to_cashout, week_total, week_jobs) values
-  ('10000000-0000-0000-0000-000000000001',340.00,3180.00,14)
-on conflict (member_id) do nothing;
-
--- provider-subject reviews (public trust content; null request_id = imported)
-insert into public.reviews (request_id, author_id, author_name, subject_id, subject_role, stars, body, created_at) values
-  (null,'20000000-0000-0000-0000-000000000001','Priya N.','10000000-0000-0000-0000-000000000001','provider',5,
-   'Fixed a stubborn leak fast and left the cabinet cleaner than he found it. Walked me through what went wrong.', now() - interval '14 days'),
-  (null,'20000000-0000-0000-0000-000000000002','Theo V.','10000000-0000-0000-0000-000000000001','provider',5,
-   'On time, clear quote, no upsell. Exactly what you want when a stranger is in your home.', now() - interval '30 days'),
-  (null,'20000000-0000-0000-0000-000000000003','Dana L.','10000000-0000-0000-0000-000000000002','provider',5,
-   'Patched a ceiling so well you can''t tell where the damage was. Tidy and careful.', now() - interval '21 days'),
-  (null,'20000000-0000-0000-0000-000000000004','Marcus B.','10000000-0000-0000-0000-000000000002','provider',5,
-   'Clear sealed quote, started when they said, cleaned up after. No surprises.', now() - interval '30 days');
 
 -- ----------------------------------------------------------------------------
 -- seed_demo_for(sub) — materialize the requester mock fixture on a real account.

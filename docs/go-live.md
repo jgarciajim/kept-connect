@@ -61,12 +61,19 @@ public abuse-hardening, and the full kept-connect→Guildry code rename.
       `isCurrentMemberAdmin()`; queue shows signed doc links). **One manual step (George):** no member
       is an admin yet — run `supabase/scripts/grant-admin.sql` once in the hosted SQL Editor to flag
       your own member row `is_admin = true`, or `/work/admin` shows "Not authorized".
-- [ ] **Env-gate the demo seed data** (`seed_catalog`, `seed_starter_rates`, dispatch `services`) so
-      test data is intentional, not auto-injected. DESIGN CALL pending (George): these are migrations,
-      so they run on every environment incl. a future prod. Options: (a) GUC guard
-      `current_setting('app.seed_demo', true)`, (b) move to `supabase/seed.sql` (runs on local
-      `db reset`, not `db push`), (c) explicit drop-before-prod. Recommend (a) — smallest diff, keeps
-      local+pgTAP working. Not done unattended on purpose.
+- [x] **Env-gate the demo seed data** — DONE 2026-11-07. All demo/test rows (public catalog + the 4
+      starter Pros, their reviews/wallet, the instant `services` catalog, and the starter sub-job rates)
+      moved out of the migrations into **`supabase/seed.sql`**. `config.toml` already wires
+      `[db.seed] sql_paths = ["./seed.sql"]`, so it loads on local `supabase db reset` but is **never
+      run by `db push`** — a fresh prod gets schema + functions only, no auto-injected demo data. The
+      three migrations are now schema/function-only (kept as no-ops so hosted's applied-migration history
+      stays intact); `services` rows are seeded with `service_slug`/`option_slug` baked in (the mapping
+      from `20260702090000`), so the from-scratch order is correct. The opt-in `seed_demo_for` /
+      `seed_demo_provider_for` helpers stay in the migration (defining them injects nothing). Verified:
+      `seed.sql` runs clean against the real schema, reproduces the exact data (8 services / 7 slugged,
+      4 Pros, 24 rates, book medians $560/$280/$280/$420), full pgTAP suite green (25 files, 0 failures).
+      The current hosted TEST project already holds these rows, so no re-seed needed there; to seed a
+      fresh env on purpose: `psql "$DATABASE_URL" -f supabase/seed.sql`.
 - [x] **`.env.example`** — now tracked (`!.env.example` opt-in); has `MAPBOX_TOKEN`, `GEO_PROVIDER`,
       and the scheduler + service-role-key notes. (commit `f7e8f6b`)
 - [x] **mock.ts audit** — both `src/lib/{provider,requester}/mock.ts` are real data layers now

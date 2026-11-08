@@ -42,17 +42,10 @@ alter table public.requests
   add column service_id    uuid references public.services(id);
 
 -- ----------------------------------------------------------------------------
--- Seed the fixed-price catalog (demo data — env-gate before launch).
+-- Fixed-price catalog rows MOVED to supabase/seed.sql (loads on local `db reset`,
+-- never shipped by `db push`). The seed inserts them with service_slug/option_slug
+-- already populated (the mapping added in 20260702090000). See docs/go-live.md.
 -- ----------------------------------------------------------------------------
-insert into public.services (category, name, base_price) values
-  ('water',   'Replace toilet valve',      95.00),
-  ('water',   'Replace toilet',           260.00),
-  ('water',   'Install garbage disposal', 180.00),
-  ('water',   'Swap a faucet',            140.00),
-  ('power',   'Install an outlet',        120.00),
-  ('power',   'Swap a light fixture',     110.00),
-  ('climate', 'Replace a thermostat',     130.00),
-  ('care',    'Standard home cleaning',   150.00);
 
 -- ----------------------------------------------------------------------------
 -- Pick the next eligible provider for a request, or null:
