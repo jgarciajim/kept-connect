@@ -1,34 +1,55 @@
-import type { CSSProperties } from "react";
+import { useId, type CSSProperties } from "react";
+import { G_PATH, KEY_POINTS, MIN_DETAIL_PX, SEAM_PATH, SLASH_PATH } from "./guildryMark";
 
 /**
- * Kept Connect mark — the "K-link" dispatch fan-out. A geometric K whose three
- * arms fire from the vertex into chevron arrowheads: one request dispatched to
- * many providers. Locked geometry (viewBox 0 0 120 120) — do not redraw.
+ * Guildry mark — "The Join" (see ./guildryMark.ts for the geometry and story).
+ * The butterfly key is painted --guild-key only where the mark is terracotta;
+ * everywhere else it is a cutout, so the mark always works in one color.
  */
-function Mark({ stroke }: { stroke: string }) {
+function Mark({
+  color,
+  keyColor,
+  detail,
+  maskId,
+  transform,
+}: {
+  color: string;
+  keyColor?: string;
+  detail: boolean;
+  maskId: string;
+  transform: string;
+}) {
   return (
-    <>
-      <g fill="none" stroke={stroke} strokeWidth={9.5} strokeLinecap="round" strokeLinejoin="round">
-        <path d="M38 30 V90" />
-        <path d="M38 60 L82 36" />
-        <path d="M38 60 L86 60" />
-        <path d="M38 60 L82 84" />
-      </g>
-      <g fill="none" stroke={stroke} strokeWidth={8.5} strokeLinecap="round" strokeLinejoin="round">
-        <path d="M77.45 46.46 L82 36 L70.75 34.16" />
-        <path d="M77 67 L86 60 L77 53" />
-        <path d="M77.45 73.54 L82 84 L70.75 85.84" />
-      </g>
-    </>
+    <g transform={transform}>
+      {detail && (
+        <defs>
+          <mask id={maskId} maskUnits="userSpaceOnUse" x="-20" y="-20" width="160" height="160">
+            <rect x="-20" y="-20" width="160" height="160" fill="#fff" />
+            <path d={SEAM_PATH} fill="none" stroke="#000" strokeWidth={2.6} />
+            <polygon points={KEY_POINTS} fill="none" stroke="#000" strokeWidth={2.6} strokeLinejoin="round" />
+            <path d={SLASH_PATH} fill="none" stroke="#000" strokeWidth={3.2} />
+          </mask>
+        </defs>
+      )}
+      <path
+        d={G_PATH}
+        fill={color}
+        stroke={color}
+        strokeWidth={5}
+        strokeLinejoin="round"
+        mask={detail ? `url(#${maskId})` : undefined}
+      />
+      {detail && keyColor && <polygon points={KEY_POINTS} fill={keyColor} />}
+    </g>
   );
 }
 
 export type LogoTreatment = "app-icon" | "on-light" | "on-chrome" | "mono" | "reversed" | "blue";
 
-const TREATMENTS: Record<LogoTreatment, { block: string; mark: string }> = {
+const TREATMENTS: Record<LogoTreatment, { block: string; mark: string; key?: string }> = {
   "app-icon":  { block: "var(--terracotta-deep)", mark: "var(--cream)" },
-  "on-light":  { block: "none",                   mark: "var(--terracotta)" },
-  "on-chrome": { block: "var(--chrome)",          mark: "var(--cream)" },
+  "on-light":  { block: "none",                   mark: "var(--terracotta)", key: "var(--guild-key)" },
+  "on-chrome": { block: "var(--chrome)",          mark: "var(--terracotta-bright)" },
   "mono":      { block: "none",                   mark: "var(--ink)" },
   "reversed":  { block: "none",                   mark: "var(--cream)" },
   "blue":      { block: "var(--blue)",            mark: "var(--blue-ink)" },
@@ -54,6 +75,9 @@ export function KeptConnectLogo({
   const t = TREATMENTS[treatment];
   const hasBlock = t.block !== "none";
   const radius = Math.round(size * 0.27); // squircle ≈ rx32/120
+  const maskId = `guildry-key-${useId().replace(/[^a-zA-Z0-9_-]/g, "")}`;
+  // Fit the mark (painted extent ≈ -2.5…122.5) inside the 108 block, or near-full-bleed without one.
+  const transform = hasBlock ? "translate(26.4 27) scale(0.56)" : "translate(6 7) scale(0.9)";
 
   const markSvg = (
     <svg
@@ -64,7 +88,13 @@ export function KeptConnectLogo({
       aria-hidden="true"
     >
       {hasBlock && <rect x="6" y="6" width="108" height="108" rx="32" fill={t.block} />}
-      <Mark stroke={t.mark} />
+      <Mark
+        color={t.mark}
+        keyColor={t.key}
+        detail={size >= MIN_DETAIL_PX}
+        maskId={maskId}
+        transform={transform}
+      />
     </svg>
   );
 

@@ -11,6 +11,7 @@ const isPublicRoute = createRouteMatcher([
   "/providers(.*)", // public marketing: the Pros landing page
   "/sign-in(.*)",
   "/sign-up(.*)",
+  "/apple-icon(.*)", // generated home-screen icon (src/app/apple-icon.tsx) — fetched without a session
   "/api/stripe/webhook(.*)", // Stripe can't carry a Clerk session — verified by signature instead
 ]);
 

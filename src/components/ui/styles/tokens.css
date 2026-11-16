@@ -53,6 +53,7 @@
   --chrome-cream:  #E9E6DD; /* primary text on chrome */
   --chrome-dim:    #8C887D; /* secondary text on chrome */
   --cream:         #F4F1E8; /* mark + text on terracotta block */
+  --guild-key:     #F0C8A4; /* butterfly-key inlay — ONLY inside the Guildry mark, never UI */
 
   /* --- Tag (descriptive pills: credentials, trades) ------------------- */
   --tag-bg:  #F1EFE9; /* quiet pill background */
