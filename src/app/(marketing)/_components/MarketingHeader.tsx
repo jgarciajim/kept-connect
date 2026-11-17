@@ -4,7 +4,7 @@ import { ButtonLink } from "./ButtonLink";
 
 /**
  * MarketingHeader — sticky warm header. Logo lockup home, a quiet "Sign in"
- * text link, and the terracotta "Get started" CTA into Clerk sign-up.
+ * text link, and the terracotta "Get started" CTA into sign-up.
  */
 export function MarketingHeader() {
   return (

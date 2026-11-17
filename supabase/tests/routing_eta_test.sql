@@ -8,7 +8,7 @@ select plan(22);
 delete from public.provider_profiles;
 delete from public.eta_geo_calibration;   -- clean slate for calibration assertions
 
-insert into public.members (id, clerk_user_id, is_requester, is_provider) values
+insert into public.members (id, auth_user_id, is_requester, is_provider) values
   ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa','rt_A', true, false),
   ('cccccccc-cccc-cccc-cccc-cccccccccccc','rt_V', false,true),
   ('cccccccc-cccc-cccc-cccc-cccccccccc01','rt_PN',false,true),   -- near

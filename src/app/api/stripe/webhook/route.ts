@@ -3,7 +3,7 @@ import Stripe from "stripe";
 
 /**
  * Stripe webhook. Verifies the signature, then reconciles payment events to the
- * `payments` ledger. Public (exempt from Clerk in proxy.ts) — Stripe can't carry
+ * `payments` ledger. Public (exempt from auth in proxy.ts) — Stripe can't carry
  * a Clerk session. Node runtime so we get the raw request body for verification.
  *
  * Scaffold: signature verification is wired; the DB reconciliation is a TODO for

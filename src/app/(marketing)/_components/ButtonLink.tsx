@@ -3,7 +3,7 @@ import type { CSSProperties, ReactNode } from "react";
 
 /**
  * ButtonLink — marketing-local CTA. The shared <Button> (src/components/ui)
- * renders only a <button>, but marketing CTAs must be real links (to Clerk's
+ * renders only a <button>, but marketing CTAs must be real links (to the
  * /sign-up, /sign-in). So this mirrors Button's token-styled look on a Next
  * <Link>, and reuses the lib's `kc-btn` class so the :active press animation
  * (defined in ui.css) applies. No lib edit, no hardcoded hex.

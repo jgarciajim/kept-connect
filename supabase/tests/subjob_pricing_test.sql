@@ -5,7 +5,7 @@
 begin;
 select plan(14);
 
-insert into public.members (id, clerk_user_id, is_requester, is_provider) values
+insert into public.members (id, auth_user_id, is_requester, is_provider) values
   ('cccccccc-cccc-cccc-cccc-cccccccccccc','user_P',false,true),
   ('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb','user_B',true, false);
 insert into public.provider_profiles (member_id, verified, online, trades) values

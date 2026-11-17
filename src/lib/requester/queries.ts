@@ -56,7 +56,7 @@ export async function qGetCurrentMember(c: SupabaseClient): Promise<Member | nul
   if (!data) return null;
   return {
     id: data.id,
-    clerkUserId: data.clerk_user_id,
+    authUserId: data.auth_user_id,
     isRequester: data.is_requester,
     isProvider: data.is_provider,
     displayName: data.display_name ?? null,

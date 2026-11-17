@@ -23,14 +23,14 @@
 -- Public catalog — synthetic Pros visible to every authenticated user, plus the
 -- reviewer members and public reviews shown on their profiles.
 -- ----------------------------------------------------------------------------
-insert into public.members (id, clerk_user_id, is_provider, display_name) values
+insert into public.members (id, auth_user_id, is_provider, display_name) values
   ('10000000-0000-0000-0000-000000000001','seed_provider_marco', true,'Marco Reyes'),
   ('10000000-0000-0000-0000-000000000002','seed_provider_summit',true,'Summit Drywall'),
   ('10000000-0000-0000-0000-000000000003','seed_provider_vega',  true,'A. Vega Finishes'),
   ('10000000-0000-0000-0000-000000000004','seed_provider_peak',  true,'Peak Interiors')
 on conflict (id) do nothing;
 
-insert into public.members (id, clerk_user_id, is_requester, display_name) values
+insert into public.members (id, auth_user_id, is_requester, display_name) values
   ('20000000-0000-0000-0000-000000000001','seed_reviewer_priya', true,'Priya N.'),
   ('20000000-0000-0000-0000-000000000002','seed_reviewer_theo',  true,'Theo V.'),
   ('20000000-0000-0000-0000-000000000003','seed_reviewer_dana',  true,'Dana L.'),

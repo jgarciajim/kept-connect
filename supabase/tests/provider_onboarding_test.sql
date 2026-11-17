@@ -6,7 +6,7 @@
 begin;
 select plan(6);
 
-insert into public.members (id, clerk_user_id, is_requester, is_provider) values
+insert into public.members (id, auth_user_id, is_requester, is_provider) values
   ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa','user_A',true, false),  -- requester onboarding as a provider too
   ('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb','user_B',true, false);  -- bystander
 

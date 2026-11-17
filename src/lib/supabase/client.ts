@@ -1,28 +1,19 @@
 "use client";
 
-import { useSession } from "@clerk/nextjs";
-import { createClient } from "@supabase/supabase-js";
+import { createBrowserClient } from "@supabase/ssr";
 import { useMemo } from "react";
 
 /**
- * Supabase client for Client Components.
- *
- * Same native Third-Party Auth approach as the server helper, but the Clerk
- * session token comes from `useSession()`. Memoized against the active session
- * so the client is recreated when the session changes.
+ * Supabase client for Client Components. Reads the same cookie session the
+ * server and proxy use (createBrowserClient is a singleton in the browser).
  */
-export function useSupabaseBrowserClient() {
-  const { session } = useSession();
-
-  return useMemo(
-    () =>
-      createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-        {
-          accessToken: async () => (await session?.getToken()) ?? null,
-        },
-      ),
-    [session],
+export function createSupabaseBrowserClient() {
+  return createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
   );
+}
+
+export function useSupabaseBrowserClient() {
+  return useMemo(() => createSupabaseBrowserClient(), []);
 }

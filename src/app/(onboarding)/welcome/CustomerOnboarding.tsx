@@ -7,7 +7,7 @@ import { completeCustomerOnboarding } from "@/lib/requester/actions";
 
 /**
  * CustomerOnboarding — the short, gated customer funnel. Intro (how Kept works) →
- * name (prefilled from Clerk) → primary property (address + label + type + access
+ * name (prefilled from sign-up) → primary property (address + label + type + access
  * notes). Required basics are name + address; the rest is optional. On submit it
  * syncs the name + saves a default property and drops them into the app.
  */

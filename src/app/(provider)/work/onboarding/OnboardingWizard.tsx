@@ -1,7 +1,6 @@
 "use client";
 
-import { useMemo, useState, useTransition, type CSSProperties, type ReactNode } from "react";
-import { useAuth } from "@clerk/nextjs";
+import { useEffect, useMemo, useState, useTransition, type CSSProperties, type ReactNode } from "react";
 import { useSupabaseBrowserClient } from "@/lib/supabase/client";
 import { submitOnboarding, saveOnboardingDraft, saveProviderName, saveSubjobRates } from "@/lib/provider/actions";
 import type { OnboardingDraft } from "@/lib/provider/mock";
@@ -25,8 +24,12 @@ export function OnboardingWizard({
   initialDraft: OnboardingDraft | null;
   initialRates: RateMap;
 }) {
-  const { userId } = useAuth();
   const sb = useSupabaseBrowserClient();
+  // Storage folder = the user's auth id (matches the verification-docs RLS policy).
+  const [userId, setUserId] = useState<string | null>(null);
+  useEffect(() => {
+    sb.auth.getUser().then(({ data }) => setUserId(data.user?.id ?? null));
+  }, [sb]);
   const [step, setStep] = useState(0);
 
   const d = initialDraft;

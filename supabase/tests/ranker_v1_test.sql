@@ -15,7 +15,7 @@ delete from public.provider_profiles;
 -- deterministic: disable exploration so dispatch_score_and_log returns the top pick
 update public.ranker_config set exploration_epsilon = 0 where id = 1;
 
-insert into public.members (id, clerk_user_id, is_requester, is_provider) values
+insert into public.members (id, auth_user_id, is_requester, is_provider) values
   ('a1111111-1111-1111-1111-111111111111','rk_A', true, false),
   ('c1111111-1111-1111-1111-111111111111','rk_P1',false,true),  -- 1x 5.0 (thin)
   ('c2222222-2222-2222-2222-222222222222','rk_P2',false,true),  -- 50x 4.8 (long)

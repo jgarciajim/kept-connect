@@ -8,7 +8,7 @@
 begin;
 select plan(15);
 
-insert into public.members (id, clerk_user_id, is_requester, is_provider, is_admin) values
+insert into public.members (id, auth_user_id, is_requester, is_provider, is_admin) values
   ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa','ft_A', true, false, false),
   ('cccccccc-cccc-cccc-cccc-cccccccccccc','ft_V', false,true,  false),  -- laddered to removal
   ('cccccccc-cccc-cccc-cccc-cccccccccc02','ft_W', false,true,  false),  -- clean, fast-tracked
@@ -106,7 +106,7 @@ select is((select status::text from public.trip_charges where id='66666666-0000-
 
 -- ---- requester side: free below the threshold, escalates at it ----
 -- threshold defaults to 5; seed 5 declined adjustments for a fresh requester
-insert into public.members (id, clerk_user_id, is_requester) values
+insert into public.members (id, auth_user_id, is_requester) values
   ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaa99','ft_SD', true);
 insert into public.requests (id, requester_id, category, title, status)
   select ('77777777-0000-0000-0000-00000000000'||g)::uuid,'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaa99','water','sd'||g,'awarded'

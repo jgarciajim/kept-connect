@@ -14,7 +14,7 @@ begin;
 select plan(13);
 
 -- members: A requester; V1/V2 eligible water providers; W wrong-trade; X offline
-insert into public.members (id, clerk_user_id, is_requester, is_provider) values
+insert into public.members (id, auth_user_id, is_requester, is_provider) values
   ('a1111111-1111-1111-1111-111111111111','user_A', true,  false),
   ('c1111111-1111-1111-1111-111111111111','user_V1',false, true),
   ('c2222222-2222-2222-2222-222222222222','user_V2',false, true),

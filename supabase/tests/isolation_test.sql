@@ -13,7 +13,7 @@ begin;
 select plan(13);
 
 -- ---- Seed (fixed UUIDs so we can reference rows directly in assertions) ------
-insert into public.members (id, clerk_user_id, is_requester, is_provider) values
+insert into public.members (id, auth_user_id, is_requester, is_provider) values
   ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'user_A', true,  false),  -- requester A
   ('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', 'user_B', true,  false),  -- requester B
   ('cccccccc-cccc-cccc-cccc-cccccccccccc', 'user_V', false, true ),  -- provider  V

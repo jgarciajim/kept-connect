@@ -6,7 +6,7 @@
 begin;
 select plan(3);
 
-insert into public.members (id, clerk_user_id, is_requester, is_provider) values
+insert into public.members (id, auth_user_id, is_requester, is_provider) values
   ('a1111111-1111-1111-1111-111111111111','user_A', true, false),
   ('c1111111-1111-1111-1111-111111111111','user_F', false,true);
 

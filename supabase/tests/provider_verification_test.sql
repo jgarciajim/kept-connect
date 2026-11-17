@@ -5,7 +5,7 @@
 begin;
 select plan(12);
 
-insert into public.members (id, clerk_user_id, is_requester, is_provider, is_admin) values
+insert into public.members (id, auth_user_id, is_requester, is_provider, is_admin) values
   ('cccccccc-cccc-cccc-cccc-cccccccccccc','user_P',false,true, false),  -- provider applying
   ('eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee','user_P2',false,true,false),  -- second provider
   ('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb','user_B',true, false,false),  -- bystander

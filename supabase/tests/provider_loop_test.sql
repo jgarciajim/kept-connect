@@ -13,7 +13,7 @@ begin;
 select plan(17);
 
 -- ---- members: A,B requesters · V,D,W providers ------------------------------
-insert into public.members (id, clerk_user_id, is_requester, is_provider, display_name) values
+insert into public.members (id, auth_user_id, is_requester, is_provider, display_name) values
   ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa','user_A',true, false,'Ann Req'),
   ('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb','user_B',true, false,'Bo Req'),
   ('cccccccc-cccc-cccc-cccc-cccccccccccc','user_V',false,true, 'Vic Pro'),

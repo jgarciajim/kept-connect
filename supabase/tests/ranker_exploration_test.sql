@@ -11,7 +11,7 @@ select plan(7);
 delete from public.provider_profiles;
 -- keep the default exploration_epsilon (0.10); we pin the roll explicitly instead.
 
-insert into public.members (id, clerk_user_id, is_requester, is_provider) values
+insert into public.members (id, auth_user_id, is_requester, is_provider) values
   ('a1111111-1111-1111-1111-111111111111','ex_A', true, false),
   ('c1111111-1111-1111-1111-111111111111','ex_TOP',false,true),  -- strong, well-sampled
   ('c2222222-2222-2222-2222-222222222222','ex_NEW',false,true),  -- new, under-sampled

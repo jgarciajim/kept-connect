@@ -18,7 +18,7 @@ import * as q from "./queries";
 // ---------------------------------------------------------------------------
 export interface Member {
   id: string;
-  clerkUserId: string;
+  authUserId: string;
   isRequester: boolean;
   isProvider: boolean;
   displayName: string | null;
