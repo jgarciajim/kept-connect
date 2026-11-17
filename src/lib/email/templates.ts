@@ -40,6 +40,21 @@ function p(text: string): string {
 
 const hi = (name: string | null) => (name ? `Hi ${name},` : "Hi,");
 
+/** Escape user-supplied text (job titles, names, reasons) before it goes into HTML. */
+export function esc(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+/** One terracotta call-to-action button. `href` must be an absolute https URL we built. */
+function button(label: string, href: string): string {
+  return `<p style="margin:18px 0 6px"><a href="${esc(href)}" style="display:inline-block;background:${BRAND};color:#FFFDF9;text-decoration:none;font-size:15px;font-weight:600;padding:12px 22px;border-radius:999px">${esc(label)}</a></p>`;
+}
+
 /** A Pro's verification was approved → they can now take work. */
 export function verificationApproved(name: string | null): BuiltEmail {
   const subject = "You're verified on Guildry";
@@ -47,7 +62,7 @@ export function verificationApproved(name: string | null): BuiltEmail {
     subject,
     html: wrap(
       "You're verified 🎉",
-      p(hi(name)) +
+      p(esc(hi(name))) +
         p("Your Guildry verification is approved — your profile now shows the verified badge, and you'll start receiving job offers in your trades.") +
         p("Open the app and make sure you're online to get matched."),
     ),
@@ -62,9 +77,9 @@ export function verificationRejected(name: string | null, reason: string): Built
     subject,
     html: wrap(
       "Verification update",
-      p(hi(name)) +
+      p(esc(hi(name))) +
         p("We weren't able to approve your Guildry verification yet. Here's why:") +
-        `<p style="margin:0 0 12px;padding:12px 14px;background:#F6F3EE;border-radius:10px;font-size:14px;color:#4A443D">${reason}</p>` +
+        `<p style="margin:0 0 12px;padding:12px 14px;background:#F6F3EE;border-radius:10px;font-size:14px;color:#4A443D">${esc(reason)}</p>` +
         p("You can update your details and resubmit from your profile — reply to this email if you have questions."),
     ),
     text: `${hi(name)}\n\nWe weren't able to approve your Guildry verification yet.\n\nReason: ${reason}\n\nYou can update your details and resubmit from your profile — reply to this email if you have questions.\n\n— Guildry`,
@@ -78,8 +93,8 @@ export function jobAwarded(name: string | null, jobTitle: string, priceDollars: 
     subject,
     html: wrap(
       "You got the job",
-      p(hi(name)) +
-        p(`You've been awarded <strong>${jobTitle}</strong>${priceDollars ? ` at <strong>$${priceDollars}</strong>` : ""}.`) +
+      p(esc(hi(name))) +
+        p(`You've been awarded <strong>${esc(jobTitle)}</strong>${priceDollars ? ` at <strong>$${priceDollars}</strong>` : ""}.`) +
         p("Open Guildry to see the details, message the customer, and mark yourself on the way."),
     ),
     text: `${hi(name)}\n\nYou've been awarded "${jobTitle}"${priceDollars ? ` at $${priceDollars}` : ""}.\n\nOpen Guildry to see the details, message the customer, and mark yourself on the way.\n\n— Guildry`,
@@ -93,8 +108,8 @@ export function proMatched(name: string | null, jobTitle: string): BuiltEmail {
     subject,
     html: wrap(
       "You're matched",
-      p(hi(name)) +
-        p(`A verified Pro accepted <strong>${jobTitle}</strong> and is getting ready to head over.`) +
+      p(esc(hi(name))) +
+        p(`A verified Pro accepted <strong>${esc(jobTitle)}</strong> and is getting ready to head over.`) +
         p("Open Guildry to track their arrival and message them."),
     ),
     text: `${hi(name)}\n\nA verified Pro accepted "${jobTitle}" and is getting ready to head over.\n\nOpen Guildry to track their arrival and message them.\n\n— Guildry`,
@@ -108,10 +123,55 @@ export function paymentReleased(name: string | null, jobTitle: string, amountDol
     subject,
     html: wrap(
       "Job complete",
-      p(hi(name)) +
-        p(`<strong>${jobTitle}</strong> is marked complete${amountDollars ? ` and <strong>$${amountDollars}</strong> has been released to your Pro` : ""}. Thanks for using Guildry.`) +
+      p(esc(hi(name))) +
+        p(`<strong>${esc(jobTitle)}</strong> is marked complete${amountDollars ? ` and <strong>$${amountDollars}</strong> has been released to your Pro` : ""}. Thanks for using Guildry.`) +
         p("You can leave a rating from the job in the app — it helps other customers find great Pros."),
     ),
     text: `${hi(name)}\n\n"${jobTitle}" is marked complete${amountDollars ? ` and $${amountDollars} has been released to your Pro` : ""}. Thanks for using Guildry.\n\nYou can leave a rating from the job in the app — it helps other customers find great Pros.\n\n— Guildry`,
+  };
+}
+
+/** Format a response window: 300 → "5 minutes", 60 → "1 minute", 45 → "45 seconds". */
+function windowLabel(seconds: number): string {
+  if (seconds >= 120) return `${Math.round(seconds / 60)} minutes`;
+  if (seconds >= 60) return "1 minute";
+  return `${seconds} seconds`;
+}
+
+/** Instant job offered to a Pro: they have a limited window to accept. */
+export function jobOffer(
+  name: string | null,
+  jobTitle: string,
+  payDollars: string,
+  respondSeconds: number,
+  link: string,
+): BuiltEmail {
+  const win = windowLabel(respondSeconds);
+  const subject = `New job offer: ${jobTitle}${payDollars ? ` · $${payDollars}` : ""}`;
+  return {
+    subject,
+    html: wrap(
+      "You have a job offer",
+      p(esc(hi(name))) +
+        p(`<strong>${esc(jobTitle)}</strong>${payDollars ? ` pays <strong>$${esc(payDollars)}</strong>` : ""}.`) +
+        p(`It's yours if you accept within <strong>${win}</strong>. After that it goes to the next Pro.`) +
+        button("Open the offer", link),
+    ),
+    text: `${hi(name)}\n\n"${jobTitle}"${payDollars ? ` pays $${payDollars}` : ""}.\n\nIt's yours if you accept within ${win}. After that it goes to the next Pro.\n\nOpen the offer: ${link}\n\n— Guildry`,
+  };
+}
+
+/** A customer posted a quote job in one of the Pro's trades. */
+export function newQuoteJob(name: string | null, jobTitle: string, place: string, link: string): BuiltEmail {
+  const subject = `New job to quote: ${jobTitle}`;
+  return {
+    subject,
+    html: wrap(
+      "A new job is open for quotes",
+      p(esc(hi(name))) +
+        p(`A customer posted <strong>${esc(jobTitle)}</strong>${place ? ` in ${esc(place)}` : ""}. Send your price to be considered.`) +
+        button("See the job", link),
+    ),
+    text: `${hi(name)}\n\nA customer posted "${jobTitle}"${place ? ` in ${place}` : ""}. Send your price to be considered.\n\nSee the job: ${link}\n\n— Guildry`,
   };
 }

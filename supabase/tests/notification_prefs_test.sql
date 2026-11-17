@@ -33,7 +33,7 @@ select is((select count(*) from public.notifications)::int, 0, 'A gets no offer 
 -- A awards → V (no prefs row) gets the awarded notification (default on).
 select public.award_quote((select id from public.quotes where request_id='11111111-1111-1111-1111-111111111111'));
 set local request.jwt.claims = '{"sub":"user_V"}';
-select is((select count(*) from public.notifications)::int, 1, 'V (no prefs) still gets notifications');
+select is((select count(*) from public.notifications where type <> 'new_job')::int, 1, 'V (no prefs) still gets notifications');
 
 -- V starts → A's job-updates category is not muted, so it delivers.
 select public.start_job('11111111-1111-1111-1111-111111111111');

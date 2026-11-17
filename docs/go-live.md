@@ -97,8 +97,12 @@ public abuse-hardening, and the full kept-connect→Guildry code rename.
       approved/rejected (→Pro), quote awarded (→winning Pro, both `award_quote` + `payAndAward`),
       instant offer accepted (→Customer), payment released (→Customer receipt). Recipient email comes
       from Clerk via the authorization-gated `member_clerk_id` RPC (migration `20261107120000`, on
-      hosted). **Delivery LIVE 2026-11-16:** sending domain `mail.guildry.app` verified in Resend; prod sender `Guildry <notify@mail.guildry.app>` (Vercel `RESEND_FROM`). Site domain `guildry.app` (www + guildry.io 308 → guildry.app). Remaining fast-follows: the DB-origin **offer-to-Pro**
-      email (new offer dispatched by cron/trigger — needs a DB→app bridge) and **SMS** (Twilio).
+      hosted). **Delivery LIVE 2026-11-16:** sending domain `mail.guildry.app` verified in Resend; prod sender `Guildry <notify@mail.guildry.app>` (Vercel `RESEND_FROM`). Site domain `guildry.app` (www + guildry.io 308 → guildry.app). Pro job alerts SHIPPED 2026-11-17 (`20261117120000_pro_job_alerts.sql`):
+      in-app + email to the Pro for every instant offer, and to every matching verified Pro when a quote
+      job is posted. DB→app bridge = pg_net → `/api/hooks/notification-email`, shared secret in Vault
+      `notify_hook_secret` + Vercel `NOTIFY_HOOK_SECRET`. Instant-offer window is now a setting
+      (`app_settings.instant_offer_window_seconds`, 300 s to start; shorten as the Pro pool grows).
+      Remaining: **SMS** / push for faster instant offers.
 - [x] **kept-connect → Guildry** — user-facing copy sweep done (commit `02247a1`): logo wordmark,
       page/meta titles, marketing footer + header, Pro + Customer onboarding, profile "On Guildry"
       stats. Code rename DONE 2026-11-17: `GuildryLogo` component, package name `guildry`, comments,

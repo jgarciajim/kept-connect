@@ -30,7 +30,7 @@ select is((select count(*) from public.notifications)::int, 1, 'A (requester) go
 select is((select type from public.notifications limit 1), 'offer', 'it is an offer notification');
 
 set local request.jwt.claims = '{"sub":"user_V"}';
-select is((select count(*) from public.notifications)::int, 0, 'V sees none of A''s notifications (recipient-only)');
+select is((select count(*) from public.notifications where type <> 'new_job')::int, 0, 'V sees none of A''s notifications (recipient-only; V''s own new-job alert aside)');
 
 -- A awards V's quote → notifies the provider (V).
 set local request.jwt.claims = '{"sub":"user_A"}';

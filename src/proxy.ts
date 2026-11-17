@@ -15,6 +15,7 @@ const PUBLIC_PATTERNS: RegExp[] = [
   /^\/forgot-password(\/.*)?$/,
   /^\/auth\/.*$/, // OAuth callback + email-link confirmation
   /^\/api\/stripe\/webhook(\/.*)?$/, // Stripe can't carry a session — verified by signature instead
+  /^\/api\/hooks\/.*$/, // DB → app hooks — verified by shared secret header instead
   /^\/apple-icon.*$/, // generated home-screen icon — fetched without a session
 ];
 
