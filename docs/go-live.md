@@ -81,6 +81,14 @@ public abuse-hardening, and the full kept-connect→Guildry code rename.
       `requester/mock.ts` `getCategoryShortcuts` returns static `CATEGORY_SHORTCUTS` (UI tile config,
       not business data — harmless for the test). Nothing else returns fake data.
 
+- [x] **Auth: Clerk → Supabase Auth** — DONE 2026-11-16 (commit `a1671dc`). Cookie sessions via
+      `@supabase/ssr`; own sign-in/sign-up (email+password, 6-digit email code), forgot/reset password;
+      `members.clerk_user_id` → `auth_user_id`; email for notifications from `auth.users` via
+      `member_contact`. Supabase sends auth email through Resend SMTP (`notify@mail.guildry.app`).
+      George's account re-linked (admin kept); Clerk removed from Vercel + Supabase and cancelled.
+      **Open:** Google / Apple / Facebook sign-in — configure each provider in Supabase, then list it in
+      Vercel `NEXT_PUBLIC_AUTH_PROVIDERS` (e.g. `google,apple,facebook`) to show its button.
+
 ## Phase 3 — Fast-follows (after the test proves the loop)
 - [ ] Real **Stripe Connect** (authorize/capture + Express payouts + webhook reconciliation).
 - [ ] Real **vetting** (Checkr background + Stripe Identity) replacing manual admin approval.
