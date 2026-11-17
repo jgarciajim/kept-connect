@@ -45,7 +45,7 @@ export function RatesManager({ initial, initialPrecise }: { initial: RateMap; in
       <button type="button" onClick={togglePrecise}
         style={{ display: "flex", alignItems: "center", gap: 11, textAlign: "left", background: "var(--chrome-card)", border: "1px solid var(--chrome-line)", borderRadius: 14, padding: "12px 14px", cursor: "pointer" }}>
         <span style={{ flex: 1 }}>
-          <span style={{ display: "block", fontSize: 13.5, fontWeight: 500, color: "var(--chrome-cream)", fontFamily: "var(--font-ui)" }}>Only show jobs I've listed</span>
+          <span style={{ display: "block", fontSize: 13.5, fontWeight: 500, color: "var(--chrome-cream)", fontFamily: "var(--font-ui)" }}>Only show jobs I&apos;ve listed</span>
           <span style={{ display: "block", fontSize: 11.5, color: "var(--chrome-dim)", fontFamily: "var(--font-ui)", marginTop: 2 }}>
             {precise ? "You only see requests for the exact sub-jobs you priced." : "You see every request in your trades (broader reach)."}
           </span>
