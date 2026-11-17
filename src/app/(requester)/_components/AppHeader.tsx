@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { KeptConnectLogo } from "@/components/ui";
+import { GuildryLogo } from "@/components/ui";
 import { IconBack } from "./icons";
 
 /**
@@ -36,7 +36,7 @@ export function AppHeader({ title, backHref, brand = false, right }: AppHeaderPr
           <IconBack size={20} />
         </Link>
       ) : brand ? (
-        <KeptConnectLogo variant="mark" treatment="app-icon" size={30} />
+        <GuildryLogo variant="mark" treatment="app-icon" size={30} />
       ) : null}
 
       <span

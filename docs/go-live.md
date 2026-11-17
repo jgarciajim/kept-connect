@@ -101,10 +101,12 @@ public abuse-hardening, and the full kept-connect→Guildry code rename.
       email (new offer dispatched by cron/trigger — needs a DB→app bridge) and **SMS** (Twilio).
 - [x] **kept-connect → Guildry** — user-facing copy sweep done (commit `02247a1`): logo wordmark,
       page/meta titles, marketing footer + header, Pro + Customer onboarding, profile "On Guildry"
-      stats. Remaining (deliberately descoped code rename, not needed for the test): repo/package name,
-      DB columns (`years_on_kept`), the `KeptConnectLogo` component name, code comments, and the
-      unreferenced `public/brand/*.svg` assets.
-- [ ] Public-beta hardening (abuse guards, rate limits, open signup).
+      stats. Code rename DONE 2026-11-17: `GuildryLogo` component, package name `guildry`, comments,
+      new logo SVGs. Still old by design: repo name, internal `kc-*` CSS class prefixes, DB column
+      `years_on_kept` (needs a migration; not user-visible).
+- [~] **Public-beta hardening** — abuse guards SHIPPED 2026-11-17 (`20261117090000_abuse_guards.sql`: per-member
+      rate limits, text caps, upload limits, cron-only engine functions; security headers in `next.config.ts`).
+      Remaining: CAPTCHA on sign-up (Cloudflare Turnstile → Supabase Auth) before open signup.
 
 ---
 

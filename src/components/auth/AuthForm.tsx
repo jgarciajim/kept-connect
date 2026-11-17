@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import type { Provider } from "@supabase/supabase-js";
-import { Button, Field, KeptConnectLogo } from "@/components/ui";
+import { Button, Field, GuildryLogo } from "@/components/ui";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
 /**
@@ -132,7 +132,7 @@ export function AuthForm({ mode, next, initialError }: { mode: Mode; next: strin
     <div style={{ width: "100%", maxWidth: 400, display: "flex", flexDirection: "column", gap: 22 }}>
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14, textAlign: "center" }}>
         <Link href="/" aria-label="Guildry home">
-          <KeptConnectLogo variant="mark" treatment="app-icon" size={52} />
+          <GuildryLogo variant="mark" treatment="app-icon" size={52} />
         </Link>
         <h1 style={{ margin: 0, fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 30, lineHeight: 1.15, color: "var(--ink)" }}>
           {isSignUp ? "Create your account" : "Welcome back"}

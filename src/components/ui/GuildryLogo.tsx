@@ -55,7 +55,7 @@ const TREATMENTS: Record<LogoTreatment, { block: string; mark: string; key?: str
   "blue":      { block: "var(--blue)",            mark: "var(--blue-ink)" },
 };
 
-export interface KeptConnectLogoProps {
+export interface GuildryLogoProps {
   treatment?: LogoTreatment;
   variant?: "mark" | "lockup";
   size?: number;
@@ -64,14 +64,14 @@ export interface KeptConnectLogoProps {
   style?: CSSProperties;
 }
 
-export function KeptConnectLogo({
+export function GuildryLogo({
   treatment = "on-light",
   variant = "mark",
   size = 48,
   orientation = "horizontal",
   className = "",
   style,
-}: KeptConnectLogoProps) {
+}: GuildryLogoProps) {
   const t = TREATMENTS[treatment];
   const hasBlock = t.block !== "none";
   const radius = Math.round(size * 0.27); // squircle ≈ rx32/120

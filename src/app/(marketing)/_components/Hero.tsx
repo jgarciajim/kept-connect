@@ -1,4 +1,4 @@
-import { KeptConnectLogo } from "@/components/ui";
+import { GuildryLogo } from "@/components/ui";
 import { ButtonLink } from "./ButtonLink";
 
 /**
@@ -16,7 +16,7 @@ export function Hero() {
       }}
     >
       <div style={{ maxWidth: 760, margin: "0 auto", display: "flex", flexDirection: "column", alignItems: "center", gap: 28 }}>
-        <KeptConnectLogo variant="mark" treatment="app-icon" size={64} />
+        <GuildryLogo variant="mark" treatment="app-icon" size={64} />
 
         <p
           style={{

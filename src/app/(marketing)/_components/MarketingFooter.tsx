@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { KeptConnectLogo } from "@/components/ui";
+import { GuildryLogo } from "@/components/ui";
 import { ButtonLink } from "./ButtonLink";
 
 /**
@@ -45,7 +45,7 @@ export function MarketingFooter() {
             gap: 16,
           }}
         >
-          <KeptConnectLogo variant="lockup" treatment="on-light" size={24} />
+          <GuildryLogo variant="lockup" treatment="on-light" size={24} />
           <nav style={{ display: "flex", flexWrap: "wrap", gap: 18 }}>
             {LINKS.map((l) => (
               <Link

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition, type CSSProperties, type ReactNode } from "react";
-import { KeptConnectLogo, AddressField, emptyGeoValue } from "@/components/ui";
+import { GuildryLogo, AddressField, emptyGeoValue } from "@/components/ui";
 import type { GeoValue } from "@/lib/geo/types";
 import { completeCustomerOnboarding } from "@/lib/requester/actions";
 
@@ -40,7 +40,7 @@ export function CustomerOnboarding({ initialName }: { initialName: string }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-        <KeptConnectLogo variant="mark" treatment="app-icon" size={28} />
+        <GuildryLogo variant="mark" treatment="app-icon" size={28} />
         <div style={{ flex: 1, display: "flex", gap: 6 }}>
           {STEPS.map((s, i) => (
             <div key={s} style={{ flex: 1, height: 4, borderRadius: 2, background: i <= step ? "var(--terracotta)" : "var(--hairline)" }} />

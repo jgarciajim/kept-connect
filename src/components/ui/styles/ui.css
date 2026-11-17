@@ -1,5 +1,5 @@
 /* ============================================================
-   Kept Connect — UI library stylesheet. Consumers import THIS file.
+   Guildry — UI library stylesheet. Consumers import THIS file.
    It pulls in the token layer, then defines the dark surface remap,
    motion keyframes, and the few interaction rules that let every
    primitive stay a server component (no client-side state).

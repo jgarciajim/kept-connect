@@ -15,7 +15,7 @@ import {
   CATEGORIES,
   VerifiedCheck,
   Field,
-  KeptConnectLogo,
+  GuildryLogo,
   type CategoryKey,
   type LogoTreatment,
 } from "@/components/ui";
@@ -62,7 +62,7 @@ function Showcase({ tone }: { tone: "light" | "dark" }) {
             {tone === "dark" ? "Provider" : "Requester"} surface
             <span style={{ color: "var(--terracotta)" }}>.</span>
           </h1>
-          <KeptConnectLogo variant="lockup" treatment={tone === "dark" ? "on-chrome" : "on-light"} size={34} />
+          <GuildryLogo variant="lockup" treatment={tone === "dark" ? "on-chrome" : "on-light"} size={34} />
         </header>
 
         <Block title="Buttons">
@@ -169,7 +169,7 @@ function Showcase({ tone }: { tone: "light" | "dark" }) {
         <Block title="Logo treatments">
           {LOGO_TREATMENTS.map((tr) => (
             <div key={tr} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
-              <KeptConnectLogo treatment={tr} size={44} />
+              <GuildryLogo treatment={tr} size={44} />
               <span style={{ fontFamily: "var(--font-ui)", fontSize: 11, color: "var(--ink-2)" }}>{tr}</span>
             </div>
           ))}

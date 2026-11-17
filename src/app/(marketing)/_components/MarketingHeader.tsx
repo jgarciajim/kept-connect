@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { KeptConnectLogo } from "@/components/ui";
+import { GuildryLogo } from "@/components/ui";
 import { ButtonLink } from "./ButtonLink";
 
 /**
@@ -24,7 +24,7 @@ export function MarketingHeader() {
       }}
     >
       <Link href="/" aria-label="Guildry home" style={{ display: "inline-flex" }}>
-        <KeptConnectLogo variant="lockup" treatment="on-light" size={28} />
+        <GuildryLogo variant="lockup" treatment="on-light" size={28} />
       </Link>
 
       <nav style={{ display: "flex", alignItems: "center", gap: 18 }}>

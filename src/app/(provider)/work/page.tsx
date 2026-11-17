@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { KeptConnectLogo, CategoryIcon } from "@/components/ui";
+import { GuildryLogo, CategoryIcon } from "@/components/ui";
 import { getProviderSelf, getCurrentOffer, getScheduledJobs, getOpenRequests } from "@/lib/provider/mock";
 import { getUnreadCount } from "@/lib/notifications";
 import { RealtimeRefresh } from "@/components/RealtimeRefresh";
@@ -40,7 +40,7 @@ export default async function FeedScreen() {
       <main style={{ flex: 1, overflowY: "auto", padding: "12px 16px 92px" }}>
         {/* header */}
         <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "4px 2px 2px" }}>
-          <KeptConnectLogo variant="mark" treatment="app-icon" size={30} />
+          <GuildryLogo variant="mark" treatment="app-icon" size={30} />
           <span style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 16, color: "var(--chrome-cream)" }}>
             {greeting()}, {self.name.split(" ")[0]}
           </span>

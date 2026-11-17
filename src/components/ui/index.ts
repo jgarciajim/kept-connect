@@ -1,4 +1,4 @@
-// Kept Connect — shared UI primitive library. Built once, consumed by all three
+// Guildry — shared UI primitive library. Built once, consumed by all three
 // surfaces (marketing / requester / provider). Import the stylesheet once at the
 // app or page level: `import "@/components/ui/styles/ui.css"`.
 
@@ -33,6 +33,6 @@ export { AddressField, emptyGeoValue, geoValueFromStored } from "./AddressField"
 export type { AddressFieldProps } from "./AddressField";
 
 // The brand mark is exported from the library too (per task requirement),
-// superseding the placeholder at src/components/KeptConnectLogo.tsx.
-export { KeptConnectLogo } from "./KeptConnectLogo";
-export type { KeptConnectLogoProps, LogoTreatment } from "./KeptConnectLogo";
+// superseding the placeholder at src/components/GuildryLogo.tsx.
+export { GuildryLogo } from "./GuildryLogo";
+export type { GuildryLogoProps, LogoTreatment } from "./GuildryLogo";
